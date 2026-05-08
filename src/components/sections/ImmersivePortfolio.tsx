@@ -94,13 +94,13 @@ export default function ImmersivePortfolio() {
       id="portfolio" 
       ref={containerRef} 
       className={cn(
-        "relative bg-[#0B0F1A] z-20 transition-all duration-700",
+        "relative bg-transparent z-20 transition-all duration-700",
         viewMode === "immersive" ? "h-[400vh]" : "min-h-screen h-auto py-32"
       )}
     >
       {viewMode === "immersive" ? (
         /* Immersive Sticky Frame */
-        <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#0B0F1A]">
+        <div className="sticky top-0 h-screen w-full overflow-hidden bg-white/40 backdrop-blur-sm">
           {ARTWORKS.map((art, i) => {
             const segment = 1 / totalArtworks;
             const start = i * segment;
@@ -129,24 +129,24 @@ export default function ImmersivePortfolio() {
           {/* Cinematic Progress Hud */}
           <div className="absolute inset-x-0 top-0 p-12 flex justify-between items-start z-30 pointer-events-none">
              <div>
-                <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.5em] mb-3">Immersive Sequence</div>
+                <div className="text-[10px] font-black text-black/40 uppercase tracking-[0.5em] mb-3">Immersive Sequence</div>
                 <div className="flex gap-1">
                    {ARTWORKS.map((_, i) => (
                      <motion.div 
                        key={i}
-                       className={cn(
-                         "h-[2px] rounded-full transition-all duration-500",
-                         activeIdx === i ? "w-12 bg-brand-primary" : "w-4 bg-white/10"
-                       )}
+                        className={cn(
+                          "h-[2px] rounded-full transition-all duration-500",
+                          activeIdx === i ? "w-12 bg-purple-600" : "w-4 bg-black/10"
+                        )}
                      />
                    ))}
                 </div>
              </div>
 
              <div className="flex flex-col items-end gap-3 pointer-events-auto">
-                <div className="text-[10px] font-black text-white/40 uppercase tracking-widest">Active Layer</div>
-                <div className="text-2xl font-black text-white italic tracking-tighter">
-                  0{activeIdx + 1} <span className="text-white/20">/ 0{ARTWORKS.length}</span>
+                <div className="text-[10px] font-black text-black/40 uppercase tracking-widest">Active Layer</div>
+                <div className="text-2xl font-black text-black italic tracking-tighter">
+                  0{activeIdx + 1} <span className="text-black/10">/ 0{ARTWORKS.length}</span>
                 </div>
              </div>
           </div>
@@ -154,8 +154,8 @@ export default function ImmersivePortfolio() {
           {/* Scroll Call to Action */}
           {!prefersReducedMotion && (
             <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-4">
-               <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Scroll Experience</div>
-               <div className="w-[1px] h-16 bg-gradient-to-b from-brand-primary/0 via-brand-primary to-brand-primary/0" />
+               <div className="text-[10px] font-black text-black/20 uppercase tracking-[0.3em] scroll-text">Scroll Experience</div>
+               <div className="w-[1px] h-16 bg-gradient-to-b from-purple-600/0 via-purple-600 to-purple-600/0" />
             </div>
           )}
         </div>
@@ -163,8 +163,8 @@ export default function ImmersivePortfolio() {
         /* Grid View Mode */
         <div className="container mx-auto px-6">
           <div className="mb-20 space-y-4">
-             <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter italic">GALLERY.</h2>
-             <p className="text-white/40 max-w-xl text-lg uppercase tracking-widest font-bold">Standard Grid View</p>
+             <h2 className="text-5xl md:text-7xl font-black text-black tracking-tighter italic">GALLERY.</h2>
+             <p className="text-black/40 max-w-xl text-lg uppercase tracking-widest font-bold">Standard Grid View</p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -174,7 +174,7 @@ export default function ImmersivePortfolio() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="group relative aspect-[4/5] rounded-3xl overflow-hidden border border-white/5"
+                className="group relative aspect-[4/5] rounded-3xl overflow-hidden border border-black/5"
               >
                 <Image 
                   src={art.image} 
@@ -183,7 +183,7 @@ export default function ImmersivePortfolio() {
                   className="object-cover transition-transform duration-700 group-hover:scale-110" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-8 flex flex-col justify-end">
-                   <span className="text-brand-primary text-[10px] font-black uppercase tracking-widest mb-2">{art.category}</span>
+                   <span className="text-purple-400 text-[10px] font-black uppercase tracking-widest mb-2">{art.category}</span>
                    <h3 className="text-2xl font-bold text-white mb-2">{art.title}</h3>
                    <p className="text-white/60 text-sm line-clamp-2">{art.desc}</p>
                 </div>
@@ -195,7 +195,7 @@ export default function ImmersivePortfolio() {
 
       {/* View Mode Toggle Switch */}
       <div className="fixed bottom-12 right-12 z-[100]">
-         <div className="bg-white/10 backdrop-blur-2xl border border-white/20 p-1.5 flex gap-1 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-2xl scale-110">
+         <div className="bg-white/40 backdrop-blur-2xl border border-black/5 p-1.5 flex gap-1 shadow-2xl rounded-2xl scale-110">
             <button 
               onClick={() => {
                 setViewMode("immersive");
@@ -203,7 +203,7 @@ export default function ImmersivePortfolio() {
               }}
               className={cn(
                 "px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest",
-                viewMode === "immersive" ? "bg-brand-primary text-white shadow-lg shadow-brand-primary/20" : "text-white/60 hover:text-white hover:bg-white/5"
+                viewMode === "immersive" ? "bg-purple-600 text-white shadow-lg shadow-purple-900/20" : "text-black/40 hover:text-black hover:bg-black/5"
               )}
             >
               <MonitorPlay size={14} /> Immersive
@@ -215,7 +215,7 @@ export default function ImmersivePortfolio() {
               }}
               className={cn(
                 "px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest",
-                viewMode === "grid" ? "bg-brand-primary text-white shadow-lg shadow-brand-primary/20" : "text-white/60 hover:text-white hover:bg-white/5"
+                viewMode === "grid" ? "bg-purple-600 text-white shadow-lg shadow-purple-900/20" : "text-black/40 hover:text-black hover:bg-black/5"
               )}
             >
               <LayoutGrid size={14} /> Grid
@@ -280,8 +280,8 @@ function ArtworkScene({
       className="absolute inset-0"
     >
       <motion.div style={{ scale: prefersReducedMotion ? 1 : scale }} className="relative w-full h-full">
-        {/* Dark Vignette for Immersive feel */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 z-10" />
+        {/* Soft Vignette for Light Editorial feel */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white/40 z-10" />
         <Image
           src={art.image}
           alt={art.title}
@@ -298,31 +298,31 @@ function ArtworkScene({
 
       {/* Content Panel */}
       <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 md:p-20">
-         <motion.div 
-           initial={{ opacity: 0, y: 30 }}
-           whileInView={{ opacity: 1, y: 0 }}
-           className="max-w-2xl space-y-6"
-         >
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            className="max-w-2xl space-y-6"
+          >
             <div>
-               <span className="px-3 py-1 rounded-full bg-brand-primary/20 text-brand-primary text-[10px] font-black tracking-widest uppercase border border-brand-primary/30">
+               <span className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-600 text-[10px] font-black tracking-widest uppercase border border-purple-500/20">
                   {art.category}
                </span>
-               <h2 className="text-5xl md:text-8xl font-black text-white mt-4 tracking-tighter uppercase italic leading-[0.9]">
+               <h2 className="text-5xl md:text-8xl font-black text-black mt-4 tracking-tighter uppercase italic leading-[0.9]">
                   {art.title}
                </h2>
             </div>
 
-            <div className="glass-card p-8 border-white/10 bg-white/5 backdrop-blur-xl max-w-md">
-               <p className="text-white/70 text-base leading-relaxed mb-8">
+            <div className="glass-card p-8 border-black/5 bg-white/40 backdrop-blur-xl max-w-md shadow-lg">
+               <p className="text-black/60 text-base leading-relaxed mb-8">
                   {art.desc}
                </p>
                
                <div className="flex items-center gap-6">
-                  <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white hover:text-brand-primary transition-all">
+                  <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-black hover:text-purple-600 transition-all">
                      <Maximize2 size={14} /> Full Resolution
                   </button>
-                  <div className="h-4 w-[1px] bg-white/20" />
-                  <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white hover:text-brand-primary transition-all">
+                  <div className="h-4 w-[1px] bg-black/10" />
+                  <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-black hover:text-purple-600 transition-all">
                      <Info size={14} /> Design Specs
                   </button>
                </div>

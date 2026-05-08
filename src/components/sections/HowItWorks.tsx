@@ -22,10 +22,10 @@ const HowItWorks = () => {
         viewport={viewportSettings}
         className="text-center mb-20"
       >
-        <motion.h2 variants={fadeUp} className="text-[44px] md:text-[64px] font-normal text-white font-dancing-script">
+        <motion.h2 variants={fadeUp} className="text-[44px] md:text-[64px] font-normal text-black font-dancing-script">
           Procedure.
         </motion.h2>
-        <motion.p variants={fadeUp} className="text-white/70 font-outfit mt-2">A clear workflow to bring your vision to life.</motion.p>
+        <motion.p variants={fadeUp} className="text-black/60 font-outfit mt-2">A clear workflow to bring your vision to life.</motion.p>
       </motion.div>
 
       <motion.div 
@@ -45,15 +45,15 @@ const HowItWorks = () => {
             transition={{ delay: i * 0.1 }}
             className="flex flex-col items-center text-center group"
           >
-            <div className="w-16 h-16 rounded-[22px] bg-white/10 backdrop-blur-md shadow-sm border border-white/10 flex items-center justify-center text-xl font-black text-purple-600 mb-8 relative font-outfit">
+            <div className="w-16 h-16 rounded-[22px] bg-black/5 backdrop-blur-md shadow-sm border border-black/5 flex items-center justify-center text-xl font-black text-purple-600 mb-8 relative font-outfit">
                <div className="absolute inset-0 bg-purple-500/5 rounded-[22px]" />
                {step.id}
                
                {/* Glowing dot */}
-               <div className="absolute -top-1 -right-1 w-3 h-3 bg-purple-400 rounded-full border-2 border-white shadow-[0_0_10px_rgba(168,85,247,0.4)]" />
+               <div className="absolute -top-1 -right-1 w-3 h-3 bg-purple-600 rounded-full border-2 border-white shadow-lg" />
             </div>
-            <h3 className="text-xl font-bold mb-3 text-white font-outfit tracking-tight">{step.title}</h3>
-            <p className="text-[13px] leading-relaxed px-2 text-white/60 font-outfit font-medium">
+            <h3 className="text-xl font-bold mb-3 text-black font-outfit tracking-tight">{step.title}</h3>
+            <p className="text-[13px] leading-relaxed px-2 text-black/40 font-outfit font-medium">
               {step.desc}
             </p>
           </motion.div>

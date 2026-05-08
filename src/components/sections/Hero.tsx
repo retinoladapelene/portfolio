@@ -38,22 +38,15 @@ export default function Hero() {
     <section ref={containerRef} className="relative min-h-[110vh] w-full overflow-hidden bg-transparent pt-20">
       {/* ─── ARTISTIC BACKGROUND ELEMENTS ────────────────────────────────────── */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {/* Dynamic Blooms */}
+        {/* Dynamic Blooms - Subtle and soft for light theme */}
         <motion.div 
           style={{ x: springX, y: springY }}
-          className="absolute top-1/4 -right-1/4 w-[800px] h-[800px] bg-purple-600/20 rounded-full blur-[160px] opacity-50" 
+          className="absolute top-1/4 -right-1/4 w-[800px] h-[800px] bg-purple-400/5 rounded-full blur-[160px] opacity-30" 
         />
-        <motion.div 
-          style={{ x: useTransform(springX, (v) => v * -1.2), y: useTransform(springY, (v) => v * -1.2) }}
-          className="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[140px] opacity-40" 
-        />
-        
-        {/* Noise Texture Overlay */}
-        <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
         
         {/* Vertical Editorial Text */}
         <div className="absolute left-10 top-1/2 -translate-y-1/2 -rotate-90 origin-left hidden xl:block">
-          <span className="text-[10px] font-black text-white/10 uppercase tracking-[1em] whitespace-nowrap">
+          <span className="text-[10px] font-black text-black/5 uppercase tracking-[1em] whitespace-nowrap">
             ESTABLISHED // 2019 — DIGITAL ARCHIVE // 04.24
           </span>
         </div>
@@ -73,25 +66,25 @@ export default function Hero() {
             {/* Artistic Badge */}
             <motion.div
               variants={fadeUp}
-              className="mb-8 inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-2xl"
+              className="mb-8 inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-black/[0.03] backdrop-blur-xl border border-black/5 shadow-sm"
             >
-              <div className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_15px_rgba(168,85,247,1)]" />
-              <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.3em] font-outfit">
+              <div className="w-2 h-2 rounded-full bg-purple-600 shadow-[0_0_15px_rgba(168,85,247,0.4)]" />
+              <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.3em] font-outfit">
                 Curating Visual Emotions
               </span>
             </motion.div>
 
             {/* Main Headline */}
             <motion.div variants={fadeUp} className="relative">
-              <h1 className="text-white text-6xl md:text-[5.5rem] lg:text-[6.5rem] font-normal leading-[0.95] tracking-tight mb-8">
+              <h1 className="text-black text-6xl md:text-[5.5rem] lg:text-[6.5rem] font-normal leading-[0.95] tracking-tight mb-8">
                 <span className="block font-outfit font-black opacity-90">Digital Art</span>
-                <span className="block font-dancing-script text-purple-400 -mt-2 md:-mt-4 relative">
+                <span className="block font-dancing-script text-purple-600 -mt-2 md:-mt-4 relative">
                   Paralaxed.
                   <motion.span 
                     initial={{ width: 0 }}
                     animate={{ width: "100%" }}
                     transition={{ delay: 1, duration: 1.5, ease: "circOut" }}
-                    className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-purple-500/0 via-purple-500/50 to-purple-500/0"
+                    className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-purple-600/0 via-purple-600/50 to-purple-600/0"
                   />
                 </span>
               </h1>
@@ -99,10 +92,10 @@ export default function Hero() {
 
             {/* Subtext with Editorial Line */}
             <div className="flex flex-col md:flex-row items-center lg:items-start gap-8 mb-12">
-              <div className="w-12 h-px bg-white/20 mt-4 hidden md:block" />
+              <div className="w-12 h-px bg-black/10 mt-4 hidden md:block" />
               <motion.p
                 variants={fadeUp}
-                className="text-white/40 text-lg md:text-xl font-medium max-w-lg leading-relaxed font-outfit"
+                className="text-black/60 text-lg md:text-xl font-medium max-w-lg leading-relaxed font-outfit"
               >
                 Where high-fidelity character design meets ethereal artistic vision. 
                 Creating bespoke masterpieces for those who seek the extraordinary.
@@ -125,22 +118,22 @@ export default function Hero() {
               <motion.a
                 href="/portfolio"
                 {...magneticHover}
-                className="px-10 py-5 bg-white/[0.03] hover:bg-white/5 border border-white/10 text-white/80 rounded-[24px] font-black text-[11px] uppercase tracking-[0.2em] backdrop-blur-xl transition-all hover:text-white"
+                className="px-10 py-5 bg-white border border-purple-100 text-[#1A1F2B] rounded-[24px] font-black text-[11px] uppercase tracking-[0.2em] shadow-sm hover:bg-purple-50 transition-all hover:text-purple-600"
               >
                 Explore Archive
               </motion.a>
             </motion.div>
 
             {/* Metrics */}
-            <motion.div variants={fadeUp} className="mt-20 pt-10 border-t border-white/5 flex flex-wrap justify-center lg:justify-start gap-12 items-center opacity-40 hover:opacity-100 transition-opacity duration-700">
+            <motion.div variants={fadeUp} className="mt-20 pt-10 border-t border-black/5 flex flex-wrap justify-center lg:justify-start gap-12 items-center opacity-70 hover:opacity-100 transition-opacity duration-700">
               {[
                 { label: "Satisfied Soul", val: "150+" },
                 { label: "Artistic Years", val: "06" },
                 { label: "Unique Assets", val: "400+" },
               ].map((m) => (
                 <div key={m.label} className="text-center lg:text-left">
-                  <div className="text-2xl font-black text-white font-outfit tracking-tighter">{m.val}</div>
-                  <div className="text-[9px] font-bold text-white/40 uppercase tracking-[0.2em] font-outfit mt-1">{m.label}</div>
+                  <div className="text-2xl font-black text-black font-outfit tracking-tighter">{m.val}</div>
+                  <div className="text-[9px] font-bold text-black/40 uppercase tracking-[0.2em] font-outfit mt-1">{m.label}</div>
                 </div>
               ))}
             </motion.div>
@@ -189,7 +182,7 @@ export default function Hero() {
                 transition={{ duration: 1, delay: 0.4 }}
                 className="absolute top-40 right-0 w-3/4 aspect-[4/5] z-10"
               >
-                <div className="w-full h-full rounded-[40px] overflow-hidden border border-white/10 opacity-60 grayscale hover:grayscale-0 transition-all duration-1000">
+                <div className="w-full h-full rounded-[40px] overflow-hidden border border-purple-100 opacity-60 grayscale hover:grayscale-0 transition-all duration-1000 bg-white shadow-sm">
                   <Image src="/artwork-hero.webp" alt="Art Showcase 2" fill className="object-cover" />
                 </div>
               </motion.div>
@@ -201,14 +194,14 @@ export default function Hero() {
                 transition={{ duration: 1, delay: 0.6 }}
                 className="absolute -bottom-10 left-0 w-2/3 aspect-[4/3] z-0"
               >
-                <div className="w-full h-full rounded-[40px] overflow-hidden border border-white/5 opacity-40">
+                <div className="w-full h-full rounded-[40px] overflow-hidden border border-purple-50 opacity-40 bg-white">
                   <Image src="/artwork-hero.webp" alt="Art Showcase 3" fill className="object-cover" />
                 </div>
               </motion.div>
 
               {/* Background Geometric Detail */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border border-white/[0.03] rounded-full animate-[spin_20s_linear_infinite]" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] border-t border-b border-white/[0.05] rounded-full animate-[spin_15s_linear_infinite_reverse]" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border border-purple-50 rounded-full animate-[spin_20s_linear_infinite]" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] border-t border-b border-purple-50 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
             </div>
           </div>
 
@@ -220,8 +213,8 @@ export default function Hero() {
         style={{ opacity }}
         className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4"
       >
-        <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.4em] rotate-90 mb-4">Scroll to Explore</span>
-        <div className="w-[1px] h-20 bg-gradient-to-b from-white/20 to-transparent" />
+        <span className="text-[9px] font-black text-black/20 uppercase tracking-[0.4em] rotate-90 mb-4">Scroll to Explore</span>
+        <div className="w-[1px] h-20 bg-gradient-to-b from-black/20 to-transparent" />
       </motion.div>
     </section>
   );

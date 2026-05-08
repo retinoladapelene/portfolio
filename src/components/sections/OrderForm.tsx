@@ -231,7 +231,7 @@ Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsOpen(false)}
-            className="absolute inset-0 bg-white/60 backdrop-blur-xl"
+            className="absolute inset-0 bg-white/20 backdrop-blur-md"
           />
 
           {/* Animated Art Blobs (Lilac Accents) */}
@@ -784,7 +784,7 @@ Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
                           "px-7 py-3.5 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] flex items-center gap-2.5 transition-all shadow-lg font-outfit",
                           isSubmitting 
                             ? "bg-purple-100 text-purple-300 cursor-wait" 
-                            : "bg-[#1A1F2B] text-white hover:bg-purple-600 hover:-translate-y-0.5"
+                            : "bg-purple-600 text-white hover:bg-purple-700 hover:-translate-y-0.5"
                         )}
                       >
                         {isSubmitting ? "Wait..." : "Submit"} <Send size={12} />

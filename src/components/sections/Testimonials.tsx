@@ -54,9 +54,9 @@ const Testimonials = () => {
               <div className="h-px w-12 bg-purple-500/50" />
               <span className="text-[10px] text-purple-400 font-black uppercase tracking-[0.5em]">Social Proof</span>
             </div>
-            <h2 className="text-6xl md:text-8xl font-normal text-white font-dancing-script leading-[0.8]">
+            <h2 className="text-6xl md:text-8xl font-normal text-black font-dancing-script leading-[0.8]">
               Client <br />
-              <span className="text-purple-400 font-bold italic">Chronicles.</span>
+              <span className="text-purple-600 font-bold italic">Chronicles.</span>
             </h2>
           </motion.div>
           
@@ -65,9 +65,9 @@ const Testimonials = () => {
             initial="initial"
             whileInView="whileInView"
             viewport={viewportSettings}
-            className="text-white/50 font-outfit text-sm max-w-sm leading-relaxed uppercase tracking-widest text-right lg:mb-4"
+            className="text-black/40 font-outfit text-sm max-w-sm leading-relaxed uppercase tracking-widest text-right lg:mb-4"
           >
-            Verified archives of artistic collaborations and <span className="text-white">neural satisfaction.</span>
+            Verified archives of artistic collaborations and <span className="text-black">neural satisfaction.</span>
           </motion.p>
         </div>
 
@@ -83,38 +83,38 @@ const Testimonials = () => {
             >
               <GlassCard 
                 level={1} 
-                className="h-full p-8 flex flex-col justify-between border-white/20 bg-[#0B0F1A]/95 backdrop-blur-3xl hover:bg-black transition-all hover:border-purple-500/50 rounded-[32px] relative overflow-hidden shadow-2xl"
+                className="h-full p-8 flex flex-col justify-between border-black/5 bg-white/40 backdrop-blur-3xl hover:bg-white/60 transition-all hover:border-purple-600/50 rounded-[32px] relative overflow-hidden shadow-xl"
               >
                 {/* Subtle Glow on Hover */}
                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-500/0 group-hover:bg-purple-500/30 blur-3xl rounded-full transition-all duration-700" />
                 
                 <div className="relative z-10">
                   <div className="flex justify-between items-start mb-8">
-                    <div className="p-3 bg-purple-500/20 rounded-2xl border border-purple-500/30 group-hover:border-purple-500/50 transition-colors">
-                      <Quote size={18} className="text-purple-400" />
+                    <div className="p-3 bg-purple-500/10 rounded-2xl border border-purple-500/20 group-hover:border-purple-500/40 transition-colors">
+                      <Quote size={18} className="text-purple-600" />
                     </div>
                     <div className="flex gap-1">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={10} className="fill-purple-500 text-purple-500" />
+                        <Star key={i} size={10} className="fill-purple-600 text-purple-600" />
                       ))}
                     </div>
                   </div>
                   
-                  <p className="text-white font-outfit text-base leading-relaxed mb-10 italic font-medium">
+                  <p className="text-black/80 font-outfit text-base leading-relaxed mb-10 italic font-medium">
                     "{review.text}"
                   </p>
                 </div>
 
-                <div className="relative z-10 pt-6 border-t border-white/10 mt-auto">
+                <div className="relative z-10 pt-6 border-t border-black/5 mt-auto">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-500/30 flex-shrink-0">
-                      <User size={20} className="text-purple-400" />
+                    <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center border border-purple-500/20 flex-shrink-0">
+                      <User size={20} className="text-purple-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-black text-white uppercase tracking-wider truncate">
+                      <h4 className="text-sm font-black text-black uppercase tracking-wider truncate">
                         {review.name}
                       </h4>
-                      <span className="text-[10px] text-white/60 uppercase tracking-[0.2em] block mt-0.5">{review.handle}</span>
+                      <span className="text-[10px] text-black/40 uppercase tracking-[0.2em] block mt-0.5">{review.handle}</span>
                     </div>
                   </div>
                   
@@ -135,22 +135,22 @@ const Testimonials = () => {
         <motion.div 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          className="mt-24 py-12 border-y border-white/5 flex flex-col md:flex-row justify-center items-center gap-12 md:gap-32"
+          className="mt-24 py-12 border-y border-black/5 flex flex-col md:flex-row justify-center items-center gap-12 md:gap-32"
         >
           <div className="flex items-center gap-4">
-            <span className="text-4xl font-black text-white font-syne italic tracking-tighter">98%</span>
-            <div className="h-10 w-px bg-white/10" />
+            <span className="text-4xl font-black text-black font-syne italic tracking-tighter">98%</span>
+            <div className="h-10 w-px bg-black/10" />
             <div className="text-left">
-              <span className="text-[10px] font-black text-white uppercase tracking-widest block">Client Satisfaction</span>
-              <span className="text-[8px] text-white/60 uppercase tracking-widest mt-1">Global Neuro-Audit // 2024</span>
+              <span className="text-[10px] font-black text-black uppercase tracking-widest block">Client Satisfaction</span>
+              <span className="text-[8px] text-black/40 uppercase tracking-widest mt-1">Global Neuro-Audit // 2024</span>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-4xl font-black text-white font-syne italic tracking-tighter">150+</span>
-            <div className="h-10 w-px bg-white/10" />
+            <span className="text-4xl font-black text-black font-syne italic tracking-tighter">150+</span>
+            <div className="h-10 w-px bg-black/10" />
             <div className="text-left">
-              <span className="text-[10px] font-black text-white uppercase tracking-widest block">Neural Entities Created</span>
-              <span className="text-[8px] text-white/60 uppercase tracking-widest mt-1">High-Fidelity Archive</span>
+              <span className="text-[10px] font-black text-black uppercase tracking-widest block">Neural Entities Created</span>
+              <span className="text-[8px] text-black/40 uppercase tracking-widest mt-1">High-Fidelity Archive</span>
             </div>
           </div>
         </motion.div>

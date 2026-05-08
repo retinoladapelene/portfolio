@@ -3,6 +3,8 @@ import { Geist, Geist_Mono, Inter, Dancing_Script, Syne, Outfit, Alex_Brush } fr
 import Image from "next/image";
 import "./globals.css";
 import PageTransition from "@/components/ui/PageTransition";
+import InteractiveBackground from "@/components/ui/InteractiveBackground";
+import CustomCursor from "@/components/ui/CustomCursor";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,23 +53,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${dancingScript.variable} ${syne.variable} ${outfit.variable} ${alexBrush.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col selection:bg-purple-500/30">
-        {/* Global Background Container */}
-        <div className="fixed inset-0 z-[-1] pointer-events-none">
-          <Image
-            src="/backgroundpageutama.webp"
-            alt="Background"
-            fill
-            priority
-            className="object-cover opacity-100"
-          />
-          {/* Consistent dark overlay for the whole page */}
-          <div className="absolute inset-0 bg-black/30" />
-          {/* Global left-side shadow for text readability */}
-          <div className="absolute inset-y-0 left-0 w-full md:w-2/3 bg-gradient-to-r from-black/35 via-black/5 to-transparent" />
-        </div>
-
+      <body className="min-h-full flex flex-col selection:bg-purple-500/30 bg-transparent cursor-none">
         <main className="relative min-h-screen">
+          <CustomCursor />
+          <InteractiveBackground />
           <div className="grain-overlay" />
           <PageTransition>
             {children}

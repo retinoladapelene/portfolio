@@ -107,9 +107,9 @@ const Pricing = () => {
               initial={{ x: -100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -100, opacity: 0 }}
-              className="px-6 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white/70 shadow-2xl"
+              className="px-6 py-4 bg-white/40 backdrop-blur-xl border border-black/5 rounded-2xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-black/70 shadow-xl"
             >
-              <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
               {toast.message}
             </motion.div>
           ))}
@@ -132,12 +132,12 @@ const Pricing = () => {
                 <div className="h-px w-12 bg-purple-500/50" />
                 <span className="text-[10px] text-purple-400 font-black uppercase tracking-[0.5em]">Valuation Protocol</span>
               </div>
-              <h2 className="text-6xl md:text-8xl font-normal text-white font-dancing-script leading-[0.8]">
+              <h2 className="text-6xl md:text-8xl font-normal text-black font-dancing-script leading-[0.8]">
                 Artistic <br />
-                <span className="text-purple-400 font-bold italic">Investment.</span>
+                <span className="text-purple-600 font-bold italic">Investment.</span>
               </h2>
-              <p className="text-white/70 font-outfit text-lg max-w-lg leading-relaxed uppercase tracking-wider">
-                Every stroke is an investment in quality. Our pricing scales dynamically with the <span className="text-white">complexity of your vision.</span>
+              <p className="text-black/60 font-outfit text-lg max-w-lg leading-relaxed uppercase tracking-wider">
+                Every stroke is an investment in quality. Our pricing scales dynamically with the <span className="text-black">complexity of your vision.</span>
               </p>
             </motion.div>
 
@@ -148,10 +148,10 @@ const Pricing = () => {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="p-6 rounded-[24px] bg-white/[0.05] backdrop-blur-md border border-white/10 hover:border-purple-500/50 transition-all group"
+                  className="p-6 rounded-[24px] bg-black/[0.03] backdrop-blur-md border border-black/5 hover:border-purple-600/50 transition-all group"
                 >
-                  <div className="text-purple-400 mb-4 group-hover:scale-110 transition-transform">{f.icon}</div>
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-white/80">{f.label}</h4>
+                  <div className="text-purple-600 mb-4 group-hover:scale-110 transition-transform">{f.icon}</div>
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-black/60">{f.label}</h4>
                 </motion.div>
               ))}
             </div>
@@ -165,13 +165,13 @@ const Pricing = () => {
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.1 }}
-                    className="flex justify-between items-center p-6 rounded-3xl bg-white/[0.03] backdrop-blur-sm border border-white/10 hover:bg-white/[0.06] transition-all group"
+                    className="flex justify-between items-center p-6 rounded-3xl bg-black/[0.02] backdrop-blur-sm border border-black/5 hover:bg-black/[0.04] transition-all group"
                   >
                     <div>
-                      <h4 className="text-lg font-bold text-white font-outfit">{ex.type}</h4>
-                      <p className="text-[9px] text-white/60 uppercase tracking-widest mt-1 font-medium">{ex.desc}</p>
+                      <h4 className="text-lg font-bold text-black font-outfit">{ex.type}</h4>
+                      <p className="text-[9px] text-black/40 uppercase tracking-widest mt-1 font-medium">{ex.desc}</p>
                     </div>
-                    <span className="text-2xl font-black text-white font-syne italic tracking-tighter drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
+                    <span className="text-2xl font-black text-black font-syne italic tracking-tighter">
                       {ex.range}
                     </span>
                   </motion.div>
@@ -189,29 +189,29 @@ const Pricing = () => {
               className="relative"
             >
               {/* Animated Edges for the Card */}
-              <div className="absolute -inset-1 bg-gradient-to-br from-purple-500/20 via-transparent to-purple-500/20 rounded-[40px] blur-sm opacity-50" />
+              <div className="absolute -inset-1 bg-gradient-to-br from-purple-500/10 via-transparent to-purple-500/10 rounded-[40px] blur-sm opacity-30" />
               
-              <div className="relative p-10 rounded-[40px] bg-[#0B0F1A] border border-white/10 shadow-2xl overflow-hidden">
+              <div className="relative p-10 rounded-[40px] bg-white/[0.4] backdrop-blur-xl border border-black/5 shadow-xl overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 blur-[80px] rounded-full -mr-20 -mt-20" />
                 
                 <div className="relative z-10 space-y-10">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="p-3 bg-purple-500/10 rounded-2xl border border-purple-500/20">
-                        <Calculator size={20} className="text-purple-400" />
+                      <div className="p-3 bg-purple-500/10 rounded-2xl border border-purple-500/10">
+                        <Calculator size={20} className="text-purple-600" />
                       </div>
                       <div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60 block">Configurator</span>
-                        <h3 className="text-xl font-bold text-white font-outfit">Project Estimator</h3>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 block">Configurator</span>
+                        <h3 className="text-xl font-bold text-black font-outfit">Project Estimator</h3>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs text-white/40 uppercase tracking-widest mb-1">Total Valuation</div>
+                      <div className="text-xs text-black/30 uppercase tracking-widest mb-1">Total Valuation</div>
                       <div className="flex items-baseline gap-1 justify-end">
-                        <span className="text-5xl font-black text-white font-syne italic tracking-tighter drop-shadow-[0_0_20px_rgba(168,85,247,0.6)]">
+                        <span className="text-5xl font-black text-black font-syne italic tracking-tighter">
                           {estimatedTotal}K
                         </span>
-                        <span className="text-sm font-bold text-purple-400">IDR</span>
+                        <span className="text-sm font-bold text-purple-600">IDR</span>
                       </div>
                     </div>
                   </div>
@@ -219,7 +219,7 @@ const Pricing = () => {
                   <div className="space-y-8">
                     {/* Base Type */}
                     <div className="space-y-4">
-                      <label className="text-[10px] font-black text-white/50 uppercase tracking-[0.4em] ml-1">Anatomical Scope</label>
+                      <label className="text-[10px] font-black text-black/30 uppercase tracking-[0.4em] ml-1">Anatomical Scope</label>
                       <div className="grid grid-cols-2 gap-3">
                         {BASE_TYPES.map((t) => (
                           <button
@@ -228,8 +228,8 @@ const Pricing = () => {
                             className={cn(
                               "py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border font-outfit",
                               baseType === t.val 
-                                ? "bg-purple-600 border-purple-400 text-white shadow-[0_10px_20px_rgba(168,85,247,0.2)]" 
-                                : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:border-white/20"
+                                ? "bg-purple-600 border-purple-400 text-white shadow-lg shadow-purple-900/10" 
+                                : "bg-black/[0.03] border-black/5 text-black/40 hover:bg-black/[0.06]"
                             )}
                           >
                             {t.label}
@@ -240,28 +240,28 @@ const Pricing = () => {
 
                     {/* Options Toggle */}
                     <div className="space-y-4">
-                      <label className="text-[10px] font-black text-white/50 uppercase tracking-[0.4em] ml-1">Advanced Directives</label>
+                      <label className="text-[10px] font-black text-black/30 uppercase tracking-[0.4em] ml-1">Advanced Directives</label>
                       <div className="space-y-3">
                         <button 
                           onClick={() => setIsCouple(!isCouple)}
                           className={cn(
                             "w-full flex items-center justify-between p-5 rounded-2xl border transition-all group",
                             isCouple 
-                              ? "bg-purple-500/10 border-purple-500/50" 
-                              : "bg-white/5 border-white/10 hover:border-white/20"
+                              ? "bg-purple-500/10 border-purple-500/20" 
+                              : "bg-black/[0.02] border-black/5 hover:border-black/10"
                           )}
                         >
                           <div className="text-left">
-                            <span className={cn("text-xs font-bold block transition-colors", isCouple ? "text-white" : "text-white/60")}>Couple 2x price</span>
-                            <span className="text-[9px] text-white/40 uppercase tracking-widest">Dual Subject Synergy</span>
+                            <span className={cn("text-xs font-bold block transition-colors", isCouple ? "text-black" : "text-black/40")}>Couple 2x price</span>
+                            <span className="text-[9px] text-black/20 uppercase tracking-widest">Dual Subject Synergy</span>
                           </div>
                           <div className={cn(
                             "w-10 h-6 rounded-full relative transition-colors",
-                            isCouple ? "bg-purple-500" : "bg-white/10"
+                            isCouple ? "bg-purple-600" : "bg-black/10"
                           )}>
                             <motion.div 
                               animate={{ x: isCouple ? 18 : 4 }}
-                              className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-lg" 
+                              className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-md" 
                             />
                           </div>
                         </button>
@@ -271,21 +271,21 @@ const Pricing = () => {
                           className={cn(
                             "w-full flex items-center justify-between p-5 rounded-2xl border transition-all group",
                             bgDetail > 0 
-                              ? "bg-purple-500/10 border-purple-500/50" 
-                              : "bg-white/5 border-white/10 hover:border-white/20"
+                              ? "bg-purple-500/10 border-purple-500/20" 
+                              : "bg-black/[0.02] border-black/5 hover:border-black/10"
                           )}
                         >
                           <div className="text-left">
-                            <span className={cn("text-xs font-bold block transition-colors", bgDetail > 0 ? "text-white" : "text-white/60")}>Background Complexity</span>
-                            <span className="text-[9px] text-white/40 uppercase tracking-widest">+50K IDR Premium</span>
+                            <span className={cn("text-xs font-bold block transition-colors", bgDetail > 0 ? "text-black" : "text-black/40")}>Background Complexity</span>
+                            <span className="text-[9px] text-black/20 uppercase tracking-widest">+50K IDR Premium</span>
                           </div>
                           <div className={cn(
                             "w-10 h-6 rounded-full relative transition-colors",
-                            bgDetail > 0 ? "bg-purple-500" : "bg-white/10"
+                            bgDetail > 0 ? "bg-purple-600" : "bg-black/10"
                           )}>
                             <motion.div 
                               animate={{ x: bgDetail > 0 ? 18 : 4 }}
-                              className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-lg" 
+                              className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-md" 
                             />
                           </div>
                         </button>

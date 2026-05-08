@@ -52,17 +52,14 @@ const Navbar = () => {
         className={cn(
           "fixed top-0 inset-x-0 z-[100] w-full transition-all duration-300",
           isScrolled 
-            ? "h-16 bg-[#1A1F2B]/40 backdrop-blur-xl border-b border-white/5 shadow-2xl" 
+            ? "h-16 bg-white/40 backdrop-blur-xl border-b border-purple-50 shadow-sm" 
             : "h-24 bg-transparent border-b border-transparent"
         )}
       >
         <div className="container mx-auto px-6 md:px-12 h-full flex items-center justify-between">
           <Link 
             href="/"
-            className={cn(
-              "text-2xl font-normal flex items-center gap-2 group cursor-pointer font-dancing-script",
-              isScrolled ? "text-white" : "text-white nav-text-shadow"
-            )}
+            className="text-2xl font-normal flex items-center gap-2 group cursor-pointer font-dancing-script text-[#1A1F2B]"
           >
             <div className="w-5 h-5 bg-purple-500 rounded-lg shadow-[0_0_20px_rgba(168,85,247,0.4)] rotate-12 group-hover:rotate-0 transition-transform" />
             <span>
@@ -71,22 +68,19 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden md:flex items-center gap-10">
-             {["Portfolio", "About", "Pricing", "Track Order"].map((item) => {
+             {["Portfolio", "About", "Track Order"].map((item) => {
                const isPortfolio = item === "Portfolio";
                const isAbout = item === "About";
                const isTrack = item === "Track Order";
                return (
-                 <a 
-                   key={item} 
-                   href={isPortfolio ? "/portfolio" : isAbout ? "/personal" : isTrack ? "/track" : `#${item.toLowerCase()}`} 
-                   className={cn(
-                     "text-[10px] font-black uppercase tracking-[0.2em] transition-all relative group font-outfit",
-                     isScrolled ? "text-white/90" : "text-white/80 hover:text-white nav-text-shadow"
-                   )}
-                 >
-                   {item}
-                   <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-purple-500 transition-all group-hover:w-full" />
-                 </a>
+                  <a 
+                    key={item} 
+                    href={isPortfolio ? "/portfolio" : isAbout ? "/personal" : isTrack ? "/track" : `#${item.toLowerCase()}`} 
+                    className="text-[10px] font-black uppercase tracking-[0.2em] transition-all relative group font-outfit text-black/60 hover:text-black"
+                  >
+                    {item}
+                    <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-purple-500 transition-all group-hover:w-full" />
+                  </a>
                );
              })}
           </div>
@@ -129,10 +123,10 @@ const Navbar = () => {
                 }
               }}
               className={cn(
-                "py-2.5 px-6 rounded-full text-[9px] font-black tracking-[0.2em] uppercase transition-all font-outfit",
+                "py-2.5 px-6 rounded-full text-[9px] font-black tracking-[0.2em] uppercase transition-all font-outfit shadow-lg",
                 user 
-                  ? (isScrolled ? "bg-gray-100 text-gray-900 hover:bg-gray-200" : "bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm")
-                  : "px-6 py-2.5 bg-purple-600 text-white rounded-full font-black text-[9px] uppercase tracking-[0.2em] hover:bg-purple-700 transition-all shadow-lg"
+                  ? "bg-white border border-purple-100 text-slate-600 hover:bg-purple-50"
+                  : "bg-purple-600 text-white hover:bg-purple-700"
               )}
             >
               {user ? "Sign Out" : "Sign In"}
