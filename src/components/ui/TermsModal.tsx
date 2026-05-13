@@ -1,26 +1,44 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ScrollText, CheckCircle2, AlertCircle, Ban, CreditCard, Copyright } from "lucide-react";
-import { useEffect } from "react";
+import { X, ScrollText, CheckCircle2, AlertCircle, Ban, CreditCard, Copyright, Check } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface TermsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  isAccepted: boolean;
+  onAcceptChange: (accepted: boolean) => void;
 }
 
-const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {
+const TermsModal = ({ isOpen, onClose, isAccepted, onAcceptChange }: TermsModalProps) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [hasReadToBottom, setHasReadToBottom] = useState(false);
+
   // Prevent scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      // Reset scroll state when opened
+      setHasReadToBottom(isAccepted);
     } else {
       document.body.style.overflow = "unset";
     }
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [isOpen]);
+  }, [isOpen, isAccepted]);
+
+  const handleScroll = () => {
+    if (!contentRef.current || hasReadToBottom) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
+    // Check if user has scrolled near the bottom (within 20px)
+    if (scrollHeight - scrollTop - clientHeight < 20) {
+      setHasReadToBottom(true);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -60,7 +78,11 @@ const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-10 font-outfit custom-scrollbar">
+            <div 
+              ref={contentRef}
+              onScroll={handleScroll}
+              className="flex-1 overflow-y-auto p-6 md:p-10 space-y-10 font-outfit custom-scrollbar"
+            >
               
               <div className="bg-purple-50 p-5 rounded-2xl border border-purple-100 flex gap-4 items-start">
                 <AlertCircle className="text-purple-500 shrink-0 mt-1" size={18} />
@@ -99,7 +121,7 @@ const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {
                 </div>
               </div>
 
-              {/* General */}
+              {/* General Rules */}
               <div className="space-y-4">
                 <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">General Rules</h3>
                 <div className="grid gap-3">
@@ -158,7 +180,7 @@ const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {
               </div>
 
               {/* Copyright */}
-              <div className="space-y-4">
+              <div className="space-y-4 pb-10">
                 <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
                   <Copyright size={14} /> Copyright & Use
                 </h3>
@@ -179,15 +201,52 @@ const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {
                 </div>
               </div>
 
+              {/* Checkbox Acceptance - ONLY visible after reading to bottom */}
+              {hasReadToBottom && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="pt-10 border-t border-gray-100"
+                >
+                  <button 
+                    onClick={() => onAcceptChange(!isAccepted)}
+                    className="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 border border-slate-100 hover:border-purple-200 transition-all text-left w-full group"
+                  >
+                    <div className={cn(
+                      "w-6 h-6 rounded-lg border flex items-center justify-center transition-all mt-0.5 shrink-0",
+                      isAccepted 
+                        ? "bg-purple-600 border-purple-600 text-white" 
+                        : "bg-white border-slate-200 group-hover:border-purple-300"
+                    )}>
+                      {isAccepted && <Check size={14} strokeWidth={4} />}
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[13px] font-bold text-slate-800 leading-tight">I have read and agree to all terms and conditions above.</p>
+                      <p className="text-[11px] text-slate-400 font-medium font-outfit">By checking this, you acknowledge that you understand the protocol and guidelines for the commission.</p>
+                    </div>
+                  </button>
+                </motion.div>
+              )}
             </div>
 
             {/* Footer Action */}
-            <div className="p-6 border-t border-gray-100 bg-gray-50/50 flex justify-center">
+            <div className="p-6 border-t border-gray-100 bg-gray-50/50 flex justify-end gap-3">
+              {!hasReadToBottom && (
+                <div className="mr-auto flex items-center gap-2 text-purple-400 font-black text-[8px] uppercase tracking-widest animate-pulse">
+                  <ScrollText size={12} /> Scroll to bottom to accept
+                </div>
+              )}
               <button
                 onClick={onClose}
-                className="px-10 py-3.5 bg-[#1A1F2B] text-white rounded-xl font-black text-[9px] uppercase tracking-[0.2em] hover:bg-purple-600 transition-all shadow-lg font-outfit"
+                className={cn(
+                  "px-10 py-3.5 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] transition-all shadow-lg font-outfit",
+                  isAccepted 
+                    ? "bg-purple-600 text-white hover:bg-purple-700" 
+                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                )}
+                disabled={!isAccepted}
               >
-                I Understand
+                Accept & Close
               </button>
             </div>
           </motion.div>

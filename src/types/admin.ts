@@ -1,0 +1,41 @@
+export type Commission = {
+  id: string;
+  client_name: string;
+  client_email: string;
+  commission_type: string;
+  art_style: string;
+  status: string;
+  price: number;
+  social_media?: string;
+  payment_method: string;
+  background_req?: string;
+  description?: string;
+  references?: string;
+  is_couple?: boolean;
+  has_background?: boolean;
+  reference_images?: string[];
+  rough_sketch_url?: string;
+  dp_proof_url?: string;
+  sketch_status?: string;
+  dp_status?: string;
+  client_note?: string;
+  sketch_revision_images?: string[];
+  final_artwork_url?: string;
+  created_at: string;
+  wip_artwork_url?: string;
+  final_preview_url?: string;
+  payment_75_proof_url?: string;
+  payment_100_proof_url?: string;
+  wip_feedback?: string;
+  final_feedback?: string;
+  wip_status?: string;
+  final_status?: string;
+  payment_75_status?: string;
+  payment_100_status?: string;
+};
+
+export type StudioSettings = {
+  id?: string;
+  commissions_open: boolean;
+  closed_reason?: string;
+};

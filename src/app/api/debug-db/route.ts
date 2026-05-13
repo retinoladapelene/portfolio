@@ -28,23 +28,14 @@ export async function GET() {
   }
 
   try {
-    const { data, error } = await supabaseAdmin.rpc('get_enum_values', { enum_name: 'commission_status' });
+    // Check columns for commissions table
+    const { data: cols, error: colError } = await supabaseAdmin
+      .from('commissions')
+      .select('*')
+      .limit(1);
     
-    // If RPC fails, try raw SQL via a trick (selecting from pg_enum)
-    if (error) {
-      const { data: enumData, error: enumError } = await supabaseAdmin
-        .from('pg_enum')
-        .select(`
-          enumlabel,
-          pg_type!inner(typname)
-        `)
-        .eq('pg_type.typname', 'commission_status');
-      
-      if (enumError) throw enumError;
-      return NextResponse.json({ success: true, values: enumData.map(e => e.enumlabel) });
-    }
-
-    return NextResponse.json({ success: true, values: data });
+    if (colError) throw colError;
+    return NextResponse.json({ success: true, columns: Object.keys(cols[0] || {}) });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

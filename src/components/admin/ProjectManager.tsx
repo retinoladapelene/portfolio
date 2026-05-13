@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/Toast";
+import { useConfirm } from "@/components/ui/ConfirmProvider";
 import Image from "next/image";
 
 type Project = {
@@ -33,11 +35,12 @@ type Project = {
 };
 
 export default function ProjectManager() {
+  const { toast } = useToast();
+  const { confirm } = useConfirm();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState<Project | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   
   const supabase = createClient();
 
@@ -53,13 +56,7 @@ export default function ProjectManager() {
       .order('order_index', { ascending: true });
     
     if (error) {
-      console.error('Error fetching projects:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
-      });
-      setMessage({ type: 'error', text: `Database Error: ${error.message}` });
+      toast("Failed to load projects: " + error.message, "error");
     } else {
       setProjects(data || []);
     }
@@ -70,10 +67,16 @@ export default function ProjectManager() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Create local preview immediately for instant feedback
+    const localUrl = URL.createObjectURL(file);
+    if (isEditing) {
+      setIsEditing({ ...isEditing, image_url: localUrl });
+    }
+
     setIsUploading(true);
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
       const filePath = `projects/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
@@ -88,9 +91,10 @@ export default function ProjectManager() {
 
       if (isEditing) {
         setIsEditing({ ...isEditing, image_url: publicUrl });
+        toast("Image uploaded successfully!", "success");
       }
     } catch (error: any) {
-      setMessage({ type: 'error', text: 'Upload failed: ' + error.message });
+      toast("Upload failed: " + error.message, "error");
     } finally {
       setIsUploading(false);
     }
@@ -105,18 +109,24 @@ export default function ProjectManager() {
       .upsert(isEditing);
 
     if (error) {
-      setMessage({ type: 'error', text: 'Save failed: ' + error.message });
+      toast("Failed to save: " + error.message, "error");
     } else {
-      setMessage({ type: 'success', text: 'Project updated successfully!' });
+      toast("Project updated successfully!", "success");
       setIsEditing(null);
       fetchProjects();
-      setTimeout(() => setMessage(null), 3000);
     }
     setLoading(false);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this project?')) return;
+  const deleteProject = async (id: string) => {
+    const ok = await confirm({
+      title: "Delete Project?",
+      message: "This project data will be permanently deleted. Are you sure?",
+      variant: "danger"
+    });
+    
+    if (!ok) return;
+
 
     const { error } = await supabase
       .from('projects')
@@ -124,8 +134,9 @@ export default function ProjectManager() {
       .match({ id });
 
     if (error) {
-      setMessage({ type: 'error', text: 'Delete failed: ' + error.message });
+      toast("Failed to delete: " + error.message, "error");
     } else {
+      toast("Project deleted successfully!", "success");
       fetchProjects();
     }
   };
@@ -134,26 +145,14 @@ export default function ProjectManager() {
     return (
       <div className="flex flex-col items-center justify-center p-32 gap-6">
         <Loader2 className="text-purple-500 animate-spin" size={48} />
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 font-outfit">Syncing Neural Grid...</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 font-outfit">Connecting Data...</p>
       </div>
     );
   }
 
+
   return (
     <div className="space-y-12">
-      {message && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={cn(
-            "p-5 rounded-[24px] flex items-center gap-4 text-[11px] font-black uppercase tracking-widest border font-outfit",
-            message.type === 'success' ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-red-500/10 text-red-400 border-red-500/20"
-          )}
-        >
-          {message.type === 'success' ? <CheckCircle2 size={18} /> : <Trash2 size={18} />}
-          {message.text}
-        </motion.div>
-      )}
 
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-3">
@@ -161,6 +160,7 @@ export default function ProjectManager() {
           <h2 className="text-xs font-black text-white/40 uppercase tracking-[0.4em] font-outfit">Active Portfolio Slots</h2>
         </div>
       </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         {projects.map((project) => (
@@ -193,6 +193,7 @@ export default function ProjectManager() {
                 >
                   <Pencil size={14} /> Update Project Archive
                 </button>
+
               </div>
               <div className="absolute top-6 left-6">
                 <span className="px-4 py-2 bg-black/60 backdrop-blur-md border border-white/10 rounded-full text-[9px] font-black text-white/60 uppercase tracking-widest">
@@ -204,22 +205,25 @@ export default function ProjectManager() {
             <div className="p-12 relative z-10">
               <div className="flex justify-between items-start mb-4">
                 <span className="text-[10px] font-black text-purple-400 uppercase tracking-[0.4em] font-outfit">
-                  {project.category || "Visual Masterpiece"}
+                  {project.category || "Visual Artwork"}
                 </span>
+
                 <div className="h-px flex-1 bg-white/5 mx-6 mt-2" />
               </div>
-              <h3 className="text-4xl font-normal text-white mb-6 font-dancing-script tracking-tight">{project.title || "Untitled Creation"}</h3>
+              <h3 className="text-4xl font-normal text-white mb-6 font-dancing-script tracking-tight">{project.title || "Untitled Artwork"}</h3>
+
               <p className="text-[14px] text-white/30 font-outfit font-medium leading-relaxed line-clamp-3 group-hover:text-white/50 transition-colors duration-500">
-                {project.description || "No narrative established for this archive node yet."}
+                {project.description || "No narrative available for this project."}
               </p>
+
               
               <div className="mt-10 pt-8 border-t border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                    <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                   <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">Archive Active</span>
+                   <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">Active Archive</span>
                 </div>
                 <button 
-                  onClick={() => handleDelete(project.id)}
+                  onClick={() => deleteProject(project.id)}
                   className="p-3 bg-red-500/5 hover:bg-red-500 hover:text-white border border-red-500/10 rounded-xl text-red-500/40 transition-all"
                 >
                   <Trash2 size={16} />
@@ -249,8 +253,9 @@ export default function ProjectManager() {
             >
               <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
                 <h2 className="text-2xl font-normal text-white font-dancing-script">
-                  Edit <span className="text-purple-400">Project Slot</span>
+                  Edit <span className="text-purple-400">Slot Project</span>
                 </h2>
+
                 <button onClick={() => setIsEditing(null)} className="p-2 bg-white/5 rounded-xl text-white/40 hover:text-white transition-colors">
                   <X size={20} />
                 </button>
@@ -262,14 +267,16 @@ export default function ProjectManager() {
                   <div className="space-y-8">
                     <label className="block">
                       <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-4 block font-outfit">Visual Narrative</span>
+
                       <div className="relative aspect-video rounded-3xl overflow-hidden bg-white/5 border border-white/10 group cursor-pointer shadow-inner">
                         {isEditing.image_url ? (
                           <Image src={isEditing.image_url} alt="Preview" fill className="object-cover transition-transform group-hover:scale-105" />
                         ) : (
                           <div className="flex flex-col items-center justify-center h-full gap-4 text-white/10">
                             <ImageIcon size={48} />
-                            <span className="text-[10px] font-black uppercase tracking-widest font-outfit">Click to upload work</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest font-outfit">Click to upload artwork</span>
                           </div>
+
                         )}
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <input 
@@ -285,6 +292,7 @@ export default function ProjectManager() {
                     <div className="space-y-6">
                       <div>
                         <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-3 block font-outfit">Project Title</label>
+
                         <input 
                           type="text" 
                           value={isEditing.title || ""}
@@ -295,6 +303,7 @@ export default function ProjectManager() {
                       </div>
                       <div>
                         <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-3 block font-outfit">Category</label>
+
                         <input 
                           type="text" 
                           value={isEditing.category || ""}
@@ -306,6 +315,7 @@ export default function ProjectManager() {
 
                       <div>
                         <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-4 block font-outfit">Cinematic Transition</label>
+
                         <div className="grid grid-cols-2 gap-3">
                           {[
                             { id: 'glass', label: 'Glass', icon: '💎' },
@@ -369,6 +379,7 @@ export default function ProjectManager() {
 
                       <div>
                         <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-3 block font-outfit">Artistic Typography</label>
+
                         <select 
                           value={isEditing.font_family || "font-syne"}
                           onChange={(e) => setIsEditing({...isEditing, font_family: e.target.value})}
@@ -388,44 +399,52 @@ export default function ProjectManager() {
                   <div className="space-y-8">
                     <div>
                       <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-3 block font-outfit">Brief Summary</label>
+
                       <textarea 
                         value={isEditing.description || ""}
                         onChange={(e) => setIsEditing({...isEditing, description: e.target.value})}
                         className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white h-24 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/40 transition-all font-outfit leading-relaxed"
-                        placeholder="Condensed project essence..."
+                        placeholder="The essence of this project..."
                       />
                     </div>
+
                     <div>
                       <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-3 block font-outfit">Project Narrative</label>
+
                       <textarea 
                         value={isEditing.long_description || ""}
                         onChange={(e) => setIsEditing({...isEditing, long_description: e.target.value})}
                         className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white h-48 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/40 transition-all font-outfit leading-relaxed"
-                        placeholder="Deep dive into the story and process..."
+                        placeholder="Tell us more about the process..."
                       />
                     </div>
+
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                   <div>
-                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-3 block font-outfit">Mission Objective</label>
+                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-3 block font-outfit">Project Objective</label>
+
                     <textarea 
                       value={isEditing.objective || ""}
                       onChange={(e) => setIsEditing({...isEditing, objective: e.target.value})}
                       className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white h-36 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/40 transition-all font-outfit leading-relaxed"
-                      placeholder="Goal of this artistic exploration..."
+                      placeholder="Target of this artistic exploration..."
                     />
                   </div>
+
                   <div>
                     <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-3 block font-outfit">Visual Direction</label>
+
                     <textarea 
                       value={isEditing.art_direction || ""}
                       onChange={(e) => setIsEditing({...isEditing, art_direction: e.target.value})}
                       className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white h-36 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/40 transition-all font-outfit leading-relaxed"
-                      placeholder="Color, lighting, and stylistic choices..."
+                      placeholder="Color, lighting, and style choices..."
                     />
                   </div>
+
                 </div>
               </div>
 
@@ -434,14 +453,25 @@ export default function ProjectManager() {
                   onClick={() => setIsEditing(null)}
                   className="px-6 py-2 text-[9px] font-black uppercase tracking-[0.3em] text-white/20 hover:text-white transition-colors font-outfit"
                 >
-                  Discard
+                  Cancel
                 </button>
+
                 <button 
                   onClick={handleSave}
-                  className="flex items-center gap-3 px-8 py-3 bg-purple-600 text-white rounded-[16px] text-[9px] font-black uppercase tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-purple-900/40 font-outfit"
+                  disabled={isUploading || loading}
+                  className={cn(
+                    "flex items-center gap-3 px-8 py-3 bg-purple-600 text-white rounded-[16px] text-[9px] font-black uppercase tracking-[0.3em] transition-all shadow-2xl shadow-purple-900/40 font-outfit",
+                    (isUploading || loading) ? "opacity-50 cursor-not-allowed" : "hover:scale-105 active:scale-95"
+                  )}
                 >
-                  <Save size={14} /> Finalize Changes
+                  {isUploading ? (
+                    <Loader2 className="animate-spin" size={14} />
+                  ) : (
+                    <CheckCircle2 size={14} />
+                  )}
+                  {isUploading ? "Uploading..." : "Save Changes"}
                 </button>
+
               </div>
             </motion.div>
           </div>

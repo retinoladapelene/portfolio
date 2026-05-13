@@ -1,4 +1,17 @@
 @import "tailwindcss";
+
+/* Default theme colors (lilac) — overridden by ThemeStyleInjector on personal page */
+@layer base {
+  :root {
+    --theme-primary: #7C3AED;
+    --theme-primary-rgb: 124 58 237;
+    --theme-dot: #A78BFA;
+    --theme-dot-rgb: 167 139 250;
+    --theme-light: #EDE9FE;
+    --theme-light-rgb: 237 233 254;
+  }
+}
+
 @theme {
   --color-background: var(--bg-primary);
   --color-foreground: var(--text-primary);
@@ -25,6 +38,12 @@
   --font-syne: var(--font-syne);
   --font-outfit: var(--font-outfit);
   --font-alex-brush: var(--font-alex-brush);
+
+  --animate-spin-slow: spin-slow 8s linear infinite;
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
 }
 
 /* --- Background Experience --- */
@@ -41,9 +60,9 @@
   width: 100%;
   height: 100%;
   background: 
-    radial-gradient(circle at 10% 20%, rgba(127, 90, 240, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 10% 20%, rgb(var(--theme-primary-rgb) / 0.04) 0%, transparent 40%),
     radial-gradient(circle at 90% 80%, rgba(44, 182, 125, 0.04) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(127, 90, 240, 0.02) 0%, transparent 60%);
+    radial-gradient(circle at 50% 50%, rgb(var(--theme-primary-rgb) / 0.02) 0%, transparent 60%);
   pointer-events: none;
   z-index: -1;
 }
@@ -97,11 +116,10 @@ section.snap-section {
     overflow-x: hidden;
   }
 
-  /* Completely Hide Scrollbar and Default Cursor */
+  /* Hide Scrollbar but keep default cursor */
   * {
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE/Edge */
-    cursor: none !important;
   }
 
   *::-webkit-scrollbar {
@@ -120,8 +138,8 @@ section.snap-section {
 }
 
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 20px rgba(127, 90, 240, 0.1); }
-  50% { box-shadow: 0 0 40px rgba(127, 90, 240, 0.3); }
+  0%, 100% { box-shadow: 0 0 20px rgb(var(--theme-primary-rgb) / 0.1); }
+  50% { box-shadow: 0 0 40px rgb(var(--theme-primary-rgb) / 0.3); }
 }
 
 @keyframes shimmer {
@@ -185,7 +203,7 @@ section.snap-section {
   left: 0;
   right: 0;
   height: 120px;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.4), transparent);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), transparent);
   z-index: 40;
   pointer-events: none;
 }
@@ -258,6 +276,13 @@ section.snap-section {
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.02);
 }
 
 /* --- Portfolio Cards --- */
@@ -359,7 +384,7 @@ section.snap-section {
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 10px 30px rgba(127, 90, 240, 0.3);
+  box-shadow: 0 10px 30px rgb(var(--theme-primary-rgb) / 0.3);
 }
 
 .btn-primary-liquid:hover {
@@ -414,7 +439,7 @@ section.snap-section {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 20% 20%, rgba(127,90,240,0.12), transparent 60%),
+    radial-gradient(circle at 20% 20%, rgb(var(--theme-primary-rgb) / 0.12), transparent 60%),
     radial-gradient(circle at 80% 30%, rgba(44,182,125,0.10), transparent 60%);
   pointer-events: none;
 }
@@ -429,7 +454,7 @@ section.snap-section {
 
 /* Neon glow accent */
 .neon-border {
-  box-shadow: 0 0 25px rgba(127,90,240,0.25);
+  box-shadow: 0 0 25px rgb(var(--theme-primary-rgb) / 0.25);
 }
 
 /* Toast Notification System */
@@ -469,4 +494,24 @@ section.snap-section {
 
 @keyframes toastOut {
   to { opacity: 0; transform: translateX(20px); }
+}
+
+/* --- Custom Scrollbar for Admin/Modals --- */
+.custom-scrollbar::-webkit-scrollbar {
+  display: block !important;
+  width: 6px !important;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(var(--theme-primary-rgb) / 0.2) !important;
+  border-radius: 10px !important;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--theme-primary-rgb) / 0.4) !important;
+}
+.custom-scrollbar {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgb(var(--theme-primary-rgb) / 0.2) transparent !important;
 }

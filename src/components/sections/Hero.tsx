@@ -1,11 +1,12 @@
 "use client";
 
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import { Users, Palette, Zap, ArrowRight, Sparkles } from "lucide-react";
 import { fadeUp, staggerContainer, magneticHover, viewportSettings } from "@/lib/animations";
 import GlassCard from "@/components/ui/GlassCard";
+import { cn } from "@/lib/utils";
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,6 +23,25 @@ export default function Hero() {
   const mouseY = useMotionValue(0);
   const springX = useSpring(mouseX, { stiffness: 50, damping: 20 });
   const springY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+
+  const [commissionsOpen, setCommissionsOpen] = useState(true);
+  const [closedReason, setClosedReason] = useState("");
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch('/api/admin/settings');
+        const result = await res.json();
+        if (result.success && result.data) {
+          setCommissionsOpen(result.data.commissions_open);
+          setClosedReason(result.data.closed_reason || "");
+        }
+      } catch (error) {
+        console.error('Fetch settings error:', error);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -104,16 +124,39 @@ export default function Hero() {
 
             {/* CTAs */}
             <motion.div variants={fadeUp} className="flex flex-wrap justify-center lg:justify-start gap-6">
-              <motion.button
-                onClick={() => window.dispatchEvent(new CustomEvent("openOrderForm"))}
-                {...magneticHover}
-                className="group relative px-10 py-5 bg-white text-black rounded-[24px] font-black text-[11px] uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95 shadow-[0_20px_40px_rgba(255,255,255,0.1)] overflow-hidden"
-              >
-                <span className="relative z-10 flex items-center gap-3">
-                  Initiate Commission <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-indigo-400 opacity-0 group-hover:opacity-10 transition-opacity" />
-              </motion.button>
+              <div className="flex flex-col items-center lg:items-start gap-4">
+                <motion.button
+                  onClick={() => window.dispatchEvent(new CustomEvent("openOrderForm"))}
+                  {...magneticHover}
+                  className={cn(
+                    "group relative px-10 py-5 rounded-[24px] font-black text-[11px] uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95 overflow-hidden",
+                    commissionsOpen 
+                      ? "bg-white text-black shadow-[0_20px_40px_rgba(255,255,255,0.1)]" 
+                      : "bg-black/5 text-black/30 border border-black/5"
+                  )}
+                >
+                  <span className="relative z-10 flex items-center gap-3">
+                    {commissionsOpen ? 'Request Commission' : 'Commissions Resting'} 
+                    {commissionsOpen ? (
+                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    ) : (
+                      <Sparkles size={16} className="opacity-30" />
+                    )}
+                  </span>
+                  {commissionsOpen && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-indigo-400 opacity-0 group-hover:opacity-10 transition-opacity" />
+                  )}
+                </motion.button>
+                {!commissionsOpen && closedReason && (
+                  <motion.p 
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-[9px] font-bold text-red-500/50 uppercase tracking-[0.2em] px-4"
+                  >
+                    Reason: {closedReason}
+                  </motion.p>
+                )}
+              </div>
 
               <motion.a
                 href="/portfolio"
@@ -159,6 +202,7 @@ export default function Hero() {
                       fill 
                       className="object-cover"
                       priority
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     <div className="absolute bottom-6 left-6 flex items-center gap-3">
@@ -182,8 +226,8 @@ export default function Hero() {
                 transition={{ duration: 1, delay: 0.4 }}
                 className="absolute top-40 right-0 w-3/4 aspect-[4/5] z-10"
               >
-                <div className="w-full h-full rounded-[40px] overflow-hidden border border-purple-100 opacity-60 grayscale hover:grayscale-0 transition-all duration-1000 bg-white shadow-sm">
-                  <Image src="/artwork-hero.webp" alt="Art Showcase 2" fill className="object-cover" />
+                <div className="relative w-full h-full rounded-[40px] overflow-hidden border border-purple-100 opacity-60 grayscale hover:grayscale-0 transition-all duration-1000 bg-white shadow-sm">
+                  <Image src="/artwork-hero.webp" alt="Art Showcase 2" fill className="object-cover" sizes="(max-width: 768px) 100vw, 30vw" />
                 </div>
               </motion.div>
 
@@ -194,8 +238,8 @@ export default function Hero() {
                 transition={{ duration: 1, delay: 0.6 }}
                 className="absolute -bottom-10 left-0 w-2/3 aspect-[4/3] z-0"
               >
-                <div className="w-full h-full rounded-[40px] overflow-hidden border border-purple-50 opacity-40 bg-white">
-                  <Image src="/artwork-hero.webp" alt="Art Showcase 3" fill className="object-cover" />
+                <div className="relative w-full h-full rounded-[40px] overflow-hidden border border-purple-50 opacity-40 bg-white">
+                  <Image src="/artwork-hero.webp" alt="Art Showcase 3" fill className="object-cover" sizes="(max-width: 768px) 100vw, 30vw" />
                 </div>
               </motion.div>
 

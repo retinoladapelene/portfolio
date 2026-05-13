@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Info, Calculator, ArrowRight, Sparkles, Diamond, PenTool, Layers } from "lucide-react";
+import { Check, Calculator, ArrowRight, Sparkles, Diamond, PenTool, Layers, Clock } from "lucide-react";
 import Section from "@/components/ui/Section";
-import GlassCard from "@/components/ui/GlassCard";
 import { cn } from "@/lib/utils";
 import { fadeUp, viewportSettings } from "@/lib/animations";
 
@@ -15,34 +14,74 @@ const FACTORS = [
   { label: "Commercial Licensing", icon: <Diamond size={16} /> },
 ];
 
-const EXAMPLES = [
-  { type: "Headshot", range: "80K", desc: "Focus on portrait & emotion" },
-  { type: "Bust Up", range: "100K", desc: "Dynamic posing & torso" },
-  { type: "Halfbody", range: "130K", desc: "Sophisticated character silhouette" },
-  { type: "Knee Up", range: "180K", desc: "Complete world-building" },
-];
-
-const BASE_TYPES = [
-  { label: "Headshot", val: 80 },
-  { label: "Bust Up", val: 100 },
-  { label: "Halfbody", val: 130 },
-  { label: "Knee Up", val: 180 }
-];
-
 const Pricing = () => {
   const [baseType, setBaseType] = useState(80);
   const [isCouple, setIsCouple] = useState(false);
   const [bgDetail, setBgDetail] = useState(0);
   const [toasts, setToasts] = useState<{ id: number; message: string; exiting?: boolean }[]>([]);
+  const [configs, setConfigs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [commissionsOpen, setCommissionsOpen] = useState(true);
+  const [closedReason, setClosedReason] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [pricingRes, settingsRes] = await Promise.all([
+          fetch('/api/pricing'),
+          fetch('/api/admin/settings')
+        ]);
+        
+        const pricingData = await pricingRes.json();
+        const settingsData = await settingsRes.json();
+
+        if (pricingData.success && pricingData.data.length > 0) {
+          setConfigs(pricingData.data);
+          const firstPackage = pricingData.data.find((c: any) => c.category === 'package');
+          if (firstPackage) setBaseType(firstPackage.value);
+        }
+
+        if (settingsData.success && settingsData.data) {
+          setCommissionsOpen(settingsData.data.commissions_open);
+          setClosedReason(settingsData.data.closed_reason || "");
+        }
+      } catch (err) {
+        console.error('Failed to fetch data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const baseTypes = configs.length > 0 
+    ? configs.filter(c => c.category === 'package').map(c => ({ label: c.label, val: c.value, desc: c.description }))
+    : [
+        { label: "Headshot", val: 80, desc: "Focus on portrait & emotion" },
+        { label: "Bust Up", val: 100, desc: "Dynamic posing & torso" },
+        { label: "Halfbody", val: 130, desc: "Sophisticated character silhouette" },
+        { label: "Knee Up", val: 180, desc: "Complete world-building" }
+      ];
+
+  const extraBg = configs.find(c => c.category === 'extra' && c.key === 'background_premium')?.value || 50;
+  const coupleMult = configs.find(c => c.category === 'multiplier' && c.key === 'couple_multiplier')?.value || 2;
 
   const estimatedTotal = useMemo(() => {
     let total = baseType + bgDetail;
-    if (isCouple) total *= 2;
+    if (isCouple) total *= coupleMult;
     return total;
-  }, [baseType, bgDetail, isCouple]);
+  }, [baseType, bgDetail, isCouple, coupleMult]);
 
   const handleOrder = () => {
-    const selectedTypeLabel = BASE_TYPES.find(t => t.val === baseType)?.label || "";
+    if (!commissionsOpen) {
+      const id = Date.now();
+      setToasts((prev) => [...prev, { id, message: closedReason || "Commissions are currently closed. Please check back later!" }]);
+      setTimeout(() => setToasts((prev) => prev.map(t => t.id === id ? { ...t, exiting: true } : t)), 3000);
+      setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3500);
+      return;
+    }
+
+    const selectedTypeLabel = baseTypes.find(t => t.val === baseType)?.label || "";
     window.dispatchEvent(new CustomEvent("prefillOrder", { 
       detail: { type: selectedTypeLabel, isCouple, hasBackground: bgDetail > 0 } 
     }));
@@ -55,50 +94,14 @@ const Pricing = () => {
 
   return (
     <Section id="pricing" className="relative overflow-hidden py-32 bg-transparent">
-      {/* ARTISTIC BACKGROUND ELEMENTS */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div 
-          animate={{ 
-            scale: [1, 1.2, 1],
-            rotate: [0, 90, 0],
-            opacity: [0.1, 0.2, 0.1]
-          }}
+          animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0], opacity: [0.1, 0.2, 0.1] }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           className="absolute -top-[20%] -right-[10%] w-[800px] h-[800px] bg-purple-600/10 blur-[120px] rounded-full" 
         />
-        <motion.div 
-          animate={{ 
-            scale: [1, 1.3, 1],
-            x: [0, 50, 0],
-            opacity: [0.05, 0.15, 0.05]
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-0 -left-[10%] w-[600px] h-[600px] bg-purple-900/20 blur-[100px] rounded-full" 
-        />
-        
-        {/* Animated Particles/Edge elements */}
-        {[...Array(5)].map((_, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ 
-              opacity: [0, 0.4, 0],
-              scale: [0, 1.5, 0],
-              y: [0, -100, -200],
-              x: Math.sin(i) * 100
-            }}
-            transition={{ 
-              duration: 5 + i, 
-              repeat: Infinity, 
-              delay: i * 2,
-              ease: "easeOut"
-            }}
-            className="absolute bottom-0 left-1/4 w-1 h-20 bg-gradient-to-t from-purple-500/0 via-purple-500/20 to-transparent blur-sm"
-          />
-        ))}
       </div>
 
-      {/* TOAST SYSTEM */}
       <div className="fixed bottom-10 left-10 z-[100] flex flex-col gap-3">
         <AnimatePresence>
           {toasts.map((toast) => (
@@ -116,18 +119,9 @@ const Pricing = () => {
         </AnimatePresence>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="flex flex-col lg:flex-row gap-20 items-center">
-          
-          {/* LEFT CONTENT: EDITORIAL HEADING & FACTORS */}
-          <div className="flex-1 space-y-12">
-            <motion.div 
-              variants={fadeUp}
-              initial="initial"
-              whileInView="whileInView"
-              viewport={viewportSettings}
-              className="space-y-6"
-            >
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 items-center justify-center">
+          <div className="w-full lg:max-w-xl space-y-12">
+            <motion.div variants={fadeUp} initial="initial" whileInView="whileInView" viewport={viewportSettings} className="space-y-6">
               <div className="flex items-center gap-3">
                 <div className="h-px w-12 bg-purple-500/50" />
                 <span className="text-[10px] text-purple-400 font-black uppercase tracking-[0.5em]">Valuation Protocol</span>
@@ -137,19 +131,13 @@ const Pricing = () => {
                 <span className="text-purple-600 font-bold italic">Investment.</span>
               </h2>
               <p className="text-black/60 font-outfit text-lg max-w-lg leading-relaxed uppercase tracking-wider">
-                Every stroke is an investment in quality. Our pricing scales dynamically with the <span className="text-black">complexity of your vision.</span>
+                Every stroke is an investment in quality. Our pricing adjusts dynamically to the <span className="text-black">complexity of your vision.</span>
               </p>
             </motion.div>
 
             <div className="grid sm:grid-cols-2 gap-4">
               {FACTORS.map((f, i) => (
-                <motion.div
-                  key={f.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="p-6 rounded-[24px] bg-black/[0.03] backdrop-blur-md border border-black/5 hover:border-purple-600/50 transition-all group"
-                >
+                <motion.div key={f.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="p-6 rounded-[24px] bg-black/[0.03] backdrop-blur-md border border-black/5 hover:border-purple-600/50 transition-all group">
                   <div className="text-purple-600 mb-4 group-hover:scale-110 transition-transform">{f.icon}</div>
                   <h4 className="text-[10px] font-black uppercase tracking-widest text-black/60">{f.label}</h4>
                 </motion.div>
@@ -157,22 +145,16 @@ const Pricing = () => {
             </div>
 
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-white/50 uppercase tracking-[0.4em] block mb-6">Standard Benchmarks</label>
+              <label className="text-[10px] font-black text-black/30 uppercase tracking-[0.4em] block mb-6">Standard Benchmarks</label>
               <div className="grid gap-3">
-                {EXAMPLES.map((ex, i) => (
-                  <motion.div
-                    key={ex.type}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="flex justify-between items-center p-6 rounded-3xl bg-black/[0.02] backdrop-blur-sm border border-black/5 hover:bg-black/[0.04] transition-all group"
-                  >
+                {baseTypes.slice(0, 4).map((ex, i) => (
+                  <motion.div key={ex.label} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }} className="flex justify-between items-center p-6 rounded-3xl bg-black/[0.02] backdrop-blur-sm border border-black/5 hover:bg-black/[0.04] transition-all group">
                     <div>
-                      <h4 className="text-lg font-bold text-black font-outfit">{ex.type}</h4>
+                      <h4 className="text-lg font-bold text-black font-outfit">{ex.label}</h4>
                       <p className="text-[9px] text-black/40 uppercase tracking-widest mt-1 font-medium">{ex.desc}</p>
                     </div>
                     <span className="text-2xl font-black text-black font-syne italic tracking-tighter">
-                      {ex.range}
+                      {ex.val}K
                     </span>
                   </motion.div>
                 ))}
@@ -180,56 +162,53 @@ const Pricing = () => {
             </div>
           </div>
 
-          {/* RIGHT CONTENT: INTERACTIVE CONFIGURATOR */}
-          <div className="w-full lg:w-[500px]">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="relative"
-            >
-              {/* Animated Edges for the Card */}
-              <div className="absolute -inset-1 bg-gradient-to-br from-purple-500/10 via-transparent to-purple-500/10 rounded-[40px] blur-sm opacity-30" />
-              
-              <div className="relative p-10 rounded-[40px] bg-white/[0.4] backdrop-blur-xl border border-black/5 shadow-xl overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 blur-[80px] rounded-full -mr-20 -mt-20" />
-                
+          <div className="w-full lg:w-[480px]">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} className="relative">
+              <div className="relative p-6 md:p-10 lg:px-10 rounded-[32px] md:rounded-[40px] bg-white/[0.6] backdrop-blur-xl border border-black/5 shadow-xl overflow-hidden">
                 <div className="relative z-10 space-y-10">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                     <div className="flex items-center gap-3">
                       <div className="p-3 bg-purple-500/10 rounded-2xl border border-purple-500/10">
-                        <Calculator size={20} className="text-purple-600" />
+                        {commissionsOpen ? (
+                          <Calculator size={18} className="text-purple-600" />
+                        ) : (
+                          <Clock size={18} className="text-black/40" />
+                        )}
                       </div>
                       <div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 block">Configurator</span>
-                        <h3 className="text-xl font-bold text-black font-outfit">Project Estimator</h3>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] text-black/40 block">Configurator</span>
+                          {!commissionsOpen && (
+                            <span className="px-2 py-0.5 rounded-full bg-black/5 border border-black/10 text-[7px] font-black uppercase tracking-widest text-black/40">
+                              Status: Resting
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="text-lg md:text-xl font-bold text-black font-outfit">Project Estimator</h3>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-xs text-black/30 uppercase tracking-widest mb-1">Total Valuation</div>
-                      <div className="flex items-baseline gap-1 justify-end">
-                        <span className="text-5xl font-black text-black font-syne italic tracking-tighter">
+                    <div className="text-left sm:text-right w-full sm:w-auto min-w-fit shrink-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-black/5">
+                      <div className="text-[9px] text-black/30 uppercase tracking-wider mb-1">Total Valuation</div>
+                      <div className="flex items-baseline gap-1 justify-start sm:justify-end">
+                        <span className="text-4xl md:text-5xl font-black text-black font-syne italic tracking-tight">
                           {estimatedTotal}K
                         </span>
-                        <span className="text-sm font-bold text-purple-600">IDR</span>
+                        <span className="text-xs font-bold text-purple-600">IDR</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-8">
-                    {/* Base Type */}
                     <div className="space-y-4">
                       <label className="text-[10px] font-black text-black/30 uppercase tracking-[0.4em] ml-1">Anatomical Scope</label>
                       <div className="grid grid-cols-2 gap-3">
-                        {BASE_TYPES.map((t) => (
+                        {baseTypes.map((t) => (
                           <button
                             key={t.label}
                             onClick={() => setBaseType(t.val)}
                             className={cn(
-                              "py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border font-outfit",
-                              baseType === t.val 
-                                ? "bg-purple-600 border-purple-400 text-white shadow-lg shadow-purple-900/10" 
-                                : "bg-black/[0.03] border-black/5 text-black/40 hover:bg-black/[0.06]"
+                              "py-3 md:py-4 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all border font-outfit",
+                              baseType === t.val ? "bg-purple-600 border-purple-400 text-white" : "bg-black/[0.03] border-black/5 text-black/40"
                             )}
                           >
                             {t.label}
@@ -238,87 +217,68 @@ const Pricing = () => {
                       </div>
                     </div>
 
-                    {/* Options Toggle */}
                     <div className="space-y-4">
                       <label className="text-[10px] font-black text-black/30 uppercase tracking-[0.4em] ml-1">Advanced Directives</label>
                       <div className="space-y-3">
-                        <button 
-                          onClick={() => setIsCouple(!isCouple)}
-                          className={cn(
-                            "w-full flex items-center justify-between p-5 rounded-2xl border transition-all group",
-                            isCouple 
-                              ? "bg-purple-500/10 border-purple-500/20" 
-                              : "bg-black/[0.02] border-black/5 hover:border-black/10"
-                          )}
-                        >
+                        <button onClick={() => setIsCouple(!isCouple)} className={cn("w-full flex items-center justify-between p-5 rounded-2xl border transition-all", isCouple ? "bg-purple-500/10 border-purple-500/20" : "bg-black/[0.02] border-black/5")}>
                           <div className="text-left">
-                            <span className={cn("text-xs font-bold block transition-colors", isCouple ? "text-black" : "text-black/40")}>Couple 2x price</span>
+                            <span className={cn("text-xs font-bold block", isCouple ? "text-black" : "text-black/40")}>Couple {coupleMult}x price</span>
                             <span className="text-[9px] text-black/20 uppercase tracking-widest">Dual Subject Synergy</span>
                           </div>
-                          <div className={cn(
-                            "w-10 h-6 rounded-full relative transition-colors",
-                            isCouple ? "bg-purple-600" : "bg-black/10"
-                          )}>
-                            <motion.div 
-                              animate={{ x: isCouple ? 18 : 4 }}
-                              className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-md" 
-                            />
+                          <div className={cn("w-10 h-6 rounded-full relative transition-colors", isCouple ? "bg-purple-600" : "bg-black/10")}>
+                            <motion.div animate={{ x: isCouple ? 18 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full" />
                           </div>
                         </button>
 
-                        <button 
-                          onClick={() => setBgDetail(bgDetail === 0 ? 50 : 0)}
-                          className={cn(
-                            "w-full flex items-center justify-between p-5 rounded-2xl border transition-all group",
-                            bgDetail > 0 
-                              ? "bg-purple-500/10 border-purple-500/20" 
-                              : "bg-black/[0.02] border-black/5 hover:border-black/10"
-                          )}
-                        >
+                        <button onClick={() => setBgDetail(bgDetail === 0 ? extraBg : 0)} className={cn("w-full flex items-center justify-between p-5 rounded-2xl border transition-all", bgDetail > 0 ? "bg-purple-500/10 border-purple-500/20" : "bg-black/[0.02] border-black/5")}>
                           <div className="text-left">
-                            <span className={cn("text-xs font-bold block transition-colors", bgDetail > 0 ? "text-black" : "text-black/40")}>Background Complexity</span>
-                            <span className="text-[9px] text-black/20 uppercase tracking-widest">+50K IDR Premium</span>
+                            <span className={cn("text-xs font-bold block", bgDetail > 0 ? "text-black" : "text-black/40")}>Background Complexity</span>
+                            <span className="text-[9px] text-black/20 uppercase tracking-widest">+{extraBg}K IDR Premium</span>
                           </div>
-                          <div className={cn(
-                            "w-10 h-6 rounded-full relative transition-colors",
-                            bgDetail > 0 ? "bg-purple-600" : "bg-black/10"
-                          )}>
-                            <motion.div 
-                              animate={{ x: bgDetail > 0 ? 18 : 4 }}
-                              className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-md" 
-                            />
+                          <div className={cn("w-10 h-6 rounded-full relative transition-colors", bgDetail > 0 ? "bg-purple-600" : "bg-black/10")}>
+                            <motion.div animate={{ x: bgDetail > 0 ? 18 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full" />
                           </div>
                         </button>
                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-6 border-t border-white/5">
-                    <button 
-                      onClick={handleOrder}
-                      className="w-full py-5 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3 shadow-xl shadow-purple-900/20 group overflow-hidden relative"
+                  {!commissionsOpen && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      className="p-5 rounded-2xl bg-red-500/5 border border-red-500/10 flex items-center gap-4"
                     >
-                      <motion.div
-                        animate={{ x: ["-100%", "200%"] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
-                      />
-                      <span className="relative z-10">Initialize Commission Protocol</span>
-                      <ArrowRight size={16} className="relative z-10 group-hover:translate-x-1 transition-transform" />
+                      <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 shrink-0">
+                        <Clock size={18} />
+                      </div>
+                      <p className="text-[10px] text-red-500/70 font-bold uppercase tracking-wider leading-relaxed">
+                        {closedReason || "Sorry, commissions are currently closed to maintain quality. Please check back later!"}
+                      </p>
+                    </motion.div>
+                  )}
+
+                  <div className="pt-6 border-t border-black/5">
+                    <button 
+                      onClick={handleOrder} 
+                      className={cn(
+                        "w-full py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3",
+                        commissionsOpen 
+                          ? "bg-purple-600 hover:bg-purple-500 text-white" 
+                          : "bg-black/10 text-black/30 cursor-not-allowed"
+                      )}
+                    >
+                      <span>{commissionsOpen ? 'Request Your Commission' : 'Commissions Currently Closed'}</span>
+                      {commissionsOpen ? <ArrowRight size={14} /> : <Clock size={14} />}
                     </button>
-                    <p className="text-[9px] text-white/50 text-center mt-6 uppercase tracking-widest font-medium">
-                      *Subject to individual project complexity
-                    </p>
                   </div>
                 </div>
               </div>
             </motion.div>
           </div>
         </div>
-      </div>
     </Section>
   );
 };
 
 export default Pricing;
-

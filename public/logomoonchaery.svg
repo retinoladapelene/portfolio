@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="2" dy="6" stdDeviation="5" flood-color="#4C1D95" flood-opacity="0.15" />
+    </filter>
+
+    <linearGradient id="paletteGrad" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#E9D5FF"/>
+      <stop offset="50%" stop-color="#C4B5FD"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+
+    <linearGradient id="handleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="60%" stop-color="#F3F4F6"/>
+      <stop offset="100%" stop-color="#D1D5DB"/>
+    </linearGradient>
+
+    <linearGradient id="metalGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D1D5DB"/>
+      <stop offset="30%" stop-color="#FFFFFF"/>
+      <stop offset="70%" stop-color="#9CA3AF"/>
+      <stop offset="100%" stop-color="#4B5563"/>
+    </linearGradient>
+
+    <linearGradient id="bristleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4C1D95"/>
+      <stop offset="30%" stop-color="#8B5CF6"/>
+      <stop offset="80%" stop-color="#F9FAFB"/>
+      <stop offset="100%" stop-color="#E5E7EB"/>
+    </linearGradient>
+
+    <mask id="paletteMask">
+      <rect width="512" height="512" fill="white" />
+      <circle cx="440" cy="230" r="250" fill="black" />
+      <circle cx="160" cy="380" r="32" fill="black" />
+    </mask>
+  </defs>
+
+  <circle cx="240" cy="256" r="220" fill="url(#paletteGrad)" mask="url(#paletteMask)" filter="url(#shadow)"/>
+
+  <g filter="url(#shadow)">
+    <circle cx="145" cy="115" r="22" fill="#FFFFFF"/>
+    <path d="M 135,105 A 8,8 0 0,1 155,105" stroke="#F3F4F6" stroke-width="3" stroke-linecap="round" fill="none"/>
+    
+    <circle cx="90" cy="195" r="22" fill="#DDD6FE"/>
+    <path d="M 80,185 A 8,8 0 0,1 100,185" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.8"/>
+    
+    <circle cx="80" cy="285" r="22" fill="#7C3AED"/>
+    <path d="M 70,275 A 8,8 0 0,1 90,275" stroke="#C4B5FD" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.6"/>
+  </g>
+
+  <g transform="translate(256, 256) rotate(35)" filter="url(#shadow)">
+    
+    <rect x="40" y="-12" width="180" height="24" rx="12" fill="url(#handleGrad)"/>
+    
+    <rect x="-10" y="-14" width="50" height="28" rx="2" fill="url(#metalGrad)"/>
+    <line x1="0" y1="-14" x2="0" y2="14" stroke="#9CA3AF" stroke-width="1.5" opacity="0.8"/>
+    <line x1="5" y1="-14" x2="5" y2="14" stroke="#9CA3AF" stroke-width="1.5" opacity="0.8"/>
+    <line x1="25" y1="-14" x2="25" y2="14" stroke="#9CA3AF" stroke-width="2" opacity="0.6"/>
+
+    <path d="M -10,-14 C -50,-14 -90,-4 -130,0 C -90,4 -50,14 -10,14 Z" fill="url(#bristleGrad)"/>
+    
+    <path d="M -10,-6 C -40,-6 -70,-2 -100,0" stroke="#FFFFFF" fill="none" stroke-width="1.5" opacity="0.7"/>
+    <path d="M -10,6 C -40,6 -70,2 -90,0" stroke="#C4B5FD" fill="none" stroke-width="1" opacity="0.5"/>
+  </g>
+</svg>

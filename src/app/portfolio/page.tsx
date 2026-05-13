@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
-import { ArrowLeft, ExternalLink, Maximize2, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ExternalLink, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { projects as staticProjects, Project } from "@/config/projects";
 import GlassShatterTransition, { Direction } from "@/components/portfolio/GlassShatterTransition";
 import SwordSliceTransition from "@/components/portfolio/SwordSliceTransition";
@@ -132,6 +132,7 @@ export default function PortfolioPage() {
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
           <span className="text-xs font-black uppercase tracking-widest">Home</span>
         </Link>
+
       </nav>
 
       <div className="fixed bottom-10 right-10 z-50 flex gap-4">

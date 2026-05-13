@@ -35,24 +35,36 @@ export async function updateSession(request: NextRequest) {
   // PROTECT /ADMIN AND SENSITIVE API ROUTES
   const isApiRoute = request.nextUrl.pathname.startsWith('/api')
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
-  const allowedEmails = ['pbsn290704@gmail.com']
+  const isAdminApi = request.nextUrl.pathname.startsWith('/api/admin')
+  const allowedEmails = (process.env.ALLOWED_ADMIN_EMAILS || 'pbsn290704@gmail.com').split(',')
 
-  if (isAdminRoute || isApiRoute) {
-    // Exception: POST /api/commissions is PUBLIC for form submissions
-    if (request.nextUrl.pathname === '/api/commissions' && request.method === 'POST') {
-      return supabaseResponse
+  // PUBLIC ROUTES (No Auth Required)
+  const isPublicApi = 
+    (request.nextUrl.pathname === '/api/commissions' && request.method === 'POST') ||
+    request.nextUrl.pathname.startsWith('/api/pricing') ||
+    (request.nextUrl.pathname === '/api/admin/settings' && request.method === 'GET')
+
+  if (isAdminRoute || isAdminApi) {
+    // Exception: Public can GET settings to check if commissions are open
+    if (request.nextUrl.pathname === '/api/admin/settings' && request.method === 'GET') {
+       return supabaseResponse;
     }
 
-    // Check auth for everything else under /admin or /api
     if (!user || !allowedEmails.includes(user.email!)) {
-      if (isApiRoute) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      if (isAdminApi) {
+        return NextResponse.json({ error: 'Unauthorized Admin Access' }, { status: 401 })
       }
-      
       const url = request.nextUrl.clone()
       url.pathname = '/'
       url.searchParams.set('login', 'true')
       return NextResponse.redirect(url)
+    }
+  }
+
+  if (isApiRoute && !isPublicApi) {
+    // If it's a general API route (like check-active), just require being logged in
+    if (!user) {
+      return NextResponse.json({ error: 'Authentication Required' }, { status: 401 })
     }
   }
 

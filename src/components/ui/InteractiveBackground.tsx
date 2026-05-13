@@ -1,9 +1,40 @@
 "use client";
 
 import { AnimatePresence, motion, useAnimationFrame, useMotionValue, useSpring } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 
-export default function InteractiveBackground() {
+// Optimized Bloom component to reduce re-renders of the main container
+const Bloom = memo(({ bloom }: { bloom: { id: number; x: number; y: number; rotate: number; scale: number } }) => {
+  return (
+    <motion.ellipse
+      initial={{ 
+        rx: 10, 
+        ry: 5, 
+        opacity: 0, 
+        cx: bloom.x, 
+        cy: bloom.y,
+        rotate: bloom.rotate,
+        scale: 0.1
+      }}
+      animate={{ 
+        rx: [10, 800, 1400], 
+        ry: [5, 120, 200],
+        opacity: [0, 0.9, 0.6, 0],
+        cy: bloom.y + 180, // Ink "sinking" through water
+        cx: bloom.x + (Math.sin(bloom.id) * 80), // Swirling drift
+        scale: bloom.scale
+      }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 12, ease: "easeOut" }}
+      fill="white"
+      style={{ willChange: "transform, opacity, rx, ry" }}
+    />
+  );
+});
+
+Bloom.displayName = "Bloom";
+
+function InteractiveBackground() {
   const [mounted, setMounted] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 1920, height: 1080 });
   
@@ -27,7 +58,7 @@ export default function InteractiveBackground() {
       const handleResize = () => {
         setWindowSize({ width: window.innerWidth, height: window.innerHeight });
       };
-      window.addEventListener("resize", handleResize);
+      window.addEventListener("resize", handleResize, { passive: true });
       return () => window.removeEventListener("resize", handleResize);
     }
   }, [maskX, maskY]);
@@ -39,19 +70,21 @@ export default function InteractiveBackground() {
       const currentX = maskX.get();
       const currentY = maskY.get();
       
-      setBlooms((prev) => [
-        ...prev.slice(-30), 
-        { 
+      setBlooms((prev) => {
+        // Reduced max blooms from 30 to 15 for performance
+        const next = [...prev.slice(-15), { 
           id: bloomCounter.current++, 
           x: currentX, 
           y: currentY,
-          rotate: (Math.random() - 0.5) * 30, // Keep mostly horizontal
+          rotate: (Math.random() - 0.5) * 30,
           scale: 0.7 + Math.random() * 0.6
-        }
-      ]);
+        }];
+        return next;
+      });
     };
 
-    const interval = setInterval(spawnBloom, 400); // Increased frequency for more effects
+    // Increased interval from 400ms to 800ms to reduce DOM nodes and re-renders
+    const interval = setInterval(spawnBloom, 800);
     return () => clearInterval(interval);
   }, [mounted, maskX, maskY]);
 
@@ -74,18 +107,24 @@ export default function InteractiveBackground() {
 
   return (
     <div className="fixed inset-0 z-[-10] pointer-events-none overflow-hidden bg-white">
-      {/* 1. Subtle Paper/Canvas Texture */}
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]" />
+      {/* 1. Subtle Paper/Canvas Texture - Using CSS instead of background-image if possible, but keeping it for now */}
+      <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')] will-change-transform" />
 
-      {/* 2. Revealed Atmospheric Layer (Ink Spread) */}
+      {/* 2. Revealed Atmospheric Layer (Ink Spread) — uses theme CSS vars */}
       <div 
         className="absolute inset-0"
         style={{ 
-          background: "linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 50%, #DDD6FE 100%)",
+          background: `linear-gradient(135deg, 
+            var(--theme-light, #F3E8FF) 0%, 
+            color-mix(in srgb, var(--theme-light, #E9D5FF) 70%, var(--theme-dot, #A78BFA) 30%) 50%, 
+            color-mix(in srgb, var(--theme-light, #DDD6FE) 50%, var(--theme-dot, #A78BFA) 50%) 100%
+          )`,
+          transition: "background 1.2s ease",
           maskImage: "url(#ink-mask-global-v10)",
           WebkitMaskImage: "url(#ink-mask-global-v10)",
           maskMode: "alpha",
-          WebkitMaskMode: "alpha"
+          WebkitMaskMode: "alpha",
+          willChange: "mask-image"
         } as any}
       >
         {/* Interior bloom movement for added depth */}
@@ -95,21 +134,26 @@ export default function InteractiveBackground() {
             scale: [1, 1.1, 1]
           }}
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 bg-radial-gradient from-purple-200/50 to-transparent blur-3xl"
+          className="absolute inset-0 blur-3xl will-change-transform"
+          style={{
+            background: `radial-gradient(ellipse at center, color-mix(in srgb, var(--theme-dot, #A78BFA) 50%, transparent) 0%, transparent 70%)`,
+            transition: "background 1.2s ease",
+          }}
         />
       </div>
       
       <svg className="absolute w-full h-full">
         <defs>
           <filter id="ink-spread-filter-global">
-            <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="5" seed="42" />
-            <feDisplacementMap in="SourceGraphic" scale="220" />
-            <feGaussianBlur stdDeviation="12" />
+            {/* Optimized: Reduced numOctaves from 5 to 2 to significantly improve filter performance */}
+            <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" seed="42" />
+            <feDisplacementMap in="SourceGraphic" scale="180" />
+            <feGaussianBlur stdDeviation="15" />
           </filter>
           
           <mask id="ink-mask-global-v10" maskUnits="userSpaceOnUse">
             <g filter="url(#ink-spread-filter-global)">
-              {/* Main automated flow - changed to slender ellipse */}
+              {/* Main automated flow */}
               <motion.ellipse 
                 cx={springX} 
                 cy={springY} 
@@ -117,34 +161,13 @@ export default function InteractiveBackground() {
                 ry="150" 
                 fill="white" 
                 fillOpacity="0.85"
+                style={{ willChange: "cx, cy" }}
               />
               
-              {/* Individual ink blooms that sink and spread */}
-              <AnimatePresence>
+              {/* Individual ink blooms */}
+              <AnimatePresence mode="popLayout">
                 {blooms.map((bloom) => (
-                  <motion.ellipse
-                    key={bloom.id}
-                    initial={{ 
-                      rx: 10, 
-                      ry: 5, 
-                      opacity: 0, 
-                      cx: bloom.x, 
-                      cy: bloom.y,
-                      rotate: bloom.rotate,
-                      scale: 0.1
-                    }}
-                    animate={{ 
-                      rx: [10, 800, 1400], 
-                      ry: [5, 120, 200],
-                      opacity: [0, 0.9, 0.6, 0],
-                      cy: bloom.y + 180, // Ink "sinking" through water
-                      cx: bloom.x + (Math.sin(bloom.id) * 80), // Swirling drift
-                      scale: bloom.scale
-                    }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 12, ease: "easeOut" }}
-                    fill="white"
-                  />
+                  <Bloom key={bloom.id} bloom={bloom} />
                 ))}
               </AnimatePresence>
             </g>
@@ -153,10 +176,18 @@ export default function InteractiveBackground() {
       </svg>
 
       {/* 3. Subtle Atmospheric Light Bloom Overlay */}
-      <div className="absolute inset-0 pointer-events-none opacity-20 bg-radial-gradient from-purple-100/30 via-transparent to-transparent" />
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-20 will-change-transform"
+        style={{
+          background: `radial-gradient(ellipse at center, color-mix(in srgb, var(--theme-light, #F3E8FF) 30%, transparent) 0%, transparent 70%)`,
+          transition: "background 1.2s ease",
+        }}
+      />
       
       {/* 4. Film Grain Overlay */}
-      <div className="absolute inset-0 grain-overlay opacity-[0.03]" />
+      <div className="absolute inset-0 grain-overlay opacity-[0.02] pointer-events-none" />
     </div>
   );
 }
+
+export default memo(InteractiveBackground);

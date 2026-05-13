@@ -1,0 +1,54 @@
+import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/utils/supabase/admin';
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { eventType, pagePath, eventName, metadata } = body;
+
+    if (!supabaseAdmin) {
+      return NextResponse.json({ success: false, error: 'Database offline' }, { status: 500 });
+    }
+
+    const { error } = await supabaseAdmin
+      .from('site_analytics')
+      .insert({
+        event_type: eventType,
+        page_path: pagePath,
+        event_name: eventName,
+        metadata: metadata || {}
+      });
+
+    if (error) {
+      // If table doesn't exist, we just fail silently for the client but log for admin
+      console.error('Analytics insert error:', error);
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  // --- FETCH ANALYTICS FOR DASHBOARD ---
+  try {
+    if (!supabaseAdmin) throw new Error('Database offline');
+
+    // Fetch all records from the last 30 days
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    
+    const { data, error } = await supabaseAdmin
+      .from('site_analytics')
+      .select('*')
+      .gt('created_at', thirtyDaysAgo)
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, data });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}

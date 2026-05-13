@@ -2,25 +2,28 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Check, Send, Upload, X, Palette, Sparkles, Wand2, Mail, MessageCircle, User, CreditCard, AlignLeft, Info, ShieldCheck, Clock, ShieldAlert, Image, Link as LinkIcon, Camera } from "lucide-react";
+import { ArrowRight, Check, Send, Upload, X, Palette, Sparkles, Wand2, Mail, MessageCircle, User, CreditCard, AlignLeft, Info, ShieldCheck, Clock, ShieldAlert, Image, Link as LinkIcon, Camera, ScrollText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import TermsModal from "../ui/TermsModal";
+import { useToast } from "@/components/ui/Toast";
 
-const BASE_PRICES: Record<string, number> = {
+const ART_STYLES = ["Manga", "Full Render", "Line Art"];
+const BASE_PRICES = {
   "Headshot": 80,
   "Bust Up": 100,
   "Halfbody": 130,
   "Knee Up": 180
 };
-const ART_STYLES = ["Manga", "Full Render", "Line Art"];
 
 const OrderForm = () => {
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submittedOrderId, setSubmittedOrderId] = useState("");
   const [hasActiveCommission, setHasActiveCommission] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [step, setStep] = useState(1);
@@ -32,15 +35,42 @@ const OrderForm = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    socialHandle: "",
     paymentMethod: "",
     background: "",
     description: "",
     references: "",
-    socialMedia: "",
     showPaymentDropdown: false
   });
   const [referenceFiles, setReferenceFiles] = useState<File[]>([]);
   const [uploadError, setUploadError] = useState("");
+  const [pricingConfigs, setPricingConfigs] = useState<any[]>([]);
+  const [commissionsOpen, setCommissionsOpen] = useState(true);
+  const [closedReason, setClosedReason] = useState("");
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [pricingRes, settingsRes] = await Promise.all([
+          fetch('/api/pricing'),
+          fetch('/api/admin/settings')
+        ]);
+        
+        const pricingData = await pricingRes.json();
+        const settingsData = await settingsRes.json();
+
+        if (pricingData.success) setPricingConfigs(pricingData.data);
+        if (settingsData.success && settingsData.data) {
+          setCommissionsOpen(settingsData.data.commissions_open);
+          setClosedReason(settingsData.data.closed_reason || "");
+        }
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+      }
+    };
+    fetchData();
+  }, []);
 
   const supabase = createClient();
 
@@ -83,8 +113,8 @@ const OrderForm = () => {
     setUploadError("");
 
     const validFiles = files.filter(file => {
-      if (file.size > 500 * 1024) {
-        setUploadError(`File ${file.name} is too large. Max 500KB.`);
+      if (file.size > 1024 * 1024) {
+        setUploadError(`File ${file.name} is too large. Max 1MB.`);
         return false;
       }
       return true;
@@ -99,6 +129,10 @@ const OrderForm = () => {
 
   useEffect(() => {
     const handlePrefill = async (e: any) => {
+      if (!commissionsOpen) {
+        toast(closedReason || "Sorry, commissions are currently closed to maintain quality.", "info");
+        return;
+      }
       const isAllowed = await checkAuthAndActiveCommission();
       if (!isAllowed && isAllowed !== null) {
         setIsOpen(true);
@@ -123,6 +157,10 @@ const OrderForm = () => {
     window.addEventListener("prefillOrder", handlePrefill);
     
     const handleOpen = async () => {
+      if (!commissionsOpen) {
+        toast(closedReason || "Sorry, commissions are currently closed to maintain quality.", "info");
+        return;
+      }
       const isAllowed = await checkAuthAndActiveCommission();
       if (isAllowed === null) return;
       
@@ -136,30 +174,49 @@ const OrderForm = () => {
       window.removeEventListener("prefillOrder", handlePrefill);
       window.removeEventListener("openOrderForm", handleOpen);
     };
-  }, []);
+  }, [commissionsOpen]);
 
   useEffect(() => {
-    let price = BASE_PRICES[selectedType] || 0;
-    if (isCouple) price *= 2;
-    if (hasBackground) price += 50;
+    const pkg = pricingConfigs.find(c => c.category === 'package' && c.label === selectedType);
+    const coupleMult = pricingConfigs.find(c => c.category === 'multiplier' && c.key === 'couple_multiplier')?.value || 2;
+    const extraBg = pricingConfigs.find(c => c.category === 'extra' && c.key === 'background_premium')?.value || 50;
+
+    let price = pkg?.value || 0;
+    if (isCouple) price *= coupleMult;
+    if (hasBackground) price += extraBg;
     setCalculatedPrice(price);
-  }, [selectedType, isCouple, hasBackground]);
+  }, [selectedType, isCouple, hasBackground, pricingConfigs]);
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.email || !formData.socialMedia || !selectedStyle || !formData.paymentMethod) {
-      alert("Please fill in all mandatory fields: Name, Email, Social Media, Art Style, and Payment Method.");
+    const errors: string[] = [];
+    if (!formData.name) errors.push("name");
+    if (!formData.email) errors.push("email");
+    if (!formData.socialHandle) errors.push("social");
+    if (!formData.description) errors.push("description");
+    if (!selectedStyle) errors.push("style");
+    if (!formData.paymentMethod) errors.push("payment");
+
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      toast("Some required fields are missing! We've highlighted them for you.", "error");
+      
+      // Scroll to the first error
+      const firstError = errors[0];
+      const element = document.getElementById(`field-${firstError}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Optional: Focus the input if it's a text input
+        const input = element.querySelector('input, select, textarea') as HTMLElement;
+        if (input) input.focus();
+      }
       return;
     }
 
-    const socialMediaPattern = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$/;
-    if (!socialMediaPattern.test(formData.socialMedia)) {
-      alert("Please provide a valid social media link (e.g., https://instagram.com/yourname).");
-      return;
-    }
+    setValidationErrors([]);
 
     const isStillAllowed = await checkAuthAndActiveCommission();
     if (!isStillAllowed) {
-      alert("System detected an active commission. Submission cancelled.");
+      toast("Our system shows you already have an active commission. One at a time, please!", "error");
       return;
     }
 
@@ -187,6 +244,7 @@ const OrderForm = () => {
           price: calculatedPrice,
           isCouple,
           hasBackground,
+          socialHandle: formData.socialHandle,
           referenceImages: base64Files // Send as array of base64
         })
       });
@@ -195,29 +253,48 @@ const OrderForm = () => {
       
       if (result.success) {
         setIsSuccess(true);
+        setSubmittedOrderId(result.id || "");
         setReferenceFiles([]); // Reset files
+        window.dispatchEvent(new CustomEvent("refreshOrderData"));
       } else {
         console.error("Database save failed:", result.error);
-        alert(`Warning: Order could not be saved to Dashboard: ${result.error || 'Unknown error'}`);
+        toast(`Submission failed: ${result.error || 'Technical issue detected'}`, "error");
       }
     } catch (error) {
       console.error(error);
-      alert("Something went wrong. Please try again.");
+      toast("An error occurred during submission. Please try again!", "error");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const getOrderTemplate = () => {
+    const addons = [
+      isCouple ? 'Couple Synergy' : '',
+      hasBackground ? 'Detailed BG' : ''
+    ].filter(Boolean).join(', ') || 'None';
+
+    return `Hello! I have just submitted a commission request via the website.
+
+--- ORDER SUMMARY ---
+Tracking ID: ${submittedOrderId || 'Pending'}
+Name: ${formData.name}
+Email: ${formData.email}
+Social Handle: ${formData.socialHandle}
+
+Package: ${selectedType}
+Art Style: ${selectedStyle}
+Add-ons: ${addons}
+Price: ${calculatedPrice}K IDR
+
+Vision: ${formData.description || 'No description provided.'}
+References: ${formData.references || 'None'}
+
+Please check the details in the Dashboard! Thank you.`;
+  };
+
   const getDMMessage = () => {
-    const text = `Halo! Saya baru saja kirim commission request via website.
-
-Detail:
-- Nama: ${formData.name}
-- Tipe: ${selectedType}
-- Total: ${calculatedPrice}K IDR
-
-Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
-    return encodeURIComponent(text);
+    return encodeURIComponent(getOrderTemplate());
   };
 
   return (
@@ -318,12 +395,45 @@ Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
                       <Sparkles size={32} />
                     </motion.div>
                     <h3 className="text-4xl font-normal text-[#1A1F2B] mb-4 font-dancing-script">Canvas Received!</h3>
-                    <p className="text-slate-400 font-outfit max-w-xs mx-auto mb-6 text-[13px] leading-relaxed">
-                      Your vision has been sent to my studio. I will check the details and contact you very soon!
-                    </p>
+                    <div className="bg-purple-600 p-4 rounded-2xl mb-6 shadow-lg shadow-purple-200">
+                      <p className="text-white font-bold text-[13px] leading-relaxed font-outfit">
+                        Your vision has been sent to my studio!
+                      </p>
+                      <p className="text-purple-100 text-[11px] font-medium font-outfit mt-1">
+                        I will review your request shortly. You'll receive an <span className="text-white font-bold">email notification</span> once it's accepted.
+                        <br/>
+                        <span className="opacity-70 mt-1 block italic text-[10px]">Track your progress anytime in the <span className="text-white font-bold">Dashboard</span> (inbox icon).</span>
+                      </p>
+                    </div>
+
+                    {/* NEW: Order ID Display */}
+                    <div className="mb-6 p-4 bg-purple-50/50 border border-purple-100 rounded-2xl">
+                      <p className="text-[8px] font-black text-purple-400 uppercase tracking-widest mb-1">Your Tracking ID</p>
+                      <p className="text-[14px] font-black text-[#1A1F2B] font-syne select-all break-all">{submittedOrderId}</p>
+                      <p className="text-[8px] text-purple-300 font-medium mt-1 uppercase tracking-tighter">*Save this ID to track your order</p>
+                    </div>
 
                     {/* Social Discussion Section */}
-                    <div className="w-full space-y-3 mb-8">
+                    <div className="w-full space-y-4 mb-8">
+                      {/* Copy Template Section */}
+                      <div className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Message Template</span>
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText(getOrderTemplate());
+                              toast("Order template successfully copied!", "success");
+                            }}
+                            className="flex items-center gap-2 text-purple-600 hover:text-purple-700 transition-colors"
+                          >
+                            <Check size={10} /> <span className="text-[9px] font-bold uppercase tracking-widest">Copy Text</span>
+                          </button>
+                        </div>
+                        <div className="text-left text-[10px] text-slate-500 leading-relaxed font-outfit whitespace-pre-wrap max-h-32 overflow-y-auto custom-scrollbar bg-white p-3 rounded-xl border border-slate-100 italic">
+                          {getOrderTemplate()}
+                        </div>
+                      </div>
+
                       <div className="flex items-center gap-2 justify-center">
                         <div className="h-px w-8 bg-purple-50" />
                         <span className="text-[8px] font-black text-purple-300 uppercase tracking-[0.2em] font-outfit">Quick Discussion</span>
@@ -339,7 +449,7 @@ Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
                           <Camera size={12} className="group-hover:scale-110 transition-transform" /> Instagram DM
                         </a>
                         <a 
-                          href="https://x.com/Zarry_linilo" 
+                          href={`https://x.com/messages/compose?recipient_id=Zarry_linilo&text=${getDMMessage()}`} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="flex items-center justify-center gap-2 py-3.5 bg-white border border-slate-100 text-slate-600 rounded-xl font-black text-[8px] uppercase tracking-[0.2em] hover:bg-slate-50 transition-all shadow-sm font-outfit group"
@@ -422,7 +532,10 @@ Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
                         <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 font-outfit">Select Package Type</span>
                       </div>
                       <div className="grid grid-cols-2 gap-3">
-                        {Object.keys(BASE_PRICES).map((type) => (
+                        {(pricingConfigs.length > 0 
+                          ? pricingConfigs.filter(c => c.category === 'package').map(c => c.label)
+                          : Object.keys(BASE_PRICES)
+                        ).map((type) => (
                           <button
                             key={type}
                             onClick={() => setSelectedType(type)}
@@ -443,26 +556,30 @@ Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
                     
                     {/* Terms of Service Agreement */}
                     <div className="pt-2">
-                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-start gap-3 group hover:border-purple-200 transition-all cursor-pointer" onClick={() => setTermsAccepted(!termsAccepted)}>
+                      <div 
+                        className={cn(
+                          "p-4 rounded-2xl border flex items-start gap-3 transition-all cursor-pointer group",
+                          termsAccepted 
+                            ? "bg-purple-50 border-purple-200 shadow-sm" 
+                            : "bg-slate-50 border-slate-100 hover:border-purple-100"
+                        )}
+                        onClick={() => setShowTerms(true)}
+                      >
                         <div className={cn(
                           "w-5 h-5 rounded-lg border flex items-center justify-center transition-all mt-0.5 shrink-0",
                           termsAccepted 
                             ? "bg-purple-600 border-purple-600 text-white" 
-                            : "bg-white border-slate-200"
+                            : "bg-white border-slate-200 group-hover:border-purple-300"
                         )}>
-                          {termsAccepted && <Check size={12} strokeWidth={4} />}
+                          {termsAccepted ? <Check size={12} strokeWidth={4} /> : <ScrollText size={10} className="text-slate-300" />}
                         </div>
                         <div className="space-y-1">
-                          <p className="text-[11px] font-bold text-slate-600 leading-tight">I have read and agree to the Protocol Guidelines</p>
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setShowTerms(true);
-                            }}
-                            className="text-[9px] font-black text-purple-500 uppercase tracking-widest hover:text-purple-700 transition-colors font-outfit"
-                          >
-                            Read Terms of Service →
-                          </button>
+                          <p className={cn("text-[11px] font-bold leading-tight transition-colors", termsAccepted ? "text-purple-700" : "text-slate-600")}>
+                            {termsAccepted ? "Protocol Accepted" : "Protocol & Guidelines Agreement"}
+                          </p>
+                          <p className="text-[9px] font-black text-purple-500 uppercase tracking-widest hover:text-purple-700 transition-colors font-outfit">
+                            {termsAccepted ? "Read again →" : "Read & Accept Terms of Service →"}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -493,18 +610,32 @@ Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
                     {/* Contact Info Row */}
                     <div className="grid grid-cols-1 gap-3">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div className="relative">
-                          <User size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-300" />
+                        <div id="field-name" className={cn(
+                          "relative transition-all duration-300 rounded-xl",
+                          validationErrors.includes("name") && "ring-2 ring-red-400 ring-offset-2"
+                        )}>
+                          <User size={12} className={cn("absolute left-4 top-1/2 -translate-y-1/2", validationErrors.includes("name") ? "text-red-400" : "text-purple-300")} />
                           <input 
                             type="text" 
                             name="name"
                             placeholder="Name / Artist (Required)" 
                             value={formData.name}
-                            onChange={handleInputChange}
-                            className="w-full bg-slate-50/50 border border-slate-100 rounded-xl pl-10 pr-4 py-3.5 text-[13px] text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-purple-200 transition-all font-outfit" 
+                            onChange={(e) => {
+                              handleInputChange(e);
+                              if (validationErrors.includes("name")) {
+                                setValidationErrors(prev => prev.filter(err => err !== "name"));
+                              }
+                            }}
+                            className={cn(
+                              "w-full bg-slate-50/50 border rounded-xl pl-10 pr-4 py-3.5 text-[13px] text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-purple-200 transition-all font-outfit",
+                              validationErrors.includes("name") ? "border-red-200 bg-red-50/10" : "border-slate-100"
+                            )} 
                           />
+                          {validationErrors.includes("name") && (
+                            <span className="absolute -top-6 left-0 text-[8px] font-black text-red-500 uppercase tracking-widest animate-pulse">Required Field</span>
+                          )}
                         </div>
-                        <div className="relative">
+                        <div id="field-email" className="relative">
                           <Mail size={12} className={cn("absolute left-4 top-1/2 -translate-y-1/2", user ? "text-purple-500" : "text-purple-300")} />
                           <input 
                             type="text" 
@@ -522,16 +653,32 @@ Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
                           )}
                         </div>
                       </div>
-                      <div className="relative">
-                        <MessageCircle size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-300" />
+
+                      {/* Social Media Handle */}
+                      <div id="field-social" className={cn(
+                        "relative transition-all duration-300 rounded-xl",
+                        validationErrors.includes("social") && "ring-2 ring-red-400 ring-offset-2"
+                      )}>
+                        <MessageCircle size={12} className={cn("absolute left-4 top-1/2 -translate-y-1/2", validationErrors.includes("social") ? "text-red-400" : "text-purple-300")} />
                         <input 
                           type="text" 
-                          name="socialMedia"
-                          placeholder="Social Media Handle Link (Required)" 
-                          value={formData.socialMedia}
-                          onChange={handleInputChange}
-                          className="w-full bg-slate-50/50 border border-slate-100 rounded-xl pl-10 pr-4 py-3.5 text-[13px] text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-purple-200 transition-all font-outfit" 
+                          name="socialHandle"
+                          placeholder="@zarry_linilo (Instagram/X)" 
+                          value={formData.socialHandle}
+                          onChange={(e) => {
+                            handleInputChange(e);
+                            if (validationErrors.includes("social")) {
+                              setValidationErrors(prev => prev.filter(err => err !== "social"));
+                            }
+                          }}
+                          className={cn(
+                            "w-full bg-slate-50/50 border rounded-xl pl-10 pr-4 py-3.5 text-[13px] text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-purple-200 transition-all font-outfit",
+                            validationErrors.includes("social") ? "border-red-200 bg-red-50/10" : "border-slate-100"
+                          )} 
                         />
+                        {validationErrors.includes("social") && (
+                          <span className="absolute -top-6 left-0 text-[8px] font-black text-red-500 uppercase tracking-widest animate-pulse">Required Field</span>
+                        )}
                       </div>
                     </div>
 
@@ -594,21 +741,38 @@ Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
                     </div>
 
                     {/* Art Style Section */}
-                    <div className="space-y-2.5">
-                       <div className="flex items-center gap-2 ml-1">
-                        <Palette size={12} className="text-purple-300" />
-                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest font-outfit">Art Style (Required)</label>
+                    <div id="field-style" className={cn(
+                      "space-y-2.5 p-3 rounded-2xl transition-all duration-300",
+                      validationErrors.includes("style") && "bg-red-50/30 ring-2 ring-red-400 ring-offset-4"
+                    )}>
+                       <div className="flex items-center justify-between ml-1">
+                        <div className="flex items-center gap-2">
+                          <Palette size={12} className={cn(validationErrors.includes("style") ? "text-red-400" : "text-purple-300")} />
+                          <label className={cn("text-[9px] font-black uppercase tracking-widest font-outfit", validationErrors.includes("style") ? "text-red-500" : "text-slate-400")}>
+                            Art Style (Required)
+                          </label>
+                        </div>
+                        {validationErrors.includes("style") && (
+                          <span className="text-[8px] font-black text-red-500 uppercase tracking-widest animate-pulse">Select one</span>
+                        )}
                        </div>
                        <div className="grid grid-cols-3 gap-2">
                           {ART_STYLES.map((style) => (
                             <button
                               key={style}
-                              onClick={() => setSelectedStyle(style)}
+                              onClick={() => {
+                                setSelectedStyle(style);
+                                if (validationErrors.includes("style")) {
+                                  setValidationErrors(prev => prev.filter(err => err !== "style"));
+                                }
+                              }}
                               className={cn(
                                 "py-3 rounded-xl border text-[9px] font-bold uppercase tracking-widest transition-all font-outfit",
                                 selectedStyle === style 
                                   ? "bg-purple-600 border-purple-600 text-white shadow-md" 
-                                  : "bg-white border-slate-100 text-slate-400 hover:border-purple-200"
+                                  : validationErrors.includes("style")
+                                    ? "bg-white border-red-200 text-red-300"
+                                    : "bg-white border-slate-100 text-slate-400 hover:border-purple-200"
                               )}
                             >
                               {style}
@@ -619,21 +783,32 @@ Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
 
                     {/* Details Row */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="relative group">
-                        <CreditCard size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-300 z-10" />
+                      <div id="field-payment" className={cn(
+                        "relative group transition-all duration-300 rounded-xl",
+                        validationErrors.includes("payment") && "ring-2 ring-red-400 ring-offset-2"
+                      )}>
+                        <CreditCard size={12} className={cn("absolute left-4 top-1/2 -translate-y-1/2 z-10", validationErrors.includes("payment") ? "text-red-400" : "text-purple-300")} />
                         <div 
                           onClick={() => setFormData(prev => ({ ...prev, showPaymentDropdown: !prev.showPaymentDropdown }))}
-                          className="w-full bg-slate-50/50 border border-slate-100 rounded-xl pl-10 pr-8 py-3.5 text-[13px] text-slate-700 cursor-pointer flex items-center justify-between group-hover:border-purple-200 transition-all font-outfit"
+                          className={cn(
+                            "w-full bg-slate-50/50 border rounded-xl pl-10 pr-8 py-3.5 text-[13px] text-slate-700 cursor-pointer flex items-center justify-between transition-all font-outfit",
+                            validationErrors.includes("payment") ? "border-red-200 bg-red-50/10" : "border-slate-100 hover:border-purple-200"
+                          )}
                         >
-                          <span className={cn(formData.paymentMethod ? "text-slate-700" : "text-slate-300")}>
+                          <span className={cn(
+                            formData.paymentMethod ? "text-slate-700" : validationErrors.includes("payment") ? "text-red-300" : "text-slate-300"
+                          )}>
                             {formData.paymentMethod || "Payment Method (Required)"}
                           </span>
-                          <motion.div animate={{ rotate: formData.showPaymentDropdown ? 180 : 0 }} className="text-slate-300">
+                          <motion.div animate={{ rotate: formData.showPaymentDropdown ? 180 : 0 }} className={cn(validationErrors.includes("payment") ? "text-red-300" : "text-slate-300")}>
                             <svg width="8" height="5" viewBox="0 0 10 6" fill="none">
                               <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
                           </motion.div>
                         </div>
+                        {validationErrors.includes("payment") && (
+                          <span className="absolute -top-6 left-0 text-[8px] font-black text-red-500 uppercase tracking-widest animate-pulse">Required</span>
+                        )}
                         <AnimatePresence>
                           {formData.showPaymentDropdown && (
                             <motion.div
@@ -643,11 +818,15 @@ Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
                               {[
                                 { id: "BCA", name: "BCA", color: "bg-blue-600" },
                                 { id: "Shopeepay", name: "ShopeePay", color: "bg-orange-500" },
-                                { id: "OVO", name: "OVO", color: "bg-purple-800" },
                                 { id: "DANA", name: "DANA", color: "bg-blue-400" },
                                 { id: "QRIS", name: "QRIS", color: "bg-red-600" }
                               ].map((item) => (
-                                <button key={item.id} onClick={() => setFormData(prev => ({ ...prev, paymentMethod: item.id, showPaymentDropdown: false }))}
+                                <button key={item.id} onClick={() => {
+                                  setFormData(prev => ({ ...prev, paymentMethod: item.id, showPaymentDropdown: false }));
+                                  if (validationErrors.includes("payment")) {
+                                    setValidationErrors(prev => prev.filter(err => err !== "payment"));
+                                  }
+                                }}
                                   className="w-full flex items-center gap-3 p-2.5 hover:bg-purple-50 rounded-lg transition-colors group/item"
                                 >
                                   <div className={cn("w-7 h-4.5 rounded flex items-center justify-center text-[7px] font-black text-white shrink-0", item.color)}>
@@ -697,7 +876,7 @@ Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
                         <div className="flex flex-col gap-2">
                           <label className="flex items-center gap-2 px-4 py-3 bg-white border border-dashed border-purple-200 rounded-xl cursor-pointer hover:bg-purple-50 transition-all group">
                             <Upload size={14} className="text-purple-400 group-hover:scale-110 transition-transform" />
-                            <span className="text-[11px] font-bold text-slate-500">Upload Image Reference (Max 500KB)</span>
+                            <span className="text-[11px] font-bold text-slate-500">Upload Image Reference (Max 1MB)</span>
                             <input 
                               type="file" 
                               multiple 
@@ -739,20 +918,38 @@ Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
                     </div>
 
                     {/* Final Specification Section */}
-                    <div className="space-y-3 pt-2">
-                      <div className="flex items-center gap-2 ml-1">
-                        <AlignLeft size={12} className="text-purple-300" />
-                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest font-outfit">Project Specifications (Optional)</label>
+                    <div id="field-description" className={cn(
+                      "space-y-3 pt-2 p-2 rounded-2xl transition-all duration-300",
+                      validationErrors.includes("description") && "bg-red-50/30 ring-2 ring-red-400 ring-offset-4"
+                    )}>
+                      <div className="flex items-center justify-between ml-1">
+                        <div className="flex items-center gap-2">
+                          <AlignLeft size={12} className={cn(validationErrors.includes("description") ? "text-red-400" : "text-purple-300")} />
+                          <label className={cn("text-[9px] font-black uppercase tracking-widest font-outfit", validationErrors.includes("description") ? "text-red-500" : "text-slate-400")}>
+                            Project Specifications (Required)
+                          </label>
+                        </div>
+                        {validationErrors.includes("description") && (
+                          <span className="text-[8px] font-black text-red-500 uppercase tracking-widest animate-pulse">Brief required</span>
+                        )}
                       </div>
                       <div className="relative">
-                        <AlignLeft size={12} className="absolute left-4 top-4.5 text-purple-300" />
+                        <AlignLeft size={12} className={cn("absolute left-4 top-4.5", validationErrors.includes("description") ? "text-red-400" : "text-purple-300")} />
                         <textarea 
                           name="description"
                           rows={2} 
                           placeholder="Description (character[s], poses, expression, etc.)" 
                           value={formData.description}
-                          onChange={handleInputChange}
-                          className="w-full bg-slate-50/50 border border-slate-100 rounded-xl pl-10 pr-4 py-3.5 text-[13px] text-slate-700 focus:outline-none focus:border-purple-200 transition-all resize-none font-outfit" 
+                          onChange={(e) => {
+                            handleInputChange(e);
+                            if (validationErrors.includes("description")) {
+                              setValidationErrors(prev => prev.filter(err => err !== "description"));
+                            }
+                          }}
+                          className={cn(
+                            "w-full bg-slate-50/50 border rounded-xl pl-10 pr-4 py-3.5 text-[13px] text-slate-700 focus:outline-none focus:border-purple-200 transition-all resize-none font-outfit",
+                            validationErrors.includes("description") ? "border-red-200 bg-red-50/10" : "border-slate-100"
+                          )} 
                         />
                       </div>
                     </div>
@@ -801,7 +998,12 @@ Mohon bantu cek detailnya di Dashboard ya! Terima kasih.`;
         </div>
       )}
     </AnimatePresence>
-      <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
+      <TermsModal 
+        isOpen={showTerms} 
+        onClose={() => setShowTerms(false)} 
+        isAccepted={termsAccepted}
+        onAcceptChange={setTermsAccepted}
+      />
     </>
   );
 };

@@ -4,7 +4,6 @@ import Image from "next/image";
 import "./globals.css";
 import PageTransition from "@/components/ui/PageTransition";
 import InteractiveBackground from "@/components/ui/InteractiveBackground";
-import CustomCursor from "@/components/ui/CustomCursor";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,7 +40,15 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Premium Artist Portfolio | Custom Commissions",
   description: "High-fidelity digital art, character design, and custom commissions with a liquid glass aesthetic.",
+  icons: {
+    icon: "/logomoonchaery.svg",
+  },
 };
+
+import { ToastProvider } from "@/components/ui/Toast";
+import { ConfirmProvider } from "@/components/ui/ConfirmProvider";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
+import { Suspense } from "react";
 
 export default function RootLayout({
   children,
@@ -53,14 +60,20 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${dancingScript.variable} ${syne.variable} ${outfit.variable} ${alexBrush.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col selection:bg-purple-500/30 bg-transparent cursor-none">
+      <body className="min-h-full flex flex-col selection:bg-purple-500/30 bg-transparent">
         <main className="relative min-h-screen">
-          <CustomCursor />
           <InteractiveBackground />
           <div className="grain-overlay" />
-          <PageTransition>
-            {children}
-          </PageTransition>
+          <ToastProvider>
+            <ConfirmProvider>
+              <Suspense fallback={null}>
+                <AnalyticsTracker />
+              </Suspense>
+              <PageTransition>
+                {children}
+              </PageTransition>
+            </ConfirmProvider>
+          </ToastProvider>
         </main>
       </body>
     </html>
