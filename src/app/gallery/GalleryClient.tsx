@@ -726,7 +726,7 @@ export default function GalleryPage() {
                             </motion.button>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl w-full items-center">
                                 <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="relative aspect-[3/4] rounded-lg overflow-hidden border border-white/10 shadow-2xl">
-                                    <img src={selectedArt.url} alt={selectedArt.title} className="w-full h-full object-contain bg-[#0a0a0a]" />
+                                    <img src={selectedArt.url} alt={selectedArt.title} className="w-full h-full object-cover" />
                                 </motion.div>
                                 <motion.div initial={{ x: 40, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="space-y-8 max-h-[80vh] overflow-y-auto pr-6 pb-6">
                                     <h2 className="font-syne text-5xl md:text-7xl font-bold text-white tracking-tighter uppercase italic">{selectedArt.title}</h2>
