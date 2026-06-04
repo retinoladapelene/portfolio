@@ -302,7 +302,7 @@ export async function POST(request: Request) {
                   <!-- Footer -->
                   <div style="padding: 40px; border-top: 1px solid #F3F4F6; text-align: center; background: #FAFAFA;">
                     <p style="color: #9CA3AF; font-size: 10px; font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 0.15em;">
-                      © 2026 Artist Portfolio Studio • Luxury Lilac Editorial Engine
+                      © 2024 Artist Portfolio Studio • Luxury Lilac Editorial Engine
                     </p>
                   </div>
                 </div>
@@ -824,7 +824,7 @@ export async function DELETE(request: Request) {
                     <!-- Footer -->
                     <div style="padding: 32px 40px; border-top: 1px solid #F3F4F6; text-align: center; background: #FAFAFA;">
                       <p style="color: #9CA3AF; font-size: 9px; font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 0.15em;">
-                        © 2026 Artist Portfolio Studio • Luxury Lilac Editorial Engine
+                        © 2024 Artist Portfolio Studio • Luxury Lilac Editorial Engine
                       </p>
                     </div>
                   </div>

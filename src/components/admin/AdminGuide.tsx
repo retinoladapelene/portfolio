@@ -264,7 +264,7 @@ export const AdminGuide = () => {
 
               {/* Footer */}
               <div className="p-6 bg-white/[0.02] border-t border-white/5 text-center shrink-0">
-                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Moonchaery Studio &copy; 2026 • Design by Antigravity</p>
+                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Moonchaery Studio &copy; 2024 • Design by Antigravity</p>
               </div>
             </motion.div>
           </div>

@@ -74,4 +74,4 @@ Website ini telah dioptimasi untuk mesin pencari (Google) dan AI (ChatGPT/Perple
 
 ---
 
-*Terakhir Diperbarui: 14 Mei 2026*
+*Terakhir Diperbarui: 14 Mei 2024*
