@@ -17,7 +17,8 @@ export function ArtFrame({ url, title, position, rotation, onSelect, quality, de
 
     useEffect(() => {
         if (texture && texture.image) {
-            const imgAspect = texture.image.width / texture.image.height;
+            const image = texture.image as any;
+            const imgAspect = image.width / image.height;
             const frameAspect = 2 / 3;
 
             // Reset any previous crop settings
