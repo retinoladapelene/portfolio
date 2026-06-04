@@ -46,10 +46,10 @@ function BrushModel({ onPositionUpdate, containerRef }: BrushProps) {
         // Project 3D world position to 2D screen coordinates
         tipPos.project(state.camera);
         
-        const rect = containerRef.current.getBoundingClientRect();
-        // Convert projected coordinates (-1 to +1) to pixel coordinates
-        const canvasX = ((tipPos.x + 1) / 2) * rect.width;
-        const canvasY = ((1 - tipPos.y) / 2) * rect.height;
+        // OPTIMIZATION: Avoid getBoundingClientRect() in useFrame to prevent Layout Thrashing
+        // Use R3F's native state.size instead
+        const canvasX = ((tipPos.x + 1) / 2) * state.size.width;
+        const canvasY = ((1 - tipPos.y) / 2) * state.size.height;
         
         onPositionUpdate?.(canvasX, canvasY);
     }

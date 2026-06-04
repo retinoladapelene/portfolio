@@ -25,7 +25,7 @@ async function verifyAdmin() {
   const { data: { user } } = await supabaseAuth.auth.getUser();
   const allowedEmails = (process.env.ALLOWED_ADMIN_EMAILS || 'pbsn290704@gmail.com').split(',');
   
-  return user && allowedEmails.includes(user.email!);
+  return !!(user && user.email && allowedEmails.includes(user.email));
 }
 
 export async function GET() {

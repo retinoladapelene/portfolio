@@ -1,15 +1,53 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/utils/supabase/admin';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  const cookieStore = await cookies();
+  const supabaseAuth = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll() },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }: { name: string, value: string, options: CookieOptions }) => 
+              cookieStore.set(name, value, options)
+            )
+          } catch {}
+        },
+      },
+    }
+  );
+
+  const { data: { user } } = await supabaseAuth.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const { id, ...rest } = body;
 
     if (!id) {
       return NextResponse.json({ success: false, error: 'Missing commission ID' }, { status: 400 });
+    }
+
+    // Verify ownership
+    const { data: commission, error: fetchError } = await supabaseAdmin
+      .from('commissions')
+      .select('client_email')
+      .eq('id', id)
+      .eq('client_email', user.email)
+      .single();
+
+    if (fetchError || !commission) {
+      return NextResponse.json({ success: false, error: 'Commission not found or unauthorized' }, { status: 404 });
     }
 
     const updates: any = {};
@@ -70,6 +108,7 @@ export async function POST(request: Request) {
       .from('commissions')
       .update(updates)
       .eq('id', id)
+      .eq('client_email', user.email) // CRITICAL SECURITY CHECK
       .select()
       .single();
 

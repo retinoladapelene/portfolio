@@ -1,12 +1,13 @@
 import { supabaseAdmin } from './supabase/admin';
+import { Commission } from '@/types/admin';
 
 /**
  * Transforms a storage path or an old public URL into a signed URL if needed.
  * If the input is already a full URL, it returns it as is.
  * If it's a path, it generates a signed URL.
  */
-export async function getSignedUrlIfNeeded(path: string | null | undefined, bucket: string = 'portfolio'): Promise<string | null> {
-  if (!path) return null;
+export async function getSignedUrlIfNeeded(path: string | null | undefined, bucket: string = 'portfolio'): Promise<string | undefined> {
+  if (!path) return undefined;
   
   // If it's already a full URL (legacy data), return it
   if (path.startsWith('http')) return path;
@@ -18,13 +19,13 @@ export async function getSignedUrlIfNeeded(path: string | null | undefined, buck
 
     if (error || !data) {
       console.error(`[Storage] Failed to sign URL for ${path}:`, error);
-      return null;
+      return undefined;
     }
 
     return data.signedUrl;
   } catch (err) {
     console.error(`[Storage] Exception during signing for ${path}:`, err);
-    return null;
+    return undefined;
   }
 }
 
@@ -35,7 +36,7 @@ export async function getSignedUrlsBatch(paths: string[] | null | undefined, buc
   if (!paths || !Array.isArray(paths)) return [];
   
   const results = await Promise.all(paths.map(p => getSignedUrlIfNeeded(p, bucket)));
-  return results.filter((url): url is string => url !== null);
+  return results.filter((url): url is string => url !== undefined);
 }
 
 /**
@@ -69,7 +70,7 @@ export async function deleteFiles(paths: string[] | null | undefined, bucket: st
 /**
  * Transforms a raw commission record into one with signed URLs for all assets.
  */
-export async function transformCommission(commission: any): Promise<any> {
+export async function transformCommission(commission: Commission | null): Promise<Commission | null> {
   if (!commission) return null;
   return {
     ...commission,

@@ -1,64 +1,148 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { useRef } from "react";
 import Section from "@/components/ui/Section";
-import { staggerContainer, fadeUp, viewportSettings } from "@/lib/animations";
+import { fadeUp } from "@/lib/animations";
 
 const STEPS = [
-  { id: "01", title: "DM Request", desc: "Send your request via DM using the form with clear references, pose, and description." },
-  { id: "02", title: "Discussion", desc: "I will reply once received to acknowledge your commission and discuss further details." },
-  { id: "03", title: "Draft Sketch", desc: "I'll start the sketch. You are allowed up to 3 major revisions (poses, expressions, etc.)" },
-  { id: "04", title: "Finalizing", desc: "After sketch approval, I move to lineart/color. Major adjustments will not be accepted." },
-  { id: "05", title: "Updates", desc: "I'll send regular progress updates. You can also see my recent art on Instagram!" },
+  { 
+    id: "01", 
+    title: "Request & Review", 
+    desc: "Submit your request through our integrated commission form. I'll review your brief and references to ensure we're a perfect match." 
+  },
+  { 
+    id: "02", 
+    title: "Sketch & DP", 
+    desc: "Receive initial sketches in your dashboard. Once you approve the direction, a 50% down payment secures your spot in the queue." 
+  },
+  { 
+    id: "03", 
+    title: "WIP & Progress", 
+    desc: "Follow the production with regular WIP updates. You can request adjustments here before we move to the 75% progress payment." 
+  },
+  { 
+    id: "04", 
+    title: "Finalization", 
+    desc: "Check the final preview of your masterpiece. After the 100% full payment is verified, the high-res files will be unlocked." 
+  },
+  { 
+    id: "05", 
+    title: "Master Delivery", 
+    desc: "Download your high-res artwork directly from your dashboard. For your privacy, all project data is automatically purged after 24 hours." 
+  },
 ];
 
 const HowItWorks = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Track scroll progress for the vertical line
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start center", "end center"]
+  });
+
+  const scaleY = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
   return (
-    <Section id="process" className="bg-transparent">
-      <motion.div 
-        variants={staggerContainer}
-        initial="initial"
-        whileInView="whileInView"
-        viewport={viewportSettings}
-        className="text-center mb-20"
-      >
-        <motion.h2 variants={fadeUp} className="text-[44px] md:text-[64px] font-normal text-black font-dancing-script">
-          Procedure.
-        </motion.h2>
-        <motion.p variants={fadeUp} className="text-black/60 font-outfit mt-2">A clear workflow to bring your vision to life.</motion.p>
-      </motion.div>
-
-      <motion.div 
-        variants={staggerContainer}
-        initial="initial"
-        whileInView="whileInView"
-        viewport={{ once: true }}
-        className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 relative"
-      >
-        {/* Connector Line (Desktop) */}
-        <div className="hidden lg:block absolute top-8 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-purple-500/0 via-purple-500/20 to-purple-500/0" />
-
-        {STEPS.map((step, i) => (
+    <Section id="process" className="bg-white py-32 lg:py-64 overflow-visible">
+      <div ref={containerRef} className="max-w-7xl mx-auto grid lg:grid-cols-[1fr_2fr] gap-20 lg:gap-32 relative">
+        
+        {/* ─── STICKY HEADER ────────────────────────────────────────────────── */}
+        <div className="lg:sticky lg:top-40 h-fit space-y-8">
           <motion.div
-            key={step.id}
-            variants={fadeUp}
-            transition={{ delay: i * 0.1 }}
-            className="flex flex-col items-center text-center group"
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="space-y-4"
           >
-            <div className="w-16 h-16 rounded-[22px] bg-black/5 backdrop-blur-md shadow-sm border border-black/5 flex items-center justify-center text-xl font-black text-purple-600 mb-8 relative font-outfit">
-               <div className="absolute inset-0 bg-purple-500/5 rounded-[22px]" />
-               {step.id}
-               
-               {/* Glowing dot */}
-               <div className="absolute -top-1 -right-1 w-3 h-3 bg-purple-600 rounded-full border-2 border-white shadow-lg" />
-            </div>
-            <h3 className="text-xl font-bold mb-3 text-black font-outfit tracking-tight">{step.title}</h3>
-            <p className="text-[13px] leading-relaxed px-2 text-black/40 font-outfit font-medium">
-              {step.desc}
-            </p>
+            <p className="text-[10px] font-black text-purple-600 uppercase tracking-[0.8em]">Production Workflow</p>
+            <h2 className="text-5xl xl:text-7xl font-black text-slate-950 leading-[0.9] tracking-tighter font-outfit">
+              THE<br />CREATIVE<br />JOURNEY
+            </h2>
           </motion.div>
-        ))}
-      </motion.div>
+          
+          <motion.p 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="text-sm text-slate-400 font-medium leading-relaxed max-w-[280px]"
+          >
+            Watch ideas bloom into finished art through our transparent, high-fidelity production system.
+          </motion.p>
+
+          {/* Minimalist Progress Meter */}
+          <div className="hidden lg:block pt-12">
+            <div className="flex items-center gap-4">
+              <span className="text-[10px] font-black text-slate-950 uppercase tracking-widest">Phase</span>
+              <div className="flex-1 h-[1px] bg-slate-100 relative overflow-hidden">
+                <motion.div 
+                  style={{ scaleX: scrollYProgress }} 
+                  className="absolute inset-0 bg-purple-600 origin-left" 
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ─── SCROLLING TIMELINE ───────────────────────────────────────────── */}
+        <div className="relative space-y-32 lg:space-y-64">
+          
+          {/* Vertical Progress Line */}
+          <div className="absolute left-0 lg:left-0 top-0 bottom-0 w-[1px] bg-slate-100 hidden lg:block">
+            <motion.div 
+              style={{ scaleY }} 
+              className="absolute top-0 left-0 right-0 bg-purple-600 origin-top" 
+            />
+          </div>
+
+          {STEPS.map((step, i) => (
+            <motion.div
+              key={step.id}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ margin: "-100px" }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="relative pl-0 lg:pl-24 group"
+            >
+              {/* Massive Step Number (Background Decor) */}
+              <span className="absolute -top-12 -left-4 lg:left-12 text-[12vw] font-black text-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 select-none pointer-events-none font-outfit leading-none">
+                {step.id}
+              </span>
+
+              <div className="space-y-6 relative z-10">
+                <div className="flex items-center gap-4">
+                  <div className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center bg-white shadow-sm">
+                    <span className="text-[10px] font-black text-purple-600">{step.id}</span>
+                  </div>
+                  <div className="h-[1px] w-8 bg-slate-100" />
+                </div>
+
+                <h3 className="text-3xl xl:text-4xl font-black text-slate-950 tracking-tight font-outfit uppercase">
+                  {step.title}
+                </h3>
+                
+                <p className="text-base xl:text-lg text-slate-500 font-medium leading-relaxed max-w-xl">
+                  {step.desc}
+                </p>
+
+                {/* Status Badge (Visual Detail) */}
+                <div className="flex gap-2 pt-4">
+                  <div className="px-3 py-1 bg-slate-50 rounded-full border border-slate-100">
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Phase {step.id}</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+      </div>
     </Section>
   );
 };

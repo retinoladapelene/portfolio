@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 import { useConfirm } from "@/components/ui/ConfirmProvider";
 import Image from "next/image";
+import { compressImage } from "@/utils/imageCompression";
 
 type SketchbookItem = {
   id: string;
@@ -96,23 +97,32 @@ export default function SketchbookManager() {
     const file = e.target.files?.[0];
     if (!file || !isEditing) return;
 
-    // Limit size to 1MB
-    const MAX_SIZE = 1024 * 1024;
-    if (file.size > MAX_SIZE) {
-      toast("Image too large! Maximum 1MB allowed.", "error");
+    // Limit original size to 5MB before compression
+    const MAX_ORIGINAL_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_ORIGINAL_SIZE) {
+      toast("Original image too large! Maximum size is 5MB.", "error");
       return;
     }
 
-
     setIsUploading(true);
     try {
+      // Compress Image
+      const compressedBlob = await compressImage(file, 1920, 1920, 0.8);
+      
+      // Check if compressed size is within 1MB
+      if (compressedBlob.size > 1024 * 1024) {
+        toast("Even after compression, the image is still over 1MB. Please use a smaller image.", "error");
+        setIsUploading(false);
+        return;
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `sketch-${Date.now()}.${fileExt}`;
       const filePath = `sketchbook/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('portfolio')
-        .upload(filePath, file);
+        .upload(filePath, compressedBlob);
 
       if (uploadError) throw uploadError;
 
@@ -346,22 +356,32 @@ export default function SketchbookManager() {
                     const file = e.target.files?.[0];
                     if (!file) return;
                     
-                    // Direct upload logic from list
-                    const MAX_SIZE = 1024 * 1024;
-                    if (file.size > MAX_SIZE) {
-                      toast('Image too large! Maximum 1MB allowed.', "error");
+                    // Limit original size to 5MB before compression
+                    const MAX_ORIGINAL_SIZE = 5 * 1024 * 1024;
+                    if (file.size > MAX_ORIGINAL_SIZE) {
+                      toast('Original image too large! Maximum size is 5MB.', "error");
                       return;
                     }
 
                     setLoading(true);
                     try {
+                      // Compress Image
+                      const compressedBlob = await compressImage(file, 1920, 1920, 0.8);
+                      
+                      // Check if compressed size is within 1MB
+                      if (compressedBlob.size > 1024 * 1024) {
+                        toast("Even after compression, the image is still over 1MB. Please use a smaller image.", "error");
+                        setLoading(false);
+                        return;
+                      }
+
                       const fileExt = file.name.split('.').pop();
                       const fileName = `sketch-${Date.now()}.${fileExt}`;
                       const filePath = `sketchbook/${fileName}`;
 
                       const { error: uploadError } = await supabase.storage
                         .from('portfolio')
-                        .upload(filePath, file);
+                        .upload(filePath, compressedBlob);
 
                       if (uploadError) throw uploadError;
 
@@ -610,7 +630,7 @@ export default function SketchbookManager() {
                                </div>
                                <div className="w-px h-6 bg-white/5" />
                                <div className="flex flex-col">
-                                  <span className="text-[7px] font-black text-white/20 uppercase tracking-widest">Protocol</span>
+                                  <span className="text-[7px] font-black text-white/20 uppercase tracking-widest">Medium</span>
                                   <span className="text-[9px] font-black text-white/60 uppercase">{isEditing.type}</span>
                                </div>
                             </div>

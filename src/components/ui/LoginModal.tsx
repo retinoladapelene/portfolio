@@ -176,6 +176,7 @@ const LoginModal = () => {
   useEffect(() => {
     const handleOpen = () => setIsOpen(true);
     window.addEventListener("openLoginModal", handleOpen);
+
     return () => window.removeEventListener("openLoginModal", handleOpen);
   }, []);
 

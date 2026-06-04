@@ -10,7 +10,14 @@ import {
   AnimatePresence,
 } from "framer-motion";
 
-export function InteractivePhoto() {
+export function InteractivePhoto({ settings }: { settings: any }) {
+  const maskPhoto = settings?.hero_mask_photo_url || "/gambarcursorinteraktif.webp";
+  const basePhoto = maskPhoto === "/gambarcursorinteraktif.webp" 
+    ? "/personalfoto.webp" 
+    : (settings?.hero_photo_url || "/personalfoto.webp");
+  const maskPosX = settings?.hero_mask_position_x ?? 50;
+  const maskPosY = settings?.hero_mask_position_y ?? 15;
+
   const containerRef = useRef<HTMLDivElement>(null);
   const maskX = useMotionValue(0);
   const maskY = useMotionValue(0);
@@ -94,12 +101,16 @@ export function InteractivePhoto() {
 
       <div id="base-photo-layer" className="absolute inset-0 z-10 select-none overflow-hidden will-change-transform">
         <Image
-          src="/personalfoto.webp"
+          src={basePhoto}
           alt="Personal Photo"
           fill
           priority
           unoptimized
-          className="object-cover object-[50%_15%] scale-[1.0] filter brightness-75 contrast-125 grayscale-[0.3]"
+          className="scale-[1.0] filter brightness-75 contrast-125 grayscale-[0.3]"
+          style={{
+            objectFit: 'cover',
+            objectPosition: `${maskPosX}% ${maskPosY}%`
+          }}
         />
       </div>
 
@@ -112,12 +123,16 @@ export function InteractivePhoto() {
         }}
       >
         <Image
-          src="/gambarcursorinteraktif.webp"
+          src={maskPhoto}
           alt="Personal Photo Masked"
           fill
           priority
           unoptimized
-          className="object-cover object-[50%_15%] scale-[1.0]"
+          className="scale-[1.0]"
+          style={{ 
+            objectFit: 'cover',
+            objectPosition: `${maskPosX}% ${maskPosY}%` 
+          }}
         />
       </div>
     </div>

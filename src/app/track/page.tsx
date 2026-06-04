@@ -9,8 +9,6 @@ import {
   AlertCircle,
   ArrowRight,
   Sparkles,
-  Package,
-  Mail,
   Palette,
   Info,
   ShieldCheck,
@@ -19,15 +17,14 @@ import {
   Clock3,
   Camera,
   X,
-  Download,
-  FolderDown,
   ExternalLink,
-  RefreshCcw
+  RefreshCcw,
+  LayoutDashboard,
+  Cpu
 } from "lucide-react";
 import Footer from "@/components/ui/Footer";
 import Navbar from "@/components/ui/Navbar";
 import { cn } from "@/lib/utils";
-import { archiveCommission } from "@/utils/archive";
 
 type Commission = {
   id: string;
@@ -45,7 +42,6 @@ type Commission = {
   dp_proof_url?: string;
   reference_images?: string[];
   reference_link?: string;
-  // New Fields
   wip_artwork_url?: string;
   final_preview_url?: string;
   payment_75_proof_url?: string;
@@ -56,7 +52,7 @@ type Commission = {
   final_status?: string;
   payment_75_status?: string;
   payment_100_status?: string;
-  client_note?: string; // Existing sketch note
+  client_note?: string; 
   sketch_status?: string;
   dp_status?: string;
 };
@@ -91,7 +87,6 @@ export default function TrackOrder() {
 
       if (data.orders && data.orders.length > 0) {
         setResults(data.orders);
-        // Queue info is now embedded in active orders
         const activeOrder = data.orders.find((o: any) => o.status !== 'done');
         if (activeOrder) {
           setQueueInfo({ pos: activeOrder.queuePosition, total: activeOrder.totalQueue });
@@ -172,19 +167,19 @@ export default function TrackOrder() {
     switch (s) {
       case 'pending':
         return { 
-          icon: <Clock3 className="text-blue-500" size={14} />, 
+          icon: <Clock3 className="text-purple-500" size={14} />, 
           label: "In Queue", 
-          desc: "Your order is waiting in the artist's queue. I'll review it soon!",
-          color: "text-blue-600",
-          bg: "bg-blue-50",
-          border: "border-blue-100",
+          desc: "Your order is waiting in the artist's queue.",
+          color: "text-purple-600",
+          bg: "bg-purple-50",
+          border: "border-purple-100",
           step: 1
         };
       case 'accepted':
         return { 
           icon: <ShieldCheck className="text-purple-500" size={14} />, 
-          label: "Sketch & DP", 
-          desc: "I've started your sketch! Please check below for the draft and DP 50% info.",
+          label: "Draft Stage", 
+          desc: "Initial sketch and deposit phase.",
           color: "text-purple-600",
           bg: "bg-purple-50",
           border: "border-purple-100",
@@ -192,19 +187,19 @@ export default function TrackOrder() {
         };
       case 'in_progress':
         return { 
-          icon: <Palette className="text-amber-500 animate-pulse" size={14} />, 
-          label: "Mid Production", 
-          desc: "Working on lineart and coloring. Check your WIP and 75% gate.",
-          color: "text-amber-600",
-          bg: "bg-amber-50",
-          border: "border-amber-100",
+          icon: <Palette className="text-purple-500" size={14} />, 
+          label: "Production", 
+          desc: "Mid-production coloring and detailing.",
+          color: "text-purple-600",
+          bg: "bg-purple-50",
+          border: "border-purple-100",
           step: 3
         };
       case 'done':
         return { 
           icon: <CheckCircle2 className="text-emerald-500" size={14} />, 
-          label: "Final & Delivered", 
-          desc: "Artwork is 100% finished and delivered! Download below.",
+          label: "Delivered", 
+          desc: "Artwork is finished and delivered.",
           color: "text-emerald-600",
           bg: "bg-emerald-50",
           border: "border-emerald-100",
@@ -224,71 +219,55 @@ export default function TrackOrder() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen bg-white font-outfit">
       <Navbar />
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <motion.div 
-          animate={{ 
-            x: [0, 100, 0], 
-            y: [0, -50, 0],
-            scale: [1, 1.2, 1],
-            rotate: [0, 90, 0]
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-400/10 blur-[120px] rounded-full" 
-        />
-        <motion.div 
-          animate={{ 
-            x: [0, -80, 0], 
-            y: [0, 100, 0],
-            scale: [1, 1.3, 1]
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-1/4 -right-20 w-[500px] h-[500px] bg-purple-200/5 blur-[150px] rounded-full" 
-        />
+      
+      {/* Background Decor */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-purple-50 rounded-full blur-[120px] opacity-50" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-slate-50 rounded-full blur-[120px] opacity-50" />
       </div>
 
-      <div className="relative z-10 pt-40 pb-24 px-4 max-w-2xl mx-auto">
-        <div className="text-center mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 border border-purple-100 text-purple-600 text-[10px] font-black uppercase tracking-[0.3em] mb-6 font-outfit"
-          >
-            <Package size={14} className="text-purple-400" />
-            Commission Tracking
-          </motion.div>
-          <h1 className="text-5xl md:text-6xl font-normal text-[#1A1F2B] mb-6 tracking-tight font-dancing-script">
-            Track Your <span className="text-purple-600">Artwork.</span>
+      <div className="relative z-10 pt-40 pb-24 px-4 max-w-4xl mx-auto">
+        {/* Header Section */}
+        <div className="space-y-6 mb-16">
+          <div className="flex items-center gap-4">
+            <div className="h-[2px] w-12 bg-purple-600" />
+            <span className="text-[10px] font-black text-purple-600 uppercase tracking-[0.5em] font-mono">Archive Access</span>
+          </div>
+          <h1 className="text-6xl md:text-8xl font-black text-slate-950 uppercase tracking-tighter leading-[0.85] will-change-transform">
+            Commission<br />
+            <span className="text-purple-600 italic">Tracking.</span>
           </h1>
-          <p className="text-slate-500 text-sm max-w-md mx-auto leading-relaxed font-outfit">
-            Enter your order ID to check the current status, queue position, and details of your commissions.
+          <p className="text-slate-500 text-sm md:text-base max-w-xl font-medium leading-relaxed">
+            Enter your 36-character Order ID to retrieve current status, queue position, and project archives.
           </p>
         </div>
 
+        {/* Input Card */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/80 backdrop-blur-xl border border-purple-100 shadow-[0_20px_50px_rgba(168,85,247,0.1)] rounded-[32px] p-6 md:p-8 mb-12 relative overflow-hidden"
+          className="bg-white rounded-[40px] border border-slate-100 p-2 shadow-2xl shadow-purple-500/5 mb-20 group transition-all duration-500 hover:border-purple-200"
         >
-          <form onSubmit={handleTrack} className="flex flex-col md:flex-row gap-4">
-            <div className="relative group flex-1">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center border border-purple-100 group-focus-within:bg-purple-100 transition-colors">
-                <Search size={16} className="text-purple-400 group-focus-within:text-purple-600 transition-colors" />
+          <form onSubmit={handleTrack} className="flex flex-col md:flex-row gap-2">
+            <div className="relative flex-1">
+              <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-purple-500 transition-colors">
+                <Search size={20} />
               </div>
               <input 
                 type="text"
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value)}
-                placeholder="Paste your 36-character Order ID..."
-                className="w-full bg-slate-50/80 border border-slate-100 rounded-[24px] py-5 pl-16 pr-6 text-[15px] text-[#1A1F2B] placeholder:text-slate-400 focus:outline-none focus:border-purple-300 focus:ring-4 focus:ring-purple-50 transition-all font-outfit font-medium tracking-wide"
+                placeholder="Paste Order ID..."
+                className="w-full bg-slate-50 group-focus-within:bg-white rounded-[32px] py-6 pl-16 pr-6 text-base font-bold text-slate-950 placeholder:text-slate-300 focus:outline-none transition-all"
                 required
               />
             </div>
             <button 
               type="submit" 
               disabled={loading}
-              className="md:w-auto w-full bg-[#1A1F2B] hover:bg-purple-600 text-white font-black px-10 py-5 rounded-[24px] transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl shadow-purple-900/10 hover:shadow-purple-600/20 text-[10px] uppercase tracking-[0.3em] font-outfit shrink-0"
+              className="md:w-auto w-full bg-slate-950 hover:bg-purple-600 text-white font-black px-12 py-6 rounded-[32px] transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-[10px] uppercase tracking-[0.4em]"
             >
               {loading ? "SEARCHING..." : "TRACK STATUS"}
               <ArrowRight size={16} />
@@ -296,564 +275,156 @@ export default function TrackOrder() {
           </form>
         </motion.div>
 
-        <div className="space-y-8">
-          <AnimatePresence mode="wait">
-            {error && (
+        {/* Results Area */}
+        <AnimatePresence mode="wait">
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="p-8 rounded-[32px] bg-red-50 border border-red-100 text-red-600 flex items-center gap-4 justify-center"
+            >
+              <AlertCircle size={20} />
+              <p className="font-black text-xs uppercase tracking-widest">{error}</p>
+            </motion.div>
+          )}
+
+          {results && results.map((order, i) => {
+            const statusInfo = getStatusInfo(order.status);
+            return (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-rose-50 border border-rose-100 rounded-2xl p-6 flex items-center gap-4 text-rose-600 font-outfit text-center justify-center"
+                key={order.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-8"
               >
-                <AlertCircle size={20} className="text-rose-400" />
-                <p className="font-bold text-[13px] uppercase tracking-wider">{error}</p>
-              </motion.div>
-            )}
-
-            {results && results.map((order, i) => {
-              const statusInfo = getStatusInfo(order.status);
-              const isHistory = order.status.toLowerCase() === 'done';
-
-              return (
-                <motion.div
-                  key={order.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bg-white border border-purple-100 shadow-[0_30px_60px_rgba(168,85,247,0.15)] rounded-[32px] overflow-hidden"
-                >
-                  <div className="p-8 border-b border-purple-50">
-                    <div className="flex flex-col md:flex-row justify-between items-start gap-6">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-3">
-                          <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest font-outfit">ID: {order.id.slice(0, 8)}</span>
-                          {!isHistory && queueInfo && (
-                            <motion.div 
-                              initial={{ scale: 0.9, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              className="px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] border border-purple-400 shadow-[0_4px_12px_rgba(147,51,234,0.3)] flex items-center gap-2"
-                            >
-                              <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                              QUEUE #{queueInfo.pos} OF {queueInfo.total}
-                            </motion.div>
-                          )}
-                        </div>
-                        <h3 className="text-4xl font-normal text-[#1A1F2B] font-dancing-script">{order.commission_type}</h3>
-                        <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em] font-outfit">
-                          {order.art_style} Style • <span className="text-purple-500">${order.price}</span>
-                        </p>
-                      </div>
-                      
-                      <motion.div 
-                        animate={order.status.toLowerCase() === 'pending' ? { y: [0, -4, 0] } : {}}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className={cn(
-                          "px-6 py-4 rounded-[20px] border flex items-center gap-3 shadow-md transition-all",
-                          order.status.toLowerCase() === 'pending' 
-                            ? "bg-purple-600 border-purple-500 text-white shadow-purple-200" 
-                            : cn(statusInfo.bg, statusInfo.border)
+                {/* Main Order Card */}
+                <div className="bg-white rounded-[48px] border border-slate-100 p-8 md:p-12 shadow-2xl shadow-purple-500/5 relative overflow-hidden">
+                  <div className="flex flex-col md:flex-row justify-between gap-12">
+                    <div className="space-y-6 flex-1">
+                      <div className="flex items-center gap-4">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-mono">ID: {order.id.slice(0, 8)}...</span>
+                        {queueInfo && order.status !== 'done' && (
+                          <span className="px-4 py-1 rounded-full bg-purple-600 text-white text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
+                             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                             Queue #{queueInfo.pos}
+                          </span>
                         )}
-                      >
-                        <div className={cn(
-                          "p-2 rounded-full shadow-inner",
-                          order.status.toLowerCase() === 'pending' ? "bg-white/20" : "bg-white"
-                        )}>
-                          {order.status.toLowerCase() === 'pending' 
-                            ? <Clock3 className="text-white" size={14} /> 
-                            : statusInfo.icon
-                          }
+                      </div>
+                      <h2 className="text-5xl md:text-7xl font-black text-slate-950 uppercase tracking-tighter leading-none">
+                        {order.commission_type}<br />
+                        <span className="text-purple-600 italic">{order.art_style}.</span>
+                      </h2>
+                      <p className="text-slate-500 font-bold text-sm">
+                        Total Valuation: <span className="text-slate-950">IDR {(order.price || 0).toLocaleString()}</span>
+                      </p>
+                    </div>
+
+                    <div className="md:w-64 space-y-4">
+                      <div className={cn(
+                        "p-8 rounded-[32px] border flex flex-col gap-4 transition-all duration-500",
+                        statusInfo.bg, statusInfo.border
+                      )}>
+                        <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
+                          {statusInfo.icon}
                         </div>
-                        <span className={cn(
-                          "text-[10px] font-black uppercase tracking-[0.2em] font-outfit",
-                          order.status.toLowerCase() === 'pending' ? "text-white" : statusInfo.color
-                        )}>
-                          {statusInfo.label}
-                        </span>
-                      </motion.div>
+                        <div>
+                          <p className={cn("text-xs font-black uppercase tracking-widest", statusInfo.color)}>{statusInfo.label}</p>
+                          <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{statusInfo.desc}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="p-8 space-y-10">
-                    <div className="relative pt-4 pb-4">
-                      <div className="absolute top-[1.35rem] left-2 right-2 h-[3px] bg-slate-100 rounded-full" />
-                      
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${((statusInfo.step - 1) / 3) * 100}%` }}
-                        transition={{ duration: 1.5, ease: "circOut" }}
-                        className="absolute top-[1.35rem] left-2 h-[3px] bg-purple-500 rounded-full z-0" 
-                      />
-
-                      <div className="relative flex justify-between">
-                        {[1, 2, 3, 4].map((step) => {
-                          const isActive = statusInfo.step >= step;
-                          const isCurrent = statusInfo.step === step;
-                          return (
-                            <div key={step} className="flex flex-col items-center gap-4">
-                              <div className="relative">
-                                {isCurrent && (
-                                  <motion.div 
-                                    layoutId="pulse"
-                                    className="absolute inset-0 bg-purple-400/30 rounded-full scale-[3]"
-                                    animate={{ opacity: [0.3, 0.6, 0.3] }}
-                                    transition={{ duration: 2, repeat: Infinity }}
-                                  />
-                                )}
-                                <div className={cn(
-                                  "w-3.5 h-3.5 rounded-full border-2 transition-all duration-700 z-10 relative",
-                                  isActive ? "bg-purple-500 border-purple-500" : "bg-white border-slate-200",
-                                  isCurrent ? "scale-110 shadow-[0_0_15px_rgba(168,85,247,0.4)]" : ""
-                                )} />
-                              </div>
-                              <span className={cn(
-                                "text-[9px] font-black uppercase tracking-[0.2em] font-outfit",
-                                isActive ? "text-purple-600" : "text-slate-300"
-                              )}>
-                                {step === 1 ? "Queue" : step === 2 ? "Sketch" : step === 3 ? "WIP" : "Done"}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
+                  {/* Progress Line */}
+                  <div className="mt-16 md:mt-24 relative">
+                    <div className="absolute top-[1.35rem] left-2 right-2 h-[2px] bg-slate-100 rounded-full" />
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${((statusInfo.step - 1) / 3) * 100}%` }}
+                      className="absolute top-[1.35rem] left-2 h-[2px] bg-purple-600 rounded-full z-0" 
+                    />
+                    <div className="relative flex justify-between">
+                      {[1, 2, 3, 4].map((step) => {
+                        const isActive = statusInfo.step >= step;
+                        return (
+                          <div key={step} className="flex flex-col items-center gap-4">
+                            <div className={cn(
+                              "w-3 h-3 rounded-full border-2 transition-all duration-700 z-10 bg-white",
+                              isActive ? "border-purple-600 bg-purple-600" : "border-slate-200"
+                            )} />
+                            <span className={cn(
+                              "text-[9px] font-black uppercase tracking-[0.2em]",
+                              isActive ? "text-purple-600" : "text-slate-300"
+                            )}>
+                              {step === 1 ? "Queue" : step === 2 ? "Draft" : step === 3 ? "WIP" : "Done"}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
+                  </div>
+                </div>
 
-                    <div className="space-y-12">
-                      {/* Interactive Gates Section */}
-                      {order.status !== 'pending' && (
-                        <div className="space-y-12">
-                          
-                          {/* STAGE 1: SKETCH & DP 50% */}
-                          <div className={cn(
-                            "p-8 rounded-[32px] border transition-all duration-500",
-                            order.sketch_status === 'approved' && order.dp_status === 'approved' ? "bg-emerald-50/50 border-emerald-100" : "bg-slate-50/50 border-slate-100"
-                          )}>
-                            <div className="flex items-center justify-between mb-8">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-2xl bg-white border border-purple-100 flex items-center justify-center text-purple-500 shadow-sm">
-                                  <Palette size={18} />
-                                </div>
-                                <div>
-                                  <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-widest">Stage 1: Sketch & Deposit</h4>
-                                  <p className="text-[10px] text-slate-400 font-medium">50% Initial Payment Required</p>
-                                </div>
+                {/* Interaction Gates (Minimalist) */}
+                {order.status !== 'pending' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     {/* Sketch Card */}
+                     <div className="bg-white rounded-[40px] border border-slate-100 p-8 space-y-6">
+                        <div className="flex items-center justify-between">
+                           <h4 className="text-xs font-black uppercase tracking-widest text-slate-950">Draft Phase</h4>
+                           <Palette size={16} className="text-purple-500" />
+                        </div>
+                        {order.rough_sketch_url ? (
+                           <div className="space-y-4">
+                              <div className="relative group aspect-square rounded-[32px] overflow-hidden border border-slate-100">
+                                 <img src={order.rough_sketch_url} alt="Sketch" className="w-full h-full object-cover" />
+                                 <button onClick={() => window.open(order.rough_sketch_url, '_blank')} className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white gap-2 font-bold text-xs"><ExternalLink size={14} /> Open Archive</button>
                               </div>
-                              {order.sketch_status === 'approved' && order.dp_status === 'approved' && (
-                                <span className="bg-emerald-500/10 text-emerald-600 text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-emerald-200">Completed</span>
+                              {order.sketch_status !== 'approved' && (
+                                <div className="flex gap-2 pt-2">
+                                   <button onClick={() => handleSubmitFeedback(order.id, 'sketch', "Approved", 'approved')} className="flex-1 bg-slate-950 text-white py-4 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-purple-600 transition-colors">Approve Draft</button>
+                                </div>
                               )}
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                              {/* Sketch Review */}
-                              <div className="space-y-4">
-                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">1. Sketch Review</p>
-                                {order.rough_sketch_url ? (
-                                  <div className="space-y-4">
-                                    <div className="relative group rounded-2xl overflow-hidden border border-slate-200 bg-white">
-                                      <img src={order.rough_sketch_url} alt="Rough Sketch" className="w-full aspect-square object-cover" />
-                                      <button 
-                                        onClick={() => window.open(order.rough_sketch_url, '_blank')}
-                                        className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white gap-2 font-bold text-xs"
-                                      >
-                                        <ExternalLink size={14} /> View Large
-                                      </button>
-                                    </div>
-
-                                    {order.client_note && (
-                                      <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 space-y-2">
-                                        <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest">Your Revision Notes</p>
-                                        <p className="text-xs text-slate-600 leading-relaxed">{order.client_note}</p>
-                                      </div>
-                                    )}
-
-                                    {order.sketch_status !== 'approved' && (
-                                      <div className="space-y-3">
-                                        <textarea 
-                                          placeholder="Type revision notes if any..."
-                                          value={feedbackTexts[`${order.id}-sketch`] || ""}
-                                          onChange={(e) => setFeedbackTexts(prev => ({ ...prev, [`${order.id}-sketch`]: e.target.value }))}
-                                          className="w-full bg-white border border-slate-200 rounded-xl p-4 text-xs text-slate-600 focus:outline-none focus:border-purple-200 h-24"
-                                        />
-                                        <div className="flex gap-2">
-                                          <button 
-                                            onClick={() => handleSubmitFeedback(order.id, 'sketch', feedbackTexts[`${order.id}-sketch`] || "Approved", 'approved')}
-                                            disabled={isSubmittingFeedback === `${order.id}-sketch`}
-                                            className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-xl text-[9px] uppercase tracking-widest transition-all"
-                                          >
-                                            {isSubmittingFeedback === `${order.id}-sketch` ? "..." : "Approve Sketch"}
-                                          </button>
-                                          <button 
-                                            onClick={() => handleSubmitFeedback(order.id, 'sketch', feedbackTexts[`${order.id}-sketch`], 'revision')}
-                                            disabled={!feedbackTexts[`${order.id}-sketch`] || isSubmittingFeedback === `${order.id}-sketch`}
-                                            className="flex-1 bg-white border border-amber-200 text-amber-600 hover:bg-amber-50 font-black py-3 rounded-xl text-[9px] uppercase tracking-widest transition-all"
-                                          >
-                                            Revision
-                                          </button>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <div className="aspect-square rounded-2xl border-2 border-dashed border-slate-100 flex flex-col items-center justify-center text-slate-300">
-                                    <Clock size={24} className="mb-2" />
-                                    <p className="text-[10px] font-bold uppercase tracking-widest">Awaiting Sketch</p>
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* DP Payment */}
-                              <div className="space-y-4">
-                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">2. DP 50% Status</p>
-                                <div className="p-6 bg-white border border-slate-100 rounded-2xl space-y-4">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-bold text-slate-500">Deposit 50%</span>
-                                    <span className="text-[10px] font-black text-purple-600">${(order.price || 0) * 0.5}</span>
-                                  </div>
-                                  <div className="h-px bg-slate-50" />
-                                  <div className="flex flex-col items-center justify-center py-4">
-                                    {order.dp_status === 'approved' ? (
-                                      <div className="flex flex-col items-center gap-2 text-emerald-500">
-                                        <ShieldCheck size={24} />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Payment Confirmed</span>
-                                      </div>
-                                    ) : order.dp_proof_url ? (
-                                      <div className="flex flex-col items-center gap-2 text-amber-500">
-                                        <Clock size={24} className="animate-pulse" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Awaiting Verification</span>
-                                      </div>
-                                    ) : (
-                                      <p className="text-[10px] text-slate-400 text-center leading-relaxed">
-                                        Please contact the artist via social media to arrange the 50% deposit payment.
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                           </div>
+                        ) : (
+                          <div className="aspect-square rounded-[32px] bg-slate-50 flex flex-col items-center justify-center text-slate-300 border border-slate-100">
+                             <Cpu size={24} className="mb-2 animate-pulse" />
+                             <p className="text-[9px] font-black uppercase tracking-widest">Generating Concept...</p>
                           </div>
+                        )}
+                     </div>
 
-                          {/* STAGE 2: WIP & MID-PAYMENT 75% */}
-                          {(order.status === 'in_progress' || order.status === 'done') && (
-                            <div className={cn(
-                              "p-8 rounded-[32px] border transition-all duration-500",
-                              order.wip_status === 'approved' && order.payment_75_status === 'approved' ? "bg-emerald-50/50 border-emerald-100" : "bg-slate-50/50 border-slate-100"
-                            )}>
-                              <div className="flex items-center justify-between mb-8">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 rounded-2xl bg-white border border-purple-100 flex items-center justify-center text-purple-500 shadow-sm">
-                                    <Sparkles size={18} />
-                                  </div>
-                                  <div>
-                                    <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-widest">Stage 2: Lineart/Color WIP</h4>
-                                    <p className="text-[10px] text-slate-400 font-medium">75% Milestone Payment Required</p>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                {/* WIP Review */}
-                                <div className="space-y-4">
-                                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">1. WIP Feedback</p>
-                                  {order.wip_artwork_url ? (
-                                    <div className="space-y-4">
-                                      <div className="relative group rounded-2xl overflow-hidden border border-slate-200 bg-white">
-                                        <img src={order.wip_artwork_url} alt="WIP Progress" className="w-full aspect-square object-cover" />
-                                        <button onClick={() => window.open(order.wip_artwork_url, '_blank')} className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white gap-2 font-bold text-xs"><ExternalLink size={14} /> View Large</button>
-                                      </div>
-                                      {order.wip_status !== 'approved' && (
-                                        <div className="space-y-3">
-                                          <textarea 
-                                            placeholder="Notes for lineart/coloring..."
-                                            value={feedbackTexts[`${order.id}-wip`] || ""}
-                                            onChange={(e) => setFeedbackTexts(prev => ({ ...prev, [`${order.id}-wip`]: e.target.value }))}
-                                            className="w-full bg-white border border-slate-200 rounded-xl p-4 text-xs text-slate-600 focus:outline-none focus:border-purple-200 h-24"
-                                          />
-                                          <div className="flex gap-2">
-                                            <button 
-                                              onClick={() => handleSubmitFeedback(order.id, 'wip', feedbackTexts[`${order.id}-wip`] || "Approved", 'approved')}
-                                              disabled={isSubmittingFeedback === `${order.id}-wip`}
-                                              className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-xl text-[9px] uppercase tracking-widest transition-all"
-                                            >
-                                              {isSubmittingFeedback === `${order.id}-wip` ? "..." : "Approve WIP"}
-                                            </button>
-                                            <button 
-                                              onClick={() => handleSubmitFeedback(order.id, 'wip', feedbackTexts[`${order.id}-wip`], 'revision')}
-                                              disabled={!feedbackTexts[`${order.id}-wip`] || isSubmittingFeedback === `${order.id}-wip`}
-                                              className="flex-1 bg-white border border-amber-200 text-amber-600 hover:bg-amber-50 font-black py-3 rounded-xl text-[9px] uppercase tracking-widest transition-all"
-                                            >
-                                              Revision
-                                            </button>
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-                                  ) : (
-                                    <div className="aspect-square rounded-2xl border-2 border-dashed border-slate-100 flex flex-col items-center justify-center text-slate-300">
-                                      <Clock size={24} className="mb-2" />
-                                      <p className="text-[10px] font-bold uppercase tracking-widest">Awaiting WIP</p>
-                                    </div>
-                                  )}
-                                </div>
-
-                                {/* 75% Payment */}
-                                <div className="space-y-4">
-                                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">2. 75% Payment Gate</p>
-                                  <div className="p-6 bg-white border border-slate-100 rounded-2xl space-y-4">
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-[10px] font-bold text-slate-500">Mid Payment (75% total)</span>
-                                      <span className="text-[10px] font-black text-purple-600">${(order.price || 0) * 0.25} addition</span>
-                                    </div>
-                                    {order.payment_75_status === 'approved' ? (
-                                      <div className="flex flex-col items-center gap-2 py-4 text-emerald-500">
-                                        <CheckCircle2 size={24} />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Payment Approved</span>
-                                      </div>
-                                    ) : (
-                                      <label className={cn(
-                                        "w-full py-4 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all",
-                                        order.payment_75_proof_url ? "border-amber-200 bg-amber-50/50" : "border-slate-100 hover:border-purple-200 bg-slate-50/30"
-                                      )}>
-                                        {isUploadingProof === `${order.id}-75` ? (
-                                          <RefreshCcw size={20} className="animate-spin text-purple-500" />
-                                        ) : order.payment_75_proof_url ? (
-                                          <>
-                                            <Clock size={20} className="text-amber-500 mb-1" />
-                                            <span className="text-[8px] font-black text-amber-600 uppercase tracking-widest">Proof Uploaded - Waiting</span>
-                                          </>
-                                        ) : (
-                                          <>
-                                            <Send size={18} className="text-slate-300 mb-1" />
-                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Upload 75% Proof</span>
-                                          </>
-                                        )}
-                                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUploadProof(order.id, '75', e)} disabled={!!order.payment_75_proof_url} />
-                                      </label>
-                                    )}
-                                    <p className="text-[8px] text-slate-400 text-center">Required to proceed to final detailing.</p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* STAGE 3: FINAL PREVIEW & PELUNASAN 100% */}
-                          {(order.status === 'in_progress' || order.status === 'done') && (
-                            <div className={cn(
-                              "p-8 rounded-[32px] border transition-all duration-500",
-                              order.final_status === 'approved' && order.payment_100_status === 'approved' ? "bg-emerald-50/50 border-emerald-100" : "bg-slate-50/50 border-slate-100"
-                            )}>
-                              <div className="flex items-center justify-between mb-8">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 rounded-2xl bg-white border border-purple-100 flex items-center justify-center text-purple-500 shadow-sm">
-                                    <ShieldCheck size={18} />
-                                  </div>
-                                  <div>
-                                    <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-widest">Stage 3: Final Render & Pelunasan</h4>
-                                    <p className="text-[10px] text-slate-400 font-medium">100% Full Payment Required for High-Res</p>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                {/* Final Preview Review */}
-                                <div className="space-y-4">
-                                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">1. Watermarked Preview</p>
-                                  {order.final_preview_url ? (
-                                    <div className="space-y-4">
-                                      <div className="relative group rounded-2xl overflow-hidden border border-slate-200 bg-white">
-                                        <img src={order.final_preview_url} alt="Final Preview" className="w-full aspect-square object-cover" />
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
-                                          <span className="text-[20px] font-black text-white/40 uppercase rotate-45 border-4 border-white/40 px-4 py-2">PREVIEW</span>
-                                        </div>
-                                      </div>
-                                      {order.final_status !== 'approved' && (
-                                        <div className="space-y-3">
-                                          <textarea 
-                                            placeholder="Last minute minor adjustments..."
-                                            value={feedbackTexts[`${order.id}-final`] || ""}
-                                            onChange={(e) => setFeedbackTexts(prev => ({ ...prev, [`${order.id}-final`]: e.target.value }))}
-                                            className="w-full bg-white border border-slate-200 rounded-xl p-4 text-xs text-slate-600 focus:outline-none focus:border-purple-200 h-24"
-                                          />
-                                          <div className="flex gap-2">
-                                            <button 
-                                              onClick={() => handleSubmitFeedback(order.id, 'final', feedbackTexts[`${order.id}-final`] || "Approved", 'approved')}
-                                              disabled={isSubmittingFeedback === `${order.id}-final`}
-                                              className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-xl text-[9px] uppercase tracking-widest transition-all"
-                                            >
-                                              Approve Final
-                                            </button>
-                                            <button 
-                                              onClick={() => handleSubmitFeedback(order.id, 'final', feedbackTexts[`${order.id}-final`], 'revision')}
-                                              disabled={!feedbackTexts[`${order.id}-final`] || isSubmittingFeedback === `${order.id}-final`}
-                                              className="flex-1 bg-white border border-amber-200 text-amber-600 hover:bg-amber-50 font-black py-3 rounded-xl text-[9px] uppercase tracking-widest transition-all"
-                                            >
-                                              Revision
-                                            </button>
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-                                  ) : (
-                                    <div className="aspect-square rounded-2xl border-2 border-dashed border-slate-100 flex flex-col items-center justify-center text-slate-300">
-                                      <Clock size={24} className="mb-2" />
-                                      <p className="text-[10px] font-bold uppercase tracking-widest">Processing Render</p>
-                                    </div>
-                                  )}
-                                </div>
-
-                                {/* 100% Payment */}
-                                <div className="space-y-4">
-                                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">2. Final Payment Gate</p>
-                                  <div className="p-6 bg-white border border-slate-100 rounded-2xl space-y-4">
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-[10px] font-bold text-slate-500">Pelunasan (Sisa 25%)</span>
-                                      <span className="text-[10px] font-black text-purple-600">${(order.price || 0) * 0.25}</span>
-                                    </div>
-                                    {order.payment_100_status === 'approved' ? (
-                                      <div className="flex flex-col items-center gap-2 py-4 text-emerald-500">
-                                        <CheckCircle2 size={24} />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Fully Paid</span>
-                                      </div>
-                                    ) : (
-                                      <label className={cn(
-                                        "w-full py-4 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all",
-                                        order.payment_100_proof_url ? "border-amber-200 bg-amber-50/50" : "border-slate-100 hover:border-purple-200 bg-slate-50/30"
-                                      )}>
-                                        {isUploadingProof === `${order.id}-100` ? (
-                                          <RefreshCcw size={20} className="animate-spin text-purple-500" />
-                                        ) : order.payment_100_proof_url ? (
-                                          <>
-                                            <Clock size={20} className="text-amber-500 mb-1" />
-                                            <span className="text-[8px] font-black text-amber-600 uppercase tracking-widest">Proof Sent</span>
-                                          </>
-                                        ) : (
-                                          <>
-                                            <Send size={18} className="text-slate-300 mb-1" />
-                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Upload Pelunasan Proof</span>
-                                          </>
-                                        )}
-                                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUploadProof(order.id, '100', e)} disabled={!!order.payment_100_proof_url} />
-                                      </label>
-                                    )}
-                                    <p className="text-[8px] text-slate-400 text-center uppercase tracking-widest">Upload proof to unlock High-Res file.</p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          )}
+                     {/* Actions Card */}
+                     <div className="bg-slate-950 rounded-[40px] p-8 text-white flex flex-col justify-between">
+                        <div className="space-y-6">
+                           <h4 className="text-xs font-black uppercase tracking-widest text-slate-500">Contact Channels</h4>
+                           <div className="grid grid-cols-1 gap-3">
+                              <a href="https://x.com/messages/compose?screen_name=Zarry_linilo" className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group">
+                                 <span className="text-xs font-bold">X Messaging</span>
+                                 <X size={16} className="text-slate-500 group-hover:text-white" />
+                              </a>
+                              <a href="https://ig.me/m/cuancapital.id" className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group">
+                                 <span className="text-xs font-bold">Instagram DM</span>
+                                 <Camera size={16} className="text-slate-500 group-hover:text-white" />
+                              </a>
+                           </div>
                         </div>
-                      )}
-
-                      <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="space-y-3">
-                            <div className="flex items-center gap-2">
-                              <Clock className="text-purple-300" size={14} />
-                              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-outfit">Current Progress</h4>
-                            </div>
-                            <div className={cn("p-5 rounded-2xl border font-outfit", statusInfo.bg, statusInfo.border)}>
-                              <p className={cn("text-[13px] font-bold mb-2", statusInfo.color)}>{statusInfo.label}</p>
-                              <p className="text-slate-500 text-[12px] leading-relaxed">{statusInfo.desc}</p>
-                            </div>
-                          </div>
-
-                          <div className="space-y-3">
-                            <div className="flex items-center gap-2">
-                              <User className="text-purple-300" size={14} />
-                              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-outfit">Order Details</h4>
-                            </div>
-                            <div className="p-5 bg-slate-50/50 border border-slate-100 rounded-2xl font-outfit min-h-[100px]">
-                              <p className="text-slate-600 text-[12px] leading-relaxed italic">
-                                "{order.description || "No specific instructions provided."}"
-                              </p>
-                            </div>
-                          </div>
+                        <div className="pt-8 flex items-center justify-between">
+                           <div className="flex flex-col">
+                              <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Support Access</span>
+                              <span className="text-[10px] font-bold">MS-SECURE-V1</span>
+                           </div>
+                           <ShieldCheck size={20} className="text-purple-500" />
                         </div>
-
-                        <div className="flex flex-col gap-4 pt-4">
-                          <div className="flex items-center justify-between px-2 text-[10px] font-black text-slate-300 uppercase tracking-widest font-outfit">
-                            <p>Ordered on: <span className="text-slate-400">{new Date(order.created_at).toLocaleDateString()}</span></p>
-                            <p>Client: <span className="text-slate-400">{order.client_name}</span></p>
-                          </div>
-                          
-                          <div className="h-px bg-slate-100 w-full" />
-                          
-                          <div className="grid grid-cols-2 gap-4">
-                            <a 
-                              href="https://x.com/messages/compose?screen_name=Zarry_linilo"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="bg-[#1A1F2B] hover:bg-blue-600 text-white font-black py-5 rounded-2xl transition-all flex items-center justify-center gap-3 text-[9px] uppercase tracking-[0.2em] font-outfit shadow-lg group"
-                            >
-                              <X size={14} className="group-hover:scale-110 transition-transform" />
-                              CONTACT VIA X
-                            </a>
-                            <a 
-                              href="https://ig.me/m/cuancapital.id"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="bg-[#1A1F2B] hover:bg-purple-600 text-white font-black py-5 rounded-2xl transition-all flex items-center justify-center gap-3 text-[9px] uppercase tracking-[0.2em] font-outfit shadow-lg group"
-                            >
-                              <Camera size={14} className="group-hover:scale-110 transition-transform" />
-                              CONTACT VIA IG DM
-                            </a>
-                          </div>
-
-                          {/* Download Actions - Only unlocked after 100% payment approval */}
-                          {order.final_artwork_url && (
-                            <div className="space-y-4 pt-4">
-                              <div className="flex items-center gap-2 px-2">
-                                <Sparkles className="text-emerald-500" size={14} />
-                                <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest font-outfit">
-                                  {order.payment_100_status === 'approved' ? "Your Masterpiece is Ready" : "Artwork Finished - Locked"}
-                                </h4>
-                              </div>
-                              
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {order.payment_100_status === 'approved' ? (
-                                  <button
-                                    onClick={() => window.open(order.final_artwork_url, '_blank')}
-                                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-6 rounded-2xl transition-all flex flex-col items-center justify-center gap-2 shadow-xl shadow-emerald-500/20 group"
-                                  >
-                                    <div className="flex items-center gap-3">
-                                      <Download size={18} className="group-hover:translate-y-0.5 transition-transform" />
-                                      <span className="text-[11px] uppercase tracking-[0.2em]">Download Artwork</span>
-                                    </div>
-                                    <span className="text-[8px] opacity-60 uppercase tracking-widest">High-Resolution PNG/JPG</span>
-                                  </button>
-                                ) : (
-                                  <div className="w-full bg-slate-100 text-slate-400 font-black py-6 rounded-2xl flex flex-col items-center justify-center gap-2 cursor-not-allowed">
-                                    <div className="flex items-center gap-3">
-                                      <ShieldCheck size={18} className="opacity-40" />
-                                      <span className="text-[11px] uppercase tracking-[0.2em]">Locked</span>
-                                    </div>
-                                    <span className="text-[8px] uppercase tracking-widest">Pending Full Payment Approval</span>
-                                  </div>
-                                )}
-                                
-                                <button
-                                  onClick={() => archiveCommission(order)}
-                                  className="w-full bg-white border border-slate-100 hover:border-purple-200 text-slate-600 font-black py-6 rounded-2xl transition-all flex flex-col items-center justify-center gap-2 shadow-sm group"
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <FolderDown size={18} className="text-purple-400 group-hover:translate-y-0.5 transition-transform" />
-                                    <span className="text-[11px] uppercase tracking-[0.2em]">Project Archive</span>
-                                  </div>
-                                  <span className="text-[8px] text-slate-400 uppercase tracking-widest">ZIP (Includes References & Sketches)</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                     </div>
                   </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
+                )}
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
-
       <Footer />
     </div>
   );

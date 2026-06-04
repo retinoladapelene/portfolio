@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 import { useConfirm } from "@/components/ui/ConfirmProvider";
 import Image from "next/image";
+import { compressImage } from "@/utils/imageCompression";
 
 type GalleryArt = {
   id: string;
@@ -70,28 +71,38 @@ export default function GalleryManager() {
       return;
     }
 
-    // 2. Validate File Size (2MB)
-    const maxSize = 2 * 1024 * 1024;
+    // 2. Validate Original File Size (Optional check before compression)
+    const maxSize = 5 * 1024 * 1024; // Allow up to 5MB original to be compressed
     if (file.size > maxSize) {
-      toast("File is too large! Maximum size allowed is 2MB.", "error");
+      toast("File is too large! Maximum original size allowed is 5MB.", "error");
       return;
-    }
-
-    // Create local preview immediately for instant feedback
-    const localUrl = URL.createObjectURL(file);
-    if (isEditing) {
-      setIsEditing((prev: any) => prev ? ({ ...prev, image_url: localUrl }) : null);
     }
 
     setIsUploading(true);
     try {
+      // 3. Compress Image
+      const compressedBlob = await compressImage(file, 1920, 1920, 0.8);
+      
+      // Check if compressed size is within 1MB
+      if (compressedBlob.size > 1024 * 1024) {
+        toast("Even after compression, the image is still over 1MB. Please use a smaller image.", "error");
+        setIsUploading(false);
+        return;
+      }
+
+      // Create local preview immediately for instant feedback
+      const localUrl = URL.createObjectURL(compressedBlob);
+      if (isEditing) {
+        setIsEditing((prev: any) => prev ? ({ ...prev, image_url: localUrl }) : null);
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
       const filePath = `gallery/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('portfolio')
-        .upload(filePath, file);
+        .upload(filePath, compressedBlob);
 
       if (uploadError) throw uploadError;
 

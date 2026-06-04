@@ -2,10 +2,34 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/utils/supabase/admin';
 import { getSignedUrlIfNeeded, getSignedUrlsBatch } from '@/utils/storage';
 import { rateLimit } from '@/utils/rate-limit';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
+  const cookieStore = await cookies();
+  const supabaseAuth = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll() },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }: { name: string, value: string, options: CookieOptions }) => 
+              cookieStore.set(name, value, options)
+            )
+          } catch {}
+        },
+      },
+    }
+  );
+  
+  const { data: { user } } = await supabaseAuth.auth.getUser();
+  // We allow public check if searching by orderId ONLY (limited data or requires knowing ID)
+  // But if searching by EMAIL, we MUST verify the user is logged in as that email.
+  
   // 0. Rate Limiting (5 requests per minute)
   const ip = request.headers.get('x-forwarded-for') || 'anonymous';
   const limiter = rateLimit(ip, 10, 60000);
@@ -30,6 +54,24 @@ export async function GET(request: Request) {
 
     if (!orderId && !email) {
       return NextResponse.json({ active: false, orders: [] });
+    }
+
+    // --- SECURITY: VERIFY OWNERSHIP IF SEARCHING BY EMAIL ---
+    if (email && (!user || user.email !== email.toLowerCase().trim())) {
+      return NextResponse.json({ 
+        active: false, 
+        orders: [], 
+        error: 'Authentication required to view history for this email.' 
+      }, { status: 401 });
+    }
+
+    // --- SECURITY: IF SEARCHING BY ID, STILL REQUIRE LOGIN (Optional but safer) ---
+    if (orderId && !user) {
+      return NextResponse.json({ 
+        active: false, 
+        orders: [], 
+        error: 'Please login to track your order.' 
+      }, { status: 401 });
     }
 
     // Fetch ONLY IDs of active commissions to calculate queue position safely
@@ -58,7 +100,8 @@ export async function GET(request: Request) {
       `);
 
     if (orderId) {
-      query = query.eq('id', orderId);
+      // SECURITY: If searching by ID, it MUST belong to the logged-in user
+      query = query.eq('id', orderId).eq('client_email', user?.email);
     } else if (email) {
       query = query.eq('client_email', email).order('created_at', { ascending: false });
     }

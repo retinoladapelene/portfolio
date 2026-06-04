@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/utils/supabase/admin';
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { transformCommission, deleteFiles } from '@/utils/storage';
 
@@ -16,7 +16,9 @@ export async function GET() {
         getAll() { return cookieStore.getAll() },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
+            cookiesToSet.forEach(({ name, value, options }: { name: string, value: string, options: CookieOptions }) => 
+              cookieStore.set(name, value, options)
+            )
           } catch {}
         },
       },
@@ -25,7 +27,7 @@ export async function GET() {
 
   const { data: { user } } = await supabaseAuth.auth.getUser();
   const allowedEmails = (process.env.ALLOWED_ADMIN_EMAILS || 'pbsn290704@gmail.com').split(',');
-  if (!user || !allowedEmails.includes(user.email!)) {
+  if (!user || !user.email || !allowedEmails.includes(user.email)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -64,7 +66,17 @@ export async function POST() {
       .not('downloaded_at', 'is', null)
       .lt('downloaded_at', yesterday);
 
-    if (fetchError) throw fetchError;
+    if (fetchError) {
+      if (fetchError.code === '42703') {
+        console.warn('[Archive Management] downloaded_at column is missing in Supabase. Skipping auto-archive sweep.');
+        return NextResponse.json({ 
+          success: true, 
+          archivedCount: 0, 
+          warning: 'downloaded_at column is missing in Supabase. Please add it to your database.' 
+        });
+      }
+      throw fetchError;
+    }
 
     // Filter those not already archived
     const toArchive = potential?.filter(o => !o.client_note?.includes('[ARCHIVED_AT:')) || [];

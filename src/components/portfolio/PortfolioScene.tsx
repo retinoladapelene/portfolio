@@ -34,7 +34,7 @@ export default function PortfolioScene({
         className="absolute inset-0"
       >
         <Image 
-          src={project.image} 
+          src={project.image || "/placeholder.jpg"} 
           alt={project.title} 
           fill 
           className="object-cover" 
@@ -54,7 +54,7 @@ export default function PortfolioScene({
         >
           <div className="relative w-full h-full overflow-hidden rounded-2xl">
             <Image
-              src={project.image}
+              src={project.image || "/placeholder.jpg"}
               alt={`${project.title} focus`}
               fill
               priority={isSnapshot}

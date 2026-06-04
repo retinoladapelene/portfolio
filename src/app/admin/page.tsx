@@ -15,6 +15,7 @@ import {
   Briefcase,
   Milestone,
   PenTool,
+  User,
   Tag,
   Activity,
   Trash2,
@@ -24,8 +25,7 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import ProjectManager from "@/components/admin/ProjectManager";
-import JourneyManager from "@/components/admin/JourneyManager";
-import SketchbookManager from "@/components/admin/SketchbookManager";
+import PersonalPageManager from "@/components/admin/PersonalPageManager";
 import PricingManager from "@/components/admin/PricingManager";
 import StorageManager from "@/components/admin/StorageManager";
 import AdminStats from "@/components/admin/AdminStats";
@@ -41,6 +41,7 @@ import { useConfirm } from "@/components/ui/ConfirmProvider";
 import { AdminGuide } from "@/components/admin/AdminGuide";
 import { archiveCommission } from "@/utils/archive";
 import { Commission, StudioSettings } from "@/types/admin";
+import { compressImage } from "@/utils/imageCompression";
 
 const AdminDashboard = () => {
   const { toast } = useToast();
@@ -49,7 +50,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<'commissions' | 'portfolio' | 'gallery' | 'journey' | 'sketchbook' | 'pricing' | 'health' | 'recycle-bin' | 'engagement'>('commissions');
+  const [activeTab, setActiveTab] = useState<'commissions' | 'portfolio' | 'gallery' | 'personal' | 'pricing' | 'health' | 'recycle-bin' | 'engagement'>('commissions');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [selectedCommission, setSelectedCommission] = useState<Commission | null>(null);
@@ -75,7 +76,7 @@ const AdminDashboard = () => {
       const { data: { user } } = await supabase.auth.getUser();
       const allowedEmails = ['pbsn290704@gmail.com', 'tyo290704@gmail.com'];
 
-      if (!user || !allowedEmails.includes(user.email!)) {
+      if (!user || !user.email || !allowedEmails.includes(user.email)) {
         router.push("/?login=true");
         return;
       }
@@ -101,7 +102,7 @@ const AdminDashboard = () => {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch('/api/admin/settings');
+      const res = await fetch(`/api/admin/settings?t=${Date.now()}`);
       const result = await res.json();
       if (result.success && result.data) {
         setSettings(result.data);
@@ -242,8 +243,27 @@ const AdminDashboard = () => {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, apiPath: string, toastMsg: string, loadingSetter: (v: boolean) => void) => {
     if (!e.target.files || !e.target.files[0] || !selectedCommission) return;
     const file = e.target.files[0];
+    
+    // Limit original size to 5MB before compression
+    const MAX_ORIGINAL_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_ORIGINAL_SIZE) {
+      toast("Original image too large! Maximum size is 5MB.", "error");
+      return;
+    }
+
     loadingSetter(true);
     try {
+      // Compress Image
+      const compressedBlob = await compressImage(file, 1920, 1920, 0.8);
+      
+      // Check if compressed size is within 1MB
+      if (compressedBlob.size > 1024 * 1024) {
+        toast("Even after compression, the image is still over 1MB. Please use a smaller image.", "error");
+        loadingSetter(false);
+        return;
+      }
+
+      // Convert to Base64 (since current API expects it)
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64String = reader.result as string;
@@ -274,7 +294,7 @@ const AdminDashboard = () => {
         }
         loadingSetter(false);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(compressedBlob);
     } catch (error) {
       toast("Error during upload", "error");
       loadingSetter(false);
@@ -393,12 +413,14 @@ const AdminDashboard = () => {
 
   if (!mounted) return null;
 
-  const filteredCommissions = commissions.filter(c =>
+  const visibleCommissions = commissions.filter(c => 
     !c.client_note?.includes('[ARCHIVED_AT:') && 
-    !c.client_note?.includes('[PURGED_AT:') && (
-      (c.client_name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
-      (c.client_email?.toLowerCase() || "").includes(searchQuery.toLowerCase())
-    )
+    !c.client_note?.includes('[PURGED_AT:')
+  );
+
+  const filteredCommissions = visibleCommissions.filter(c =>
+    (c.client_name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+    (c.client_email?.toLowerCase() || "").includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -437,8 +459,7 @@ const AdminDashboard = () => {
               { id: 'commissions', label: 'Orders', icon: ShoppingBag },
               { id: 'gallery', label: 'Gallery', icon: ImageIcon },
               { id: 'portfolio', label: 'Project', icon: Briefcase },
-              { id: 'journey', label: 'Journey', icon: Milestone },
-              { id: 'sketchbook', label: 'Sketches', icon: PenTool },
+              { id: 'personal', label: 'Personal', icon: User },
               { id: 'health', label: 'Health', icon: Activity },
               { id: 'recycle-bin', label: 'Bin', icon: Trash2 },
               { id: 'engagement', label: 'Stats', icon: LineChart }
@@ -520,8 +541,7 @@ const AdminDashboard = () => {
                     { id: 'commissions', label: 'Orders', icon: ShoppingBag },
                     { id: 'gallery', label: 'Gallery', icon: ImageIcon },
                     { id: 'portfolio', label: 'Project', icon: Briefcase },
-                    { id: 'journey', label: 'Journey', icon: Milestone },
-                    { id: 'sketchbook', label: 'Sketches', icon: PenTool },
+                    { id: 'personal', label: 'Personal Page', icon: User },
                     { id: 'pricing', label: 'Pricing', icon: Tag },
                     { id: 'health', label: 'Health', icon: Activity },
                     { id: 'recycle-bin', label: 'Recycle Bin', icon: Trash2 },
@@ -608,7 +628,7 @@ const AdminDashboard = () => {
 
         {activeTab === 'commissions' ? (
           <>
-            <AdminStats commissions={commissions} />
+            <AdminStats commissions={visibleCommissions} />
             <CommissionTable
               commissions={filteredCommissions}
               loading={loading}
@@ -633,13 +653,9 @@ const AdminDashboard = () => {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
             <ProjectManager />
           </motion.div>
-        ) : activeTab === 'journey' ? (
+        ) : activeTab === 'personal' ? (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-            <JourneyManager />
-          </motion.div>
-        ) : activeTab === 'sketchbook' ? (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-            <SketchbookManager />
+            <PersonalPageManager />
           </motion.div>
         ) : activeTab === 'pricing' ? (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>

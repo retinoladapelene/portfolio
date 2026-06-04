@@ -34,14 +34,21 @@ export default function CustomCursor() {
       });
       
       const target = e.target as HTMLElement;
+      
+      // OPTIMIZATION: Removed getComputedStyle on every mousemove as it causes severe style recalculation frame drops
       const isClickable = 
-        window.getComputedStyle(target).cursor === "pointer" ||
         target.tagName === "BUTTON" ||
         target.tagName === "A" ||
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
         target.closest("button") !== null ||
-        target.closest("a") !== null;
+        target.closest("a") !== null ||
+        target.closest("[role='button']") !== null;
       
-      setIsPointer(isClickable);
+      // Only update state if it actually changed to avoid unnecessary re-renders
+      if (isClickable !== isPointer) {
+        setIsPointer(isClickable);
+      }
     };
 
     const handleMouseDown = () => setIsClicked(true);

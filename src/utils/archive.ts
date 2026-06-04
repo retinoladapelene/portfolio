@@ -1,6 +1,7 @@
 import JSZip from 'jszip';
+import { Commission } from '@/types/admin';
 
-export async function archiveCommission(order: any) {
+export async function archiveCommission(order: Commission) {
   const zip = new JSZip();
   const folderName = `Commission_${order.client_name.replace(/\s+/g, '_')}_${order.id.slice(0, 8)}`;
   const folder = zip.folder(folderName);

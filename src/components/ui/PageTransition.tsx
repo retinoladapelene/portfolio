@@ -7,13 +7,23 @@ import { buildBrushPath } from "@/lib/buildBrushPath";
 
 export default function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [displayPathname, setDisplayPathname] = useState(pathname);
   const [displayChildren, setDisplayChildren] = useState(children);
   const [isAnimating, setIsAnimating] = useState(false);
   const progress = useMotionValue(0);
   const pathRef = useRef<SVGPathElement>(null);
+  const isTransitioning = useRef(false);
+
+  // Sync children when not animating (for normal re-renders within the same page)
+  useEffect(() => {
+    if (!isTransitioning.current && pathname === displayPathname) {
+      setDisplayChildren(children);
+    }
+  }, [children, pathname, displayPathname]);
 
   useEffect(() => {
-    if (children !== displayChildren) {
+    if (pathname !== displayPathname && !isTransitioning.current) {
+      isTransitioning.current = true;
       setIsAnimating(true);
       
       // Step 1: Animate brush to cover screen (0 -> 1)
@@ -28,29 +38,28 @@ export default function PageTransition({ children }: { children: React.ReactNode
         onComplete: () => {
           // Step 2: Switch content while screen is covered
           setDisplayChildren(children);
+          setDisplayPathname(pathname);
           
           // Step 3: Animate brush to reveal (1 -> 2)
-          // We modify buildBrushPath slightly or use a second pass to reveal
-          // For simplicity, let's just fade out the overlay or do a reverse wipe
           animate(progress, 2, {
             duration: 0.5,
             delay: 0.1,
             ease: [0.76, 0, 0.24, 1],
             onUpdate: (latest) => {
               if (pathRef.current) {
-                // Progress 1->2 reveals by moving the brush further or using a different path
                 pathRef.current.setAttribute("d", buildBrushPath(latest, 1000, 1000));
               }
             },
             onComplete: () => {
               setIsAnimating(false);
+              isTransitioning.current = false;
               progress.set(0);
             }
           });
         }
       });
     }
-  }, [children, displayChildren, progress]);
+  }, [pathname, displayPathname, children, progress]);
 
   return (
     <>

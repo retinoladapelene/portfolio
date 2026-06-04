@@ -343,7 +343,8 @@ const BrushCanvas = memo(({
             brush.add(handleMesh);
             brush.add(bristleMesh);
             brush.add(ferruleMesh);
-            brush.scale.setScalar(0.8); scene.add(brush);
+            const isMobile = window.innerWidth < 768;
+            brush.scale.setScalar(isMobile ? 0.36 : 0.8); scene.add(brush);
 
             const getHomePos = () => {
                 // Find the visible box (mobile or desktop)
@@ -368,8 +369,8 @@ const BrushCanvas = memo(({
                 // The brush extends from approx -3.9 to 1.2 relative to origin. 
                 // Adding +1.3 ensures the visual center of the brush is at the target Y.
                 const targetX = (cx / window.innerWidth) * fW;
-                // With scale 0.8 and camera at 15, +1.1 provides the best visual balance
-                const targetY = (cy / window.innerHeight) * fH + 1.1;
+                // With scale 0.8 and camera at 15, +1.1 provides the best visual balance (halved on mobile for scale 0.36)
+                const targetY = (cy / window.innerHeight) * fH + (isMobile ? 0.5 : 1.1);
                 return { x: targetX, y: targetY };
             };
             const init = getHomePos();
@@ -406,8 +407,10 @@ const BrushCanvas = memo(({
                 brush.rotation.y += (mouseRef.current.x * 0.6 - brush.rotation.y) * 0.1;
                 brush.rotation.z += (-mouseVel.x * 2.5 * tilt - brush.rotation.z) * 0.1;
                 
-                // Dynamic scaling when grabbing
-                const targetScale = isDraggingRef.current ? 1.05 : 0.95;
+                // Dynamic scaling when grabbing (responsive and relative to baseScale)
+                const isMobileActive = window.innerWidth < 768;
+                const baseScale = isMobileActive ? 0.36 : 0.8;
+                const targetScale = isDraggingRef.current ? baseScale * 1.15 : baseScale;
                 brush.scale.setScalar(brush.scale.x + (targetScale - brush.scale.x) * 0.1);
 
                 // Add flexibility (bending) to the bristles based on velocity
@@ -473,16 +476,19 @@ const BrushCanvas = memo(({
             const dy = py * 5 - brushPosRef.current.y;
             
             // Increased hit area for easier grabbing
+
+
+
+
+
             if (Math.sqrt(dx * dx + dy * dy) < 4.5) {
                 isDraggingRef.current = true;
                 if (onDraggingStateChange) onDraggingStateChange(true);
-                if (brush) brush.scale.setScalar(1.0);
             }
         };
         const onPointerUp = () => {
             isDraggingRef.current = false;
             if (onDraggingStateChange) onDraggingStateChange(false);
-            if (brush) brush.scale.setScalar(0.9);
         };
         window.addEventListener("pointermove", onPointerMove);
         window.addEventListener("pointerdown", onPointerDown);

@@ -71,8 +71,10 @@ function InteractiveBackground() {
       const currentY = maskY.get();
       
       setBlooms((prev) => {
-        // Reduced max blooms from 30 to 15 for performance
-        const next = [...prev.slice(-15), { 
+        // Reduced max blooms from 15 to 8 on mobile, 15 on desktop
+        const isMobile = window.innerWidth < 768;
+        const maxBlooms = isMobile ? 8 : 15;
+        const next = [...prev.slice(-(maxBlooms - 1)), { 
           id: bloomCounter.current++, 
           x: currentX, 
           y: currentY,
@@ -83,8 +85,10 @@ function InteractiveBackground() {
       });
     };
 
-    // Increased interval from 400ms to 800ms to reduce DOM nodes and re-renders
-    const interval = setInterval(spawnBloom, 800);
+    // Increased interval on mobile to 1.5s, 1s on desktop
+    const isMobile = window.innerWidth < 768;
+    const intervalTime = isMobile ? 1500 : 1000;
+    const interval = setInterval(spawnBloom, intervalTime);
     return () => clearInterval(interval);
   }, [mounted, maskX, maskY]);
 
@@ -112,20 +116,15 @@ function InteractiveBackground() {
 
       {/* 2. Revealed Atmospheric Layer (Ink Spread) — uses theme CSS vars */}
       <div 
-        className="absolute inset-0"
+        className="absolute inset-0 opacity-80"
         style={{ 
           background: `linear-gradient(135deg, 
             var(--theme-light, #F3E8FF) 0%, 
             color-mix(in srgb, var(--theme-light, #E9D5FF) 70%, var(--theme-dot, #A78BFA) 30%) 50%, 
             color-mix(in srgb, var(--theme-light, #DDD6FE) 50%, var(--theme-dot, #A78BFA) 50%) 100%
           )`,
-          transition: "background 1.2s ease",
-          maskImage: "url(#ink-mask-global-v10)",
-          WebkitMaskImage: "url(#ink-mask-global-v10)",
-          maskMode: "alpha",
-          WebkitMaskMode: "alpha",
-          willChange: "mask-image"
-        } as any}
+          transition: "background 1.2s ease"
+        }}
       >
         {/* Interior bloom movement for added depth */}
         <motion.div 
@@ -134,45 +133,35 @@ function InteractiveBackground() {
             scale: [1, 1.1, 1]
           }}
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 blur-3xl will-change-transform"
+          className="absolute inset-0 will-change-transform"
           style={{
             background: `radial-gradient(ellipse at center, color-mix(in srgb, var(--theme-dot, #A78BFA) 50%, transparent) 0%, transparent 70%)`,
             transition: "background 1.2s ease",
+            filter: "blur(60px)"
           }}
         />
       </div>
       
-      <svg className="absolute w-full h-full">
-        <defs>
-          <filter id="ink-spread-filter-global">
-            {/* Optimized: Reduced numOctaves from 5 to 2 to significantly improve filter performance */}
-            <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" seed="42" />
-            <feDisplacementMap in="SourceGraphic" scale="180" />
-            <feGaussianBlur stdDeviation="15" />
-          </filter>
+      <svg className="absolute w-full h-full pointer-events-none opacity-40 mix-blend-overlay" style={{ filter: "blur(40px)" }}>
+        <g>
+          {/* Main automated flow */}
+          <motion.ellipse 
+            cx={springX} 
+            cy={springY} 
+            rx="450" 
+            ry="250" 
+            fill="var(--theme-dot, #A78BFA)" 
+            fillOpacity="0.8"
+            style={{ willChange: "cx, cy" }}
+          />
           
-          <mask id="ink-mask-global-v10" maskUnits="userSpaceOnUse">
-            <g filter="url(#ink-spread-filter-global)">
-              {/* Main automated flow */}
-              <motion.ellipse 
-                cx={springX} 
-                cy={springY} 
-                rx="650" 
-                ry="150" 
-                fill="white" 
-                fillOpacity="0.85"
-                style={{ willChange: "cx, cy" }}
-              />
-              
-              {/* Individual ink blooms */}
-              <AnimatePresence mode="popLayout">
-                {blooms.map((bloom) => (
-                  <Bloom key={bloom.id} bloom={bloom} />
-                ))}
-              </AnimatePresence>
-            </g>
-          </mask>
-        </defs>
+          {/* Individual ink blooms */}
+          <AnimatePresence mode="popLayout">
+            {blooms.map((bloom) => (
+              <Bloom key={bloom.id} bloom={bloom} />
+            ))}
+          </AnimatePresence>
+        </g>
       </svg>
 
       {/* 3. Subtle Atmospheric Light Bloom Overlay */}

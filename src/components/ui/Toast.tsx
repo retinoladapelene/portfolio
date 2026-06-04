@@ -80,7 +80,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
 
                 <div className="flex-1">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-1">
-                    {t.type === "neural" ? "Protocol Update" : "Notification"}
+                    {t.type === "neural" ? "Studio Update" : "Notification"}
                   </p>
                   <p className="text-[11px] font-bold tracking-wide leading-tight text-white/90">
                     {t.message}

@@ -19,6 +19,7 @@ export default function PersonalPage() {
   const [activeThemeId, setActiveThemeId] = useState("lilac");
   const trackRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
+  const [heroSettings, setHeroSettings] = useState<any>(null);
 
   const activeTheme = themeColors.find(t => t.id === activeThemeId) || themeColors[0];
 
@@ -46,6 +47,13 @@ export default function PersonalPage() {
 
   useEffect(() => {
     setMounted(true);
+    // Fetch hero settings
+    fetch('/api/admin/personal-settings')
+      .then(res => res.json())
+      .then(result => {
+        if (result.success) setHeroSettings(result.data);
+      })
+      .catch(err => console.error('Failed to fetch hero settings:', err));
   }, []);
 
   return (
@@ -61,10 +69,10 @@ export default function PersonalPage() {
       {/* Fixed Back Button */}
       <Link
         href="/"
-        className="fixed right-6 top-6 md:right-10 md:top-10 z-[100] flex items-center gap-3 px-6 py-3 rounded-full bg-white/20 backdrop-blur-xl border border-white/30 text-[#1A1F2B] shadow-[0_8px_32px_rgba(0,0,0,0.05)] transition-all hover:bg-white/40 hover:scale-105 group"
+        className="fixed right-3 top-3 sm:right-6 sm:top-6 md:right-10 md:top-10 z-[100] flex items-center gap-1.5 sm:gap-3 px-3.5 py-2 sm:px-6 sm:py-3 rounded-full bg-white/30 md:bg-white/20 backdrop-blur-xl border border-white/30 text-[#1A1F2B] shadow-[0_8px_32px_rgba(0,0,0,0.05)] transition-all hover:bg-white/40 hover:scale-105 group"
       >
-        <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-1" />
-        <span className="font-outfit text-[10px] font-black uppercase tracking-[0.2em]">Back to Home</span>
+        <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+        <span className="font-outfit text-[8px] sm:text-[10px] font-black uppercase tracking-[0.12em] sm:tracking-[0.2em]">Back to Studio</span>
       </Link>
       
       <div ref={trackRef} className="relative w-full">
@@ -72,6 +80,7 @@ export default function PersonalPage() {
           imageRef={imageRef} 
           currentTime={currentTime} 
           activeTheme={activeTheme} 
+          heroSettings={heroSettings}
         />
 
         <div className="relative -mt-[100vh]">

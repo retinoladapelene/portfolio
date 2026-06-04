@@ -63,6 +63,6 @@ export const cardHover = {
 
 // Viewport defaults for common use
 export const viewportSettings = {
-  once: false,
+  once: true,
   margin: "-20% 0px -20% 0px" as const // Added margin to trigger earlier/later for better feel
 };

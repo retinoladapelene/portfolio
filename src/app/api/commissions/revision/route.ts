@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/utils/supabase/admin';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -7,6 +9,30 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  const cookieStore = await cookies();
+  const supabaseAuth = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll() },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }: { name: string, value: string, options: CookieOptions }) => 
+              cookieStore.set(name, value, options)
+            )
+          } catch {}
+        },
+      },
+    }
+  );
+
+  const { data: { user } } = await supabaseAuth.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+  }
+
   try {
     const { id, note, images, stage = 'sketch' } = await request.json();
 
@@ -62,6 +88,7 @@ export async function POST(request: Request) {
       .from('commissions')
       .update(updateData)
       .eq('id', id)
+      .eq('client_email', user.email) // CRITICAL SECURITY CHECK
       .select('client_name, client_email, commission_type')
       .single();
 

@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 import { useConfirm } from "@/components/ui/ConfirmProvider";
 import Image from "next/image";
+import { compressImage } from "@/utils/imageCompression";
 
 type JourneyMilestone = {
   id: string;
@@ -108,23 +109,32 @@ export default function JourneyManager() {
     const file = e.target.files?.[0];
     if (!file || !isEditing) return;
 
-    // Limit size to 1MB
-    const MAX_SIZE = 1024 * 1024;
-    if (file.size > MAX_SIZE) {
-      toast("Image too large! Maximum size is 1MB.", "error");
+    // Limit original size to 5MB before compression
+    const MAX_ORIGINAL_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_ORIGINAL_SIZE) {
+      toast("Original image too large! Maximum size is 5MB.", "error");
       return;
     }
 
-
     setIsUploading(true);
     try {
+      // Compress Image
+      const compressedBlob = await compressImage(file, 1920, 1920, 0.8);
+      
+      // Check if compressed size is within 1MB
+      if (compressedBlob.size > 1024 * 1024) {
+        toast("Even after compression, the image is still over 1MB. Please use a smaller image.", "error");
+        setIsUploading(false);
+        return;
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `journey-${Date.now()}.${fileExt}`;
       const filePath = `journey/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('portfolio')
-        .upload(filePath, file);
+        .upload(filePath, compressedBlob);
 
       if (uploadError) throw uploadError;
 

@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 import { useConfirm } from "@/components/ui/ConfirmProvider";
 import Image from "next/image";
+import { compressImage } from "@/utils/imageCompression";
 
 type Project = {
   id: string;
@@ -28,7 +29,7 @@ type Project = {
   art_direction: string;
   image_url: string;
   order_index: number;
-  transition_type: "glass" | "sword" | "glitch" | "paper";
+  transition_type: "glass" | "sword" | "glitch";
   title_color?: string;
   accent_color?: string;
   font_family?: string;
@@ -67,21 +68,38 @@ export default function ProjectManager() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Create local preview immediately for instant feedback
-    const localUrl = URL.createObjectURL(file);
-    if (isEditing) {
-      setIsEditing({ ...isEditing, image_url: localUrl });
+    // Limit original size to 5MB before compression
+    const MAX_ORIGINAL_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_ORIGINAL_SIZE) {
+      toast("Original image too large! Maximum size is 5MB.", "error");
+      return;
     }
 
     setIsUploading(true);
     try {
+      // Compress Image
+      const compressedBlob = await compressImage(file, 1920, 1920, 0.8);
+      
+      // Check if compressed size is within 1MB
+      if (compressedBlob.size > 1024 * 1024) {
+        toast("Even after compression, the image is still over 1MB. Please use a smaller image.", "error");
+        setIsUploading(false);
+        return;
+      }
+
+      // Create local preview immediately for instant feedback
+      const localUrl = URL.createObjectURL(compressedBlob);
+      if (isEditing) {
+        setIsEditing({ ...isEditing, image_url: localUrl });
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
       const filePath = `projects/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('portfolio')
-        .upload(filePath, file);
+        .upload(filePath, compressedBlob);
 
       if (uploadError) throw uploadError;
 
@@ -90,14 +108,98 @@ export default function ProjectManager() {
         .getPublicUrl(filePath);
 
       if (isEditing) {
+        // Cleanup old preview if it was a local blob
+        if (isEditing.image_url.startsWith('blob:')) {
+          URL.revokeObjectURL(isEditing.image_url);
+        }
         setIsEditing({ ...isEditing, image_url: publicUrl });
         toast("Image uploaded successfully!", "success");
       }
+      
+      // Cleanup the current localUrl after setting publicUrl
+      URL.revokeObjectURL(localUrl);
     } catch (error: any) {
       toast("Upload failed: " + error.message, "error");
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const initializeSampleData = async () => {
+    const ok = await confirm({
+      title: "Initialize Sample Data?",
+      message: "This will add 4 sample projects to your database. Continue?",
+      variant: "primary"
+    });
+    if (!ok) return;
+
+    setLoading(true);
+    const sampleProjects = [
+      { 
+        title: "Cyberpunk Oni", 
+        category: "Character Concept",
+        description: "A fusion of traditional Japanese folklore and futuristic neon aesthetics.",
+        image_url: "/art1.jpg",
+        order_index: 0,
+        transition_type: "glass"
+      },
+      { 
+        title: "Ethereal Landscape", 
+        category: "Environment",
+        description: "Floating islands and bioluminescent flora in a dream-like realm.",
+        image_url: "/art2.jpg",
+        order_index: 1,
+        transition_type: "sword"
+      },
+      { 
+        title: "The Guardian", 
+        category: "Portrait",
+        description: "Detailed close-up focusing on the emotional depth and mechanical textures.",
+        image_url: "/art3.jpg",
+        order_index: 2,
+        transition_type: "glitch"
+      },
+    ];
+
+    const { error } = await supabase
+      .from('projects')
+      .insert(sampleProjects);
+
+    if (error) {
+      toast("Failed to initialize: " + error.message, "error");
+    } else {
+      toast("Sample data initialized!", "success");
+      fetchProjects();
+    }
+    setLoading(false);
+  };
+
+  const addNewSlot = async () => {
+    if (projects.length >= 4) {
+      toast("Maximum 4 slots allowed for the immersive portfolio.", "error");
+      return;
+    }
+
+    const newProject = {
+      title: "New Project",
+      category: "Artwork",
+      description: "Short description here...",
+      order_index: projects.length,
+      transition_type: "glass"
+    };
+
+    setLoading(true);
+    const { error } = await supabase
+      .from('projects')
+      .insert([newProject]);
+
+    if (error) {
+      toast("Failed to add slot: " + error.message, "error");
+    } else {
+      toast("New slot added!", "success");
+      fetchProjects();
+    }
+    setLoading(false);
   };
 
   const handleSave = async () => {
@@ -126,7 +228,6 @@ export default function ProjectManager() {
     });
     
     if (!ok) return;
-
 
     const { error } = await supabase
       .from('projects')
@@ -158,6 +259,29 @@ export default function ProjectManager() {
         <div className="flex items-center gap-3">
           <div className="w-1.5 h-6 bg-purple-500 rounded-full" />
           <h2 className="text-xs font-black text-white/40 uppercase tracking-[0.4em] font-outfit">Active Portfolio Slots</h2>
+        </div>
+
+        <div className="flex gap-4">
+          {projects.length === 0 && (
+            <button 
+              onClick={initializeSampleData}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/10 transition-all"
+            >
+              Initialize Sample Data
+            </button>
+          )}
+          <button 
+            onClick={addNewSlot}
+            disabled={projects.length >= 4 || loading}
+            className={cn(
+              "flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+              projects.length >= 4 
+                ? "bg-white/5 text-white/20 cursor-not-allowed border border-white/5" 
+                : "bg-purple-600 text-white shadow-lg shadow-purple-900/20 hover:scale-105 active:scale-95"
+            )}
+          >
+            <Plus size={14} /> {projects.length >= 4 ? "Slots Full (Max 4)" : "Add New Slot"}
+          </button>
         </div>
       </div>
 
@@ -269,7 +393,7 @@ export default function ProjectManager() {
                       <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-4 block font-outfit">Visual Narrative</span>
 
                       <div className="relative aspect-video rounded-3xl overflow-hidden bg-white/5 border border-white/10 group cursor-pointer shadow-inner">
-                        {isEditing.image_url ? (
+                        {isEditing?.image_url ? (
                           <Image src={isEditing.image_url} alt="Preview" fill className="object-cover transition-transform group-hover:scale-105" />
                         ) : (
                           <div className="flex flex-col items-center justify-center h-full gap-4 text-white/10">
@@ -321,14 +445,13 @@ export default function ProjectManager() {
                             { id: 'glass', label: 'Glass', icon: '💎' },
                             { id: 'sword', label: 'Sword', icon: '⚔️' },
                             { id: 'glitch', label: 'Glitch', icon: '👾' },
-                            { id: 'paper', label: 'Paper', icon: '📖' },
                           ].map((opt) => (
                             <button
                               key={opt.id}
-                              onClick={() => setIsEditing({...isEditing, transition_type: opt.id as any})}
+                              onClick={() => isEditing && setIsEditing({...isEditing, transition_type: opt.id as any})}
                               className={cn(
                                 "flex items-center justify-between px-5 py-4 rounded-2xl border transition-all font-outfit",
-                                isEditing.transition_type === opt.id 
+                                isEditing?.transition_type === opt.id 
                                   ? "bg-purple-600/20 border-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.2)]" 
                                   : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10 hover:border-white/20"
                               )}
@@ -381,8 +504,8 @@ export default function ProjectManager() {
                         <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-3 block font-outfit">Artistic Typography</label>
 
                         <select 
-                          value={isEditing.font_family || "font-syne"}
-                          onChange={(e) => setIsEditing({...isEditing, font_family: e.target.value})}
+                          value={isEditing?.font_family || "font-syne"}
+                          onChange={(e) => isEditing && setIsEditing({...isEditing, font_family: e.target.value})}
                           className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/40 transition-all font-outfit appearance-none"
                         >
                           <option value="font-syne" className="bg-[#0B0F1A] font-syne">Syne (Geometric & Bold)</option>

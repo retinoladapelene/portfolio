@@ -41,6 +41,7 @@ export async function updateSession(request: NextRequest) {
   // PUBLIC ROUTES (No Auth Required)
   const isPublicApi = 
     (request.nextUrl.pathname === '/api/commissions' && request.method === 'POST') ||
+    (request.nextUrl.pathname === '/api/commissions/queue' && request.method === 'GET') ||
     request.nextUrl.pathname.startsWith('/api/pricing') ||
     (request.nextUrl.pathname === '/api/admin/settings' && request.method === 'GET')
 
@@ -50,7 +51,7 @@ export async function updateSession(request: NextRequest) {
        return supabaseResponse;
     }
 
-    if (!user || !allowedEmails.includes(user.email!)) {
+    if (!user || !user.email || !allowedEmails.includes(user.email)) {
       if (isAdminApi) {
         return NextResponse.json({ error: 'Unauthorized Admin Access' }, { status: 401 })
       }

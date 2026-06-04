@@ -6,10 +6,11 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { InteractivePhoto } from "./InteractivePhoto";
 
-export function HeroSection({ imageRef, currentTime, activeTheme }: { 
+export function HeroSection({ imageRef, currentTime, activeTheme, heroSettings }: { 
   imageRef: React.RefObject<HTMLDivElement | null>;
   currentTime: string;
   activeTheme: any;
+  heroSettings: any;
 }) {
   const [mounted, setMounted] = useState(false);
 
@@ -33,7 +34,7 @@ export function HeroSection({ imageRef, currentTime, activeTheme }: {
           className="flex whitespace-nowrap"
         >
           {[1, 2, 3, 4].map((i) => (
-            <h2 key={`mq-1-${i}`} className="font-syne text-[10vw] font-black tracking-tighter text-purple-600 px-8 leading-[0.8]">
+            <h2 key={`mq-1-${i}`} className="font-syne text-[10vw] font-black tracking-tighter px-8 leading-[0.8]" style={{ color: 'var(--theme-primary)' }}>
               DIGITAL ARTISTRY • VISUAL EMOTIONS • BEYOND THE CANVAS •
             </h2>
           ))}
@@ -44,7 +45,7 @@ export function HeroSection({ imageRef, currentTime, activeTheme }: {
           className="flex whitespace-nowrap"
         >
           {[1, 2, 3, 4].map((i) => (
-            <h2 key={`mq-2-${i}`} className="font-syne text-[10vw] font-black tracking-tighter text-purple-600 px-8 leading-[0.8]">
+            <h2 key={`mq-2-${i}`} className="font-syne text-[10vw] font-black tracking-tighter px-8 leading-[0.8]" style={{ color: 'var(--theme-primary)' }}>
               REDEFINING AESTHETICS • CREATIVE ARCHIVE • EST. 2018 •
             </h2>
           ))}
@@ -61,14 +62,14 @@ export function HeroSection({ imageRef, currentTime, activeTheme }: {
             className="text-center opacity-0 absolute top-20 md:relative md:top-0 md:mb-12 flex flex-col items-center"
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="h-[1px] w-6 bg-purple-200" />
-              <span className="font-outfit text-[7px] font-black uppercase tracking-[0.5em] text-purple-600/60">
+              <div className="h-[1px] w-6 opacity-40" style={{ background: 'var(--theme-primary)' }} />
+              <span className="font-outfit text-[7px] font-black uppercase tracking-[0.5em] opacity-60" style={{ color: 'var(--theme-primary)' }}>
                 Portfolio Index v.04
               </span>
-              <div className="h-[1px] w-6 bg-purple-200" />
+              <div className="h-[1px] w-6 opacity-40" style={{ background: 'var(--theme-primary)' }} />
             </div>
             <h3 className="font-syne text-4xl font-extrabold tracking-tighter text-[#1A1F2B] md:text-5xl">
-              REDEFINING <span className="font-light italic text-purple-600/80" style={{ color: 'var(--theme-primary)' }}>Aesthetics</span>
+              REDEFINING <span className="font-light italic" style={{ color: 'var(--theme-primary)' }}>Aesthetics</span>
             </h3>
             <p className="mt-4 font-outfit text-[8px] font-bold uppercase tracking-[0.3em] text-black/30">
               Exploration of visual emotions & digital strokes
@@ -77,15 +78,15 @@ export function HeroSection({ imageRef, currentTime, activeTheme }: {
 
           <div className="relative group w-full flex justify-center">
             <div className="absolute -inset-8 pointer-events-none hidden md:block">
-              <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-purple-200" />
-              <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-purple-200" />
-              <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-purple-200" />
-              <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-purple-200" />
+              <div className="absolute top-0 left-0 w-4 h-4 border-t border-l" style={{ borderColor: 'var(--theme-light)' }} />
+              <div className="absolute top-0 right-0 w-4 h-4 border-t border-r" style={{ borderColor: 'var(--theme-light)' }} />
+              <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l" style={{ borderColor: 'var(--theme-light)' }} />
+              <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r" style={{ borderColor: 'var(--theme-light)' }} />
             </div>
 
             <div className="relative flex items-end justify-center rounded-t-[32px] md:rounded-[32px] bg-white/5 border-t border-x border-purple-100/10 md:border-b h-[85vh] md:h-[95vh] self-end md:self-auto w-full md:w-[60vw]">
               <div className="relative w-full h-full flex items-end justify-center">
-                <InteractivePhoto />
+                <InteractivePhoto settings={heroSettings} />
               </div>
 
               <div
@@ -112,8 +113,8 @@ export function HeroSection({ imageRef, currentTime, activeTheme }: {
               id="side-label-left"
               className="absolute -left-10 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-4 pointer-events-none opacity-0"
             >
-              <div className="h-12 w-[1px] bg-purple-300" />
-              <div className="flex flex-col items-center font-outfit text-[10px] font-bold uppercase tracking-[0.6em] text-purple-900/80">
+              <div className="h-12 w-[1px]" style={{ background: 'var(--theme-dot)' }} />
+              <div className="flex flex-col items-center font-outfit text-[10px] font-bold uppercase tracking-[0.6em]" style={{ color: 'var(--theme-primary)' }}>
                 {"AESTHETICS".split("").map((l, i) => (
                   <span key={i} className="my-1">{l}</span>
                 ))}
@@ -124,13 +125,13 @@ export function HeroSection({ imageRef, currentTime, activeTheme }: {
               id="side-label-right"
               className="absolute -right-10 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-4 pointer-events-none opacity-0"
             >
-              <div className="flex flex-col items-center font-outfit text-[10px] font-bold uppercase tracking-[0.6em] text-purple-900/80">
+              <div className="flex flex-col items-center font-outfit text-[10px] font-bold uppercase tracking-[0.6em]" style={{ color: 'var(--theme-primary)' }}>
                 {"ARCHIVE".split("").map((l, i) => (
                   <span key={i} className="my-1">{l}</span>
                 ))}
-                <span className="mt-4 text-purple-600/80 font-black">v.04</span>
+                <span className="mt-4 font-black" style={{ color: 'var(--theme-primary)' }}>v.04</span>
               </div>
-              <div className="h-12 w-[1px] bg-purple-300" />
+              <div className="h-12 w-[1px]" style={{ background: 'var(--theme-dot)' }} />
             </div>
           </div>
         </div>
@@ -162,7 +163,7 @@ export function EditorialIntro({ mounted, currentTime }: { mounted: boolean; cur
         href="/"
         className="absolute left-6 top-6 z-50 flex items-center gap-2 group cursor-pointer font-dancing-script text-2xl text-[#1A1F2B] md:left-10 md:top-10"
       >
-        <div className="w-5 h-5 bg-purple-600 rounded-lg shadow-sm rotate-12 group-hover:rotate-0 transition-transform" />
+        <div className="w-5 h-5 rounded-lg shadow-sm rotate-12 group-hover:rotate-0 transition-transform" style={{ background: 'var(--theme-primary)' }} />
       </Link>
 
       {/* Background Names (Solid - Behind Photo) */}
@@ -206,7 +207,7 @@ export function EditorialIntro({ mounted, currentTime }: { mounted: boolean; cur
             <h1 className="font-outfit text-4xl font-black uppercase tracking-[0.15em] text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
               Ratu Balqis
             </h1>
-            <p className="font-dancing-script text-2xl font-bold text-purple-600 drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)] mt-[-8px]">
+            <p className="font-dancing-script text-2xl font-bold drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)] mt-[-8px]" style={{ color: 'var(--theme-primary)' }}>
               Creative Director & Illustrator
             </p>
           </motion.div>
@@ -220,8 +221,8 @@ export function EditorialIntro({ mounted, currentTime }: { mounted: boolean; cur
 
           <div className="hidden md:flex col-span-12 justify-between items-end w-full">
             <div className="flex items-baseline gap-4 mb-[-4px] md:-ml-12">
-              <div className="h-[1px] w-12 bg-purple-600/40 mb-2" />
-              <p className="font-dancing-script text-4xl font-bold text-purple-600 leading-none drop-shadow-md whitespace-nowrap">
+              <div className="h-[1px] w-12 mb-2" style={{ background: 'var(--theme-primary)', opacity: 0.4 }} />
+              <p className="font-dancing-script text-4xl font-bold leading-none drop-shadow-md whitespace-nowrap" style={{ color: 'var(--theme-primary)' }}>
                 Creative Director & Illustrator
               </p>
             </div>

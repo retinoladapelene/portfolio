@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   );
   const { data: { user } } = await supabaseAuth.auth.getUser();
   const allowedEmails = (process.env.ALLOWED_ADMIN_EMAILS || 'pbsn290704@gmail.com').split(',');
-  if (!user || !allowedEmails.includes(user.email!)) {
+  if (!user || !user.email || !allowedEmails.includes(user.email)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

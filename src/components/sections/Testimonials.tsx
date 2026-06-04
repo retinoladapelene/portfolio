@@ -28,7 +28,7 @@ const REVIEWS = [
   {
     name: "Elena Rossi",
     handle: "@elena_designs",
-    text: "Fast, communicative, and possesses an incredible eye for artistic lighting. My order felt like a priority from protocol initialization to delivery.",
+    text: "Fast, communicative, and possesses an incredible eye for artistic lighting. My order felt like a priority from project initialization to delivery.",
     type: "Bust Fragment"
   }
 ];
@@ -56,7 +56,7 @@ const Testimonials = () => {
             </div>
             <h2 className="text-6xl md:text-8xl font-normal text-black font-dancing-script leading-[0.8]">
               Client <br />
-              <span className="text-purple-600 font-bold italic">Chronicles.</span>
+              <span className="text-purple-600 font-bold italic">Stories.</span>
             </h2>
           </motion.div>
           
@@ -78,13 +78,15 @@ const Testimonials = () => {
               key={review.handle}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.8 }}
               whileHover={{ y: -10 }}
               className="group shrink-0 w-[72vw] md:w-auto snap-center first:ml-0"
+              style={{ willChange: "transform, opacity" }}
             >
               <GlassCard 
                 level={1} 
-                className="h-full p-4 md:p-8 flex flex-col justify-between border-black/5 bg-white/40 backdrop-blur-3xl hover:bg-white/60 transition-all hover:border-purple-600/50 rounded-[24px] md:rounded-[32px] relative overflow-hidden shadow-xl"
+                className="h-full p-4 md:p-8 flex flex-col justify-between border-black/5 bg-white/60 backdrop-blur-lg hover:bg-white/80 transition-all hover:border-purple-600/50 rounded-[24px] md:rounded-[32px] relative overflow-hidden shadow-xl"
               >
                 {/* Subtle Glow on Hover */}
                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-500/0 group-hover:bg-purple-500/30 blur-3xl rounded-full transition-all duration-700" />
@@ -128,7 +130,9 @@ const Testimonials = () => {
         <motion.div 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
           className="mt-24 py-12 border-y border-black/5 flex flex-col md:flex-row justify-center items-center gap-12 md:gap-32"
+          style={{ willChange: "opacity" }}
         >
           <div className="flex items-center gap-4">
             <span className="text-4xl font-black text-black font-syne italic tracking-tighter">98%</span>

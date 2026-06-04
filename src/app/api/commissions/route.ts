@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { supabaseAdmin } from '@/utils/supabase/admin';
 import { getSignedUrlIfNeeded, getSignedUrlsBatch, transformCommission } from '@/utils/storage';
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { Resend } from 'resend';
 import { rateLimit } from '@/utils/rate-limit';
@@ -11,6 +11,13 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * POST /api/commissions
+ * Handles new commission submissions from clients.
+ * Includes: Rate limiting, image upload to storage, and dual email notifications (Admin & Client).
+ * 
+ * @param {Request} request - JSON payload with commission details
+ */
 export async function POST(request: Request) {
   // 0. Rate Limiting (Prevent Spam: 5 submissions per 15 minutes)
   const ip = request.headers.get('x-forwarded-for') || 'anonymous';
@@ -399,6 +406,12 @@ export async function POST(request: Request) {
   }
 }
 
+/**
+ * GET /api/commissions
+ * Retrieves all commission records for the admin dashboard.
+ * Requires Admin Authentication.
+ * Transforms private storage paths into temporary signed URLs for viewing.
+ */
 export async function GET() {
   // REDUNDANT AUTH CHECK (Defense in depth)
   const cookieStore = await cookies();
@@ -410,7 +423,9 @@ export async function GET() {
         getAll() { return cookieStore.getAll() },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
+            cookiesToSet.forEach(({ name, value, options }: { name: string, value: string, options: CookieOptions }) => 
+              cookieStore.set(name, value, options)
+            )
           } catch {}
         },
       },
@@ -418,7 +433,7 @@ export async function GET() {
   );
   const { data: { user } } = await supabaseAuth.auth.getUser();
   const allowedEmails = (process.env.ALLOWED_ADMIN_EMAILS || 'pbsn290704@gmail.com').split(',');
-  if (!user || !allowedEmails.includes(user.email!)) {
+  if (!user || !user.email || !allowedEmails.includes(user.email)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -441,6 +456,14 @@ export async function GET() {
   }
 }
 
+/**
+ * PATCH /api/commissions
+ * Updates the status of an existing commission.
+ * Triggers status-specific automated email notifications to the client.
+ * Requires Admin Authentication.
+ * 
+ * @param {Request} request - JSON body containing { id, status }
+ */
 export async function PATCH(request: Request) {
   // REDUNDANT AUTH CHECK
   const cookieStore = await cookies();
@@ -452,7 +475,9 @@ export async function PATCH(request: Request) {
         getAll() { return cookieStore.getAll() },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
+            cookiesToSet.forEach(({ name, value, options }: { name: string, value: string, options: CookieOptions }) => 
+              cookieStore.set(name, value, options)
+            )
           } catch {}
         },
       },
@@ -460,7 +485,7 @@ export async function PATCH(request: Request) {
   );
   const { data: { user } } = await supabaseAuth.auth.getUser();
   const allowedEmails = (process.env.ALLOWED_ADMIN_EMAILS || 'pbsn290704@gmail.com').split(',');
-  if (!user || !allowedEmails.includes(user.email!)) {
+  if (!user || !user.email || !allowedEmails.includes(user.email)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -627,6 +652,14 @@ export async function PATCH(request: Request) {
   }
 }
 
+/**
+ * DELETE /api/commissions
+ * Handles both "Archive" (Soft Delete) and "Purge" (Hard Delete) of commission records.
+ * Purging also cleans up associated binary assets in Supabase Storage.
+ * Requires Admin Authentication.
+ * 
+ * @param {Request} request - Request with id and optional purge/reason parameters
+ */
 export async function DELETE(request: Request) {
   // REDUNDANT AUTH CHECK
   const cookieStore = await cookies();
@@ -638,7 +671,9 @@ export async function DELETE(request: Request) {
         getAll() { return cookieStore.getAll() },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
+            cookiesToSet.forEach(({ name, value, options }: { name: string, value: string, options: CookieOptions }) => 
+              cookieStore.set(name, value, options)
+            )
           } catch {}
         },
       },
@@ -646,7 +681,7 @@ export async function DELETE(request: Request) {
   );
   const { data: { user } } = await supabaseAuth.auth.getUser();
   const allowedEmails = (process.env.ALLOWED_ADMIN_EMAILS || 'pbsn290704@gmail.com').split(',');
-  if (!user || !allowedEmails.includes(user.email!)) {
+  if (!user || !user.email || !allowedEmails.includes(user.email)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

@@ -7,7 +7,7 @@ export interface Project {
   longDesc?: string;
   objective?: string;
   artDirection?: string;
-  transition_type?: "glass" | "sword" | "glitch" | "paper";
+  transition_type?: "glass" | "sword" | "glitch";
   title_color?: string;
   accent_color?: string;
   font_family?: string;
@@ -65,7 +65,7 @@ export const projects: Project[] = [
     longDesc: "Vortex Motion pushes the boundaries of web-based motion graphics. Every element in this project is calculated in real-time, creating a mesmerizing loop of light and energy.",
     objective: "Push the limits of real-time web animation and visual complexity.",
     artDirection: "Kinetic energy, neon accents, and dark high-contrast layouts.",
-    transition_type: "paper",
+    transition_type: "glass",
     title_color: "#FFFFFF",
     accent_color: "#A855F7",
     font_family: "font-syne"

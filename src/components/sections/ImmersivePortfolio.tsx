@@ -5,33 +5,34 @@ import React, { useRef, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import BrushStrokeMask from "../portfolio/BrushStrokeMask";
-import { MonitorPlay, LayoutGrid, Maximize2, Info } from "lucide-react";
+import { MonitorPlay, LayoutGrid, Maximize2, Info, Loader2 } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 
 const ARTWORKS = [
   { 
     id: 1, 
-    image: "/art1.jpg", 
+    image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1974&auto=format&fit=crop", 
     title: "Cyberpunk Oni", 
     category: "Character Concept",
     desc: "A fusion of traditional Japanese folklore and futuristic neon aesthetics."
   },
   { 
     id: 2, 
-    image: "/art2.jpg", 
+    image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop", 
     title: "Ethereal Landscape", 
     category: "Environment",
     desc: "Floating islands and bioluminescent flora in a dream-like realm."
   },
   { 
     id: 3, 
-    image: "/art3.jpg", 
+    image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1945&auto=format&fit=crop", 
     title: "The Guardian", 
     category: "Portrait",
     desc: "Detailed close-up focusing on the emotional depth and mechanical textures."
   },
   { 
     id: 4, 
-    image: "/art4.jpg", 
+    image: "https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=2070&auto=format&fit=crop", 
     title: "Street Samurai", 
     category: "Action",
     desc: "Dynamic pose and lighting designed for cinematic storytelling."
@@ -46,6 +47,39 @@ export default function ImmersivePortfolio() {
   const [viewMode, setViewMode] = useState<"immersive" | "grid">("immersive");
   
   const prefersReducedMotion = useReducedMotion();
+  const [dbArtworks, setDbArtworks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const fetchArtworks = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('order_index', { ascending: true });
+
+      if (data && data.length > 0) {
+        const mapped = data
+          .map(p => ({
+            id: p.id,
+            image: p.image_url || "",
+            title: p.title || "Untitled Masterpiece",
+            category: p.category || "Artwork",
+            desc: p.description || ""
+          }))
+          .filter(item => item.image && item.image.trim() !== "" && !item.image.startsWith("blob:"));
+        
+        setDbArtworks(mapped);
+      }
+      setLoading(false);
+    };
+
+    fetchArtworks();
+  }, []);
+
+  const currentArtworks = dbArtworks.length > 0 ? dbArtworks : ARTWORKS;
+  const totalArtworks = currentArtworks.length;
 
   // If user prefers reduced motion, we should default to grid or simplified immersive
   useEffect(() => {
@@ -54,10 +88,7 @@ export default function ImmersivePortfolio() {
     }
   }, [prefersReducedMotion]);
 
-  // Track brush progress for each transition zone
-  const [brushProgresses, setBrushProgresses] = useState<number[]>(
-    () => new Array(totalArtworks - 1).fill(0)
-  );
+
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -72,21 +103,6 @@ export default function ImmersivePortfolio() {
       totalArtworks - 1
     );
     if (idx !== activeIdx) setActiveIdx(idx);
-
-    const newProgresses: number[] = [];
-    for (let i = 0; i < totalArtworks - 1; i++) {
-      const segStart = (i + 0.55) / totalArtworks;
-      const segEnd = (i + 1.0) / totalArtworks;
-
-      let brushP = 0;
-      if (latest >= segEnd) {
-        brushP = 1;
-      } else if (latest > segStart) {
-        brushP = (latest - segStart) / (segEnd - segStart);
-      }
-      newProgresses.push(Math.min(1, Math.max(0, brushP)));
-    }
-    setBrushProgresses(newProgresses);
   });
 
   return (
@@ -101,7 +117,7 @@ export default function ImmersivePortfolio() {
       {viewMode === "immersive" ? (
         /* Immersive Sticky Frame */
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-white/40 backdrop-blur-sm">
-          {ARTWORKS.map((art, i) => {
+          {currentArtworks.map((art, i) => {
             const segment = 1 / totalArtworks;
             const start = i * segment;
             const end = (i + 1) * segment;
@@ -121,7 +137,6 @@ export default function ImmersivePortfolio() {
                 activeIdx={activeIdx}
                 r1={r1} r2={r2} r3={r3} r4={r4}
                 start={start} end={end}
-                brushProgress={i > 0 ? brushProgresses[i - 1] : 0}
               />
             );
           })}
@@ -131,7 +146,7 @@ export default function ImmersivePortfolio() {
              <div>
                 <div className="text-[10px] font-black text-black/40 uppercase tracking-[0.5em] mb-3">Immersive Sequence</div>
                 <div className="flex gap-1">
-                   {ARTWORKS.map((_, i) => (
+                   {currentArtworks.map((_, i) => (
                      <motion.div 
                        key={i}
                         className={cn(
@@ -146,7 +161,7 @@ export default function ImmersivePortfolio() {
              <div className="flex flex-col items-end gap-3 pointer-events-auto">
                 <div className="text-[10px] font-black text-black/40 uppercase tracking-widest">Active Layer</div>
                 <div className="text-2xl font-black text-black italic tracking-tighter">
-                  0{activeIdx + 1} <span className="text-black/10">/ 0{ARTWORKS.length}</span>
+                   0{activeIdx + 1} <span className="text-black/10">/ 0{currentArtworks.length}</span>
                 </div>
              </div>
           </div>
@@ -168,7 +183,7 @@ export default function ImmersivePortfolio() {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {ARTWORKS.map((art) => (
+            {currentArtworks.map((art) => (
               <motion.div 
                 key={art.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -177,7 +192,7 @@ export default function ImmersivePortfolio() {
                 className="group relative aspect-[4/5] rounded-3xl overflow-hidden border border-black/5"
               >
                 <Image 
-                  src={art.image} 
+                  src={art.image || "/placeholder.jpg"} 
                   alt={art.title} 
                   fill 
                   className="object-cover transition-transform duration-700 group-hover:scale-110" 
@@ -234,13 +249,11 @@ interface ArtworkSceneProps {
   activeIdx: number;
   r1: number; r2: number; r3: number; r4: number;
   start: number; end: number;
-  brushProgress: number; // brush revealing THIS scene (entering)
 }
 
 function ArtworkScene({
   art, index, total, scrollYProgress, activeIdx,
   r1, r2, r3, r4, start, end,
-  brushProgress,
 }: ArtworkSceneProps) {
   const prefersReducedMotion = useReducedMotion();
 
@@ -265,6 +278,24 @@ function ArtworkScene({
   
   const filter = useTransform(blurValue, (v) => `blur(${v}px)`);
 
+  const brushProgress = useTransform(
+    scrollYProgress,
+    [(index - 1 + 0.55) / total, (index - 1 + 1.0) / total],
+    [0, 1],
+    { clamp: true }
+  );
+
+  const [brushP, setBrushP] = useState(0);
+  useMotionValueEvent(brushProgress, "change", (latest: number) => {
+    if (latest > 0 && latest < 1) {
+      setBrushP(latest);
+    } else if (latest <= 0 && brushP !== 0) {
+      setBrushP(0);
+    } else if (latest >= 1 && brushP !== 1) {
+      setBrushP(1);
+    }
+  });
+
   const maskUrl = `url(#brush-mask-${index})`;
 
   return (
@@ -274,26 +305,30 @@ function ArtworkScene({
         filter: prefersReducedMotion ? "none" : filter,
         zIndex: activeIdx === index ? 20 : (activeIdx === index - 1 ? 15 : 0),
         pointerEvents: activeIdx === index ? "auto" : "none",
-        maskImage: (!prefersReducedMotion && index > 0 && brushProgress > 0 && brushProgress < 1) ? maskUrl : "none",
-        WebkitMaskImage: (!prefersReducedMotion && index > 0 && brushProgress > 0 && brushProgress < 1) ? maskUrl : "none",
+        maskImage: (!prefersReducedMotion && index > 0 && brushP > 0 && brushP < 1) ? maskUrl : "none",
+        WebkitMaskImage: (!prefersReducedMotion && index > 0 && brushP > 0 && brushP < 1) ? maskUrl : "none",
       }}
       className="absolute inset-0"
     >
       <motion.div style={{ scale: prefersReducedMotion ? 1 : scale }} className="relative w-full h-full">
         {/* Soft Vignette for Light Editorial feel */}
         <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white/40 z-10" />
-        <Image
-          src={art.image}
-          alt={art.title}
-          fill
-          className="object-cover"
-          priority={index === 0}
-        />
+        {art.image ? (
+          <Image
+            src={art.image}
+            alt={art.title}
+            fill
+            className="object-cover"
+            priority={index === 0}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-slate-900" />
+        )}
       </motion.div>
 
       {/* Brush Stroke Mask Definition — only if this scene is being revealed */}
-      {!prefersReducedMotion && index > 0 && brushProgress > 0 && brushProgress < 1 && (
-        <BrushStrokeMask progress={brushProgress} id={index.toString()} />
+      {!prefersReducedMotion && index > 0 && brushP > 0 && brushP < 1 && (
+        <BrushStrokeMask progress={brushP} id={index.toString()} />
       )}
 
       {/* Content Panel */}

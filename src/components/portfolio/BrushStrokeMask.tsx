@@ -44,7 +44,7 @@ export default function BrushStrokeMask({ progress, id }: BrushStrokeMaskProps) 
       <motion.div
         className="absolute inset-0 mix-blend-overlay opacity-30 pointer-events-none"
         style={{
-          backgroundImage: "url('/brush-texture.png')",
+          backgroundImage: "url('/assets/brush-texture.png')",
           backgroundSize: "cover",
           maskImage: `url(#${maskId})`,
           WebkitMaskImage: `url(#${maskId})`,

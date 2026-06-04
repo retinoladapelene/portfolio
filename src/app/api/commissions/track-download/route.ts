@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/utils/supabase/admin';
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 export async function POST(request: Request) {
@@ -13,7 +13,9 @@ export async function POST(request: Request) {
         getAll() { return cookieStore.getAll() },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
+            cookiesToSet.forEach(({ name, value, options }: { name: string, value: string, options: CookieOptions }) => 
+              cookieStore.set(name, value, options)
+            )
           } catch {}
         },
       },
@@ -46,7 +48,16 @@ export async function POST(request: Request) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === '42703') {
+        console.warn('[Track Download] downloaded_at column is missing in Supabase. Skipping download tracking.');
+        return NextResponse.json({ 
+          success: true, 
+          warning: 'downloaded_at column is missing in Supabase. Please add it to your database.' 
+        });
+      }
+      throw error;
+    }
 
     return NextResponse.json({ success: true, data });
   } catch (error: any) {

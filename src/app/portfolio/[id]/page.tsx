@@ -77,10 +77,16 @@ export default function ProjectDetail() {
           <span className="text-xs font-black uppercase tracking-widest">Gallery</span>
         </Link>
         <div className="flex gap-3 pointer-events-auto">
-          <button className="p-3 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 text-white/70 hover:text-brand-primary transition-all">
+          <button 
+            aria-label="Add to Favorites"
+            className="p-3 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 text-white/70 hover:text-brand-primary transition-all"
+          >
             <Heart size={18} />
           </button>
-          <button className="p-3 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 text-white/70 hover:text-brand-primary transition-all">
+          <button 
+            aria-label="Share Project"
+            className="p-3 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 text-white/70 hover:text-brand-primary transition-all"
+          >
             <Share2 size={18} />
           </button>
         </div>

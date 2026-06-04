@@ -36,6 +36,7 @@ export default function Footer() {
   const [isAccepted, setIsAccepted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [time, setTime] = useState("");
+  const [mounted, setMounted] = useState(false);
   
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -59,6 +60,7 @@ export default function Footer() {
       }));
     };
     updateTime();
+    setMounted(true);
     const interval = setInterval(updateTime, 1000);
 
     const handleGlobalMouseMove = (e: MouseEvent) => {
@@ -109,7 +111,7 @@ export default function Footer() {
         />
       </div>
 
-      <div className="absolute inset-0 z-[1] opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
+      <div className="absolute inset-0 z-[1] opacity-[0.03] pointer-events-none bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22 opacity=%221%22/%3E%3C/svg%3E')] mix-blend-overlay" />
 
       <div className="relative z-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 border-t border-white/5">
@@ -206,14 +208,14 @@ export default function Footer() {
               onClick={() => setIsTermsOpen(true)} 
               className="text-white/60 hover:text-purple-400 transition-all duration-300 relative group"
             >
-              Protocols
+              Terms
               <span className="absolute -bottom-1 left-0 w-0 h-px bg-purple-500 group-hover:w-full transition-all duration-300" />
             </button>
           </div>
 
           <div className="flex items-center gap-4 py-2 px-4 rounded-full bg-white/[0.03] border border-white/5">
             <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-[10px] font-bold text-white/70 tabular-nums tracking-[0.2em]">{time} JAKARTA</span>
+            <span className="text-[10px] font-bold text-white/70 tabular-nums tracking-[0.2em]">{mounted ? time : "00:00"} JAKARTA</span>
           </div>
         </div>
       </div>

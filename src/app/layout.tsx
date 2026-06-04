@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Inter, Dancing_Script, Syne, Outfit, Alex_Brush } fr
 import Image from "next/image";
 import "./globals.css";
 import PageTransition from "@/components/ui/PageTransition";
-import InteractiveBackground from "@/components/ui/InteractiveBackground";
+import ClientBackground from "@/components/ui/ClientBackground";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,17 +38,51 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Moonchaery Studio | Premium Digital Artist",
-  description: "High-fidelity digital art, character design, and custom commissions with a liquid glass aesthetic.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://moonchaery.com'),
+  title: {
+    default: "Moonchaery Studio | Premium Digital Artist",
+    template: "%s | Moonchaery Studio"
+  },
+  description: "High-fidelity digital art, character design, and custom commissions with a liquid glass aesthetic by Moonchaery.",
+  keywords: ["digital art", "character design", "commission", "illustration", "3D gallery", "anime art"],
+  authors: [{ name: "Moonchaery" }],
+  creator: "Moonchaery Studio",
   icons: {
     icon: "/logomoonchaery.svg",
+    apple: "/logomoonchaery.svg",
   },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://moonchaery.com",
+    title: "Moonchaery Studio | Premium Digital Artist",
+    description: "High-fidelity digital art, character design, and custom commissions with a liquid glass aesthetic.",
+    siteName: "Moonchaery Studio",
+    images: [{
+      url: "/logomoonchaery.svg", // Fallback to logo, user should replace with a proper OG image
+      width: 1200,
+      height: 630,
+      alt: "Moonchaery Studio Portfolio"
+    }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Moonchaery Studio | Premium Digital Artist",
+    description: "High-fidelity digital art and custom commissions.",
+    creator: "@moonchaery", // Placeholder
+    images: ["/logomoonchaery.svg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  }
 };
 
 import { ToastProvider } from "@/components/ui/Toast";
 import { ConfirmProvider } from "@/components/ui/ConfirmProvider";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
 import { Suspense } from "react";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 export default function RootLayout({
   children,
@@ -61,8 +95,9 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${dancingScript.variable} ${syne.variable} ${outfit.variable} ${alexBrush.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col selection:bg-purple-500/30 bg-transparent">
+        <LoadingScreen />
         <main className="relative min-h-screen">
-          <InteractiveBackground />
+          <ClientBackground />
           <div className="grain-overlay" />
           <ToastProvider>
             <ConfirmProvider>

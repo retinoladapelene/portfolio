@@ -11,7 +11,7 @@ const Section = forwardRef<HTMLElement, SectionProps>(
     return (
       <section
         ref={ref}
-        className={cn(verticalPadding, "px-6", className)}
+        className={cn(verticalPadding, "px-6 relative", className)}
         {...props}
       >
         <div className={cn(container && "max-w-7xl mx-auto")}>

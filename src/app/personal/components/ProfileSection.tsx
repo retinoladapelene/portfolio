@@ -90,7 +90,7 @@ export function ProfileSection() {
                 delay={0}
               />
               <SplitReveal
-                text="CHRONICLE."
+                text="JOURNEY."
                 className="text-[12vw] md:text-[7.5vw] text-purple-600 italic font-light ml-8 md:ml-16 block"
                 delay={0.15}
               />
