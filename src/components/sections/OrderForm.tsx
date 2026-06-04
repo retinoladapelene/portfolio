@@ -445,17 +445,9 @@ Please check the details in the Dashboard! Thank you.`;
                         <span className="text-[8px] font-black text-purple-400/60 uppercase tracking-[0.2em] font-outfit">Quick Discussion</span>
                         <div className="h-px w-8 bg-purple-500/10" />
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 gap-3">
                         <a 
-                          href={`https://ig.me/m/cuancapital.id?text=${getDMMessage()}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 py-3.5 bg-purple-950/30 border border-purple-500/20 text-purple-300 rounded-xl font-black text-[8px] uppercase tracking-[0.2em] hover:bg-purple-500 hover:text-white hover:border-purple-400 transition-all shadow-[0_4px_20px_rgba(168,85,247,0.15)] font-outfit group cursor-pointer"
-                        >
-                          <Camera size={12} className="group-hover:scale-110 transition-transform" /> Instagram DM
-                        </a>
-                        <a 
-                          href={`https://x.com/messages/compose?recipient_id=Zarry_linilo&text=${getDMMessage()}`} 
+                          href="https://x.com/Zarry_linilo?s=20" 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="flex items-center justify-center gap-2 py-3.5 bg-purple-950/30 border border-purple-500/20 text-purple-300 rounded-xl font-black text-[8px] uppercase tracking-[0.2em] hover:bg-indigo-600 hover:text-white hover:border-indigo-400 transition-all shadow-[0_4px_20px_rgba(99,102,241,0.15)] font-outfit group cursor-pointer"
@@ -498,17 +490,9 @@ Please check the details in the Dashboard! Thank you.`;
                         <span className="text-[8px] font-black text-purple-400/60 uppercase tracking-[0.2em] font-outfit">Need to discuss?</span>
                         <div className="h-px w-8 bg-purple-500/10" />
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 gap-3">
                         <a 
-                          href="https://ig.me/m/cuancapital.id" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 py-3.5 bg-purple-950/30 border border-purple-500/20 text-purple-300 rounded-xl font-black text-[8px] uppercase tracking-[0.2em] hover:bg-purple-500 hover:text-white hover:border-purple-400 transition-all shadow-[0_4px_20px_rgba(168,85,247,0.15)] font-outfit group cursor-pointer"
-                        >
-                          <Camera size={12} className="group-hover:scale-110 transition-transform" /> Instagram DM
-                        </a>
-                        <a 
-                          href="https://x.com/Zarry_linilo" 
+                          href="https://x.com/Zarry_linilo?s=20" 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="flex items-center justify-center gap-2 py-3.5 bg-purple-950/30 border border-purple-500/20 text-purple-300 rounded-xl font-black text-[8px] uppercase tracking-[0.2em] hover:bg-indigo-600 hover:text-white hover:border-indigo-400 transition-all shadow-[0_4px_20px_rgba(99,102,241,0.15)] font-outfit group cursor-pointer"

@@ -400,13 +400,9 @@ export default function TrackOrder() {
                         <div className="space-y-6">
                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-500">Contact Channels</h4>
                            <div className="grid grid-cols-1 gap-3">
-                              <a href="https://x.com/messages/compose?screen_name=Zarry_linilo" className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group">
+                              <a href="https://x.com/Zarry_linilo?s=20" className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group">
                                  <span className="text-xs font-bold">X Messaging</span>
                                  <X size={16} className="text-slate-500 group-hover:text-white" />
-                              </a>
-                              <a href="https://ig.me/m/cuancapital.id" className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group">
-                                 <span className="text-xs font-bold">Instagram DM</span>
-                                 <Camera size={16} className="text-slate-500 group-hover:text-white" />
                               </a>
                            </div>
                         </div>

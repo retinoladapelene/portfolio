@@ -121,9 +121,6 @@ const Navbar = () => {
             <div className="relative w-12 h-12 md:w-16 md:h-16">
               <Image src="/moonchaerylogo.png" alt="Logo" fill className="object-contain scale-110" priority />
             </div>
-            <span className="font-outfit text-sm md:text-lg font-black text-slate-950 uppercase tracking-tighter">
-              Moonchaery
-            </span>
           </Link>
 
           {/* DESKTOP NAV LINKS (MEMOIZED) */}

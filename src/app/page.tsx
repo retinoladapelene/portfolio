@@ -3,10 +3,10 @@ import HomeClient from './HomeClient'
 import StructuredData from '@/components/seo/StructuredData'
 
 export const metadata: Metadata = {
-  title: "Moonchaery Studio | High-Fidelity Character Design & Digital Art",
+  title: "Moonchaery Studio",
   description: "Bespoke digital masterpieces where high-fidelity character design meets ethereal artistic vision. Request your custom commission today.",
   openGraph: {
-    title: "Moonchaery Studio | Digital Artist Portfolio",
+    title: "Moonchaery Studio",
     description: "Creating ethereal digital art and high-fidelity character designs.",
     images: ['/og-image.jpg'],
   }

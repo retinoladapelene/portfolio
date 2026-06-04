@@ -372,12 +372,7 @@ export async function POST(request: Request) {
                       <table class="button-group" width="100%" cellpadding="0" cellspacing="0">
                         <tr>
                           <td align="center" style="padding: 0 10px;">
-                            <a href="https://ig.me/m/cuancapital.id" class="button" style="display: inline-block; background: #9333EA; color: white; padding: 14px 20px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none;">
-                              Instagram DM
-                            </a>
-                          </td>
-                          <td align="center" style="padding: 0 10px;">
-                            <a href="https://x.com/Zarry_linilo" class="button" style="display: inline-block; background: #1A1F2B; color: white; padding: 14px 20px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none;">
+                            <a href="https://x.com/Zarry_linilo?s=20" class="button" style="display: inline-block; background: #1A1F2B; color: white; padding: 14px 20px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none;">
                               X / Twitter
                             </a>
                           </td>
@@ -614,12 +609,7 @@ export async function PATCH(request: Request) {
                         <table class="button-group" width="100%" cellpadding="0" cellspacing="0">
                           <tr>
                             <td align="center" style="padding: 0 10px;">
-                              <a href="https://ig.me/m/cuancapital.id" class="button" style="display: inline-block; background: #9333EA; color: white; padding: 14px 20px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none;">
-                                Instagram DM
-                              </a>
-                            </td>
-                            <td align="center" style="padding: 0 10px;">
-                              <a href="https://x.com/Zarry_linilo" class="button" style="display: inline-block; background: #1A1F2B; color: white; padding: 14px 20px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none;">
+                              <a href="https://x.com/Zarry_linilo?s=20" class="button" style="display: inline-block; background: #1A1F2B; color: white; padding: 14px 20px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none;">
                                 X / Twitter
                               </a>
                             </td>
@@ -757,8 +747,7 @@ export async function DELETE(request: Request) {
     // Better: only notify if it was a rejection (pending -> delete)
     if (!isPurge && record.status === 'pending' && record.client_email) {
       try {
-        const igUrl = "https://ig.me/m/cuancapital.id";
-        const xUrl = "https://x.com/Zarry_linilo";
+        const xUrl = "https://x.com/Zarry_linilo?s=20";
 
         await resend.emails.send({
           from: 'Moonchaery Studio <onboarding@resend.dev>',
@@ -819,11 +808,6 @@ export async function DELETE(request: Request) {
                       <!-- Social Buttons -->
                       <table class="button-group" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 32px;">
                         <tr>
-                          <td align="center" style="padding: 0 10px;">
-                            <a href="${igUrl}" class="button" style="display: inline-block; background: #9333EA; color: white; padding: 16px 24px; border-radius: 14px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; text-decoration: none; box-shadow: 0 8px 20px rgba(168,85,247,0.2);">
-                              Instagram DM
-                            </a>
-                          </td>
                           <td align="center" style="padding: 0 10px;">
                             <a href="${xUrl}" class="button" style="display: inline-block; background: #1A1F2B; color: white; padding: 16px 24px; border-radius: 14px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; text-decoration: none;">
                               X / Twitter

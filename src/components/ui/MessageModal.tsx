@@ -602,16 +602,9 @@ Please check the details in the Dashboard! Thank you.`;
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4">
                               <a 
-                                href={`https://ig.me/m/cuancapital.id?text=${getDMMessage(selectedMessage.order)}`} 
-                                target="_blank" rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-3 py-4 bg-white border border-purple-100 text-purple-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-50 transition-all font-outfit"
-                              >
-                                <Camera size={16} /> Instagram
-                              </a>
-                              <a 
-                                href={`https://x.com/messages/compose?recipient_id=Zarry_linilo&text=${getDMMessage(selectedMessage.order)}`} 
+                                href="https://x.com/Zarry_linilo?s=20" 
                                 target="_blank" rel="noopener noreferrer"
                                 className="flex items-center justify-center gap-3 py-4 bg-white border border-slate-100 text-slate-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all font-outfit"
                               >

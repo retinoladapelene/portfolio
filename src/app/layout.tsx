@@ -40,7 +40,7 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://moonchaery.com'),
   title: {
-    default: "Moonchaery Studio | Premium Digital Artist",
+    default: "Moonchaery Studio",
     template: "%s | Moonchaery Studio"
   },
   description: "High-fidelity digital art, character design, and custom commissions with a liquid glass aesthetic by Moonchaery.",
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://moonchaery.com",
-    title: "Moonchaery Studio | Premium Digital Artist",
+    title: "Moonchaery Studio",
     description: "High-fidelity digital art, character design, and custom commissions with a liquid glass aesthetic.",
     siteName: "Moonchaery Studio",
     images: [{
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Moonchaery Studio | Premium Digital Artist",
+    title: "Moonchaery Studio",
     description: "High-fidelity digital art and custom commissions.",
     creator: "@moonchaery", // Placeholder
     images: ["/moonchaerylogo.png"],
