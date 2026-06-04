@@ -728,12 +728,12 @@ export default function GalleryPage() {
                                 <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="relative aspect-[3/4] rounded-lg overflow-hidden border border-white/10 shadow-2xl">
                                     <img src={selectedArt.url} alt={selectedArt.title} className="w-full h-full object-contain bg-[#0a0a0a]" />
                                 </motion.div>
-                                <motion.div initial={{ x: 40, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="space-y-8">
+                                <motion.div initial={{ x: 40, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="space-y-8 max-h-[80vh] overflow-y-auto pr-6 pb-6">
                                     <h2 className="font-syne text-5xl md:text-7xl font-bold text-white tracking-tighter uppercase italic">{selectedArt.title}</h2>
-                                    <p className="font-outfit text-lg text-white/50 leading-relaxed max-w-md italic">
+                                    <p className="font-outfit text-lg text-white/50 leading-relaxed max-w-md italic whitespace-pre-wrap">
                                         {selectedArt.description || "A masterpiece from the Moonchaery Gallery, framed for eternity in the virtual abyss."}
                                     </p>
-                                    <button onClick={() => setSelectedArt(null)} className="px-8 py-4 bg-purple-600 text-white font-syne font-bold text-sm rounded-full hover:bg-purple-500 transition-all uppercase tracking-widest">Back to Gallery</button>
+                                    <button onClick={() => setSelectedArt(null)} className="px-8 py-4 bg-purple-600 text-white font-syne font-bold text-sm rounded-full hover:bg-purple-500 transition-all uppercase tracking-widest shrink-0">Back to Gallery</button>
                                 </motion.div>
                             </div>
                         </motion.div>
