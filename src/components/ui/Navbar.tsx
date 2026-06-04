@@ -118,8 +118,8 @@ const Navbar = () => {
         >
           {/* Logo Section */}
           <Link href="/" className="relative z-50 flex items-center gap-3 group will-change-transform">
-            <div className="relative w-8 h-8 md:w-10 md:h-10">
-              <Image src="/logomoonchaery.svg" alt="Logo" fill className="object-contain" priority />
+            <div className="relative w-12 h-12 md:w-16 md:h-16">
+              <Image src="/moonchaerylogo.png" alt="Logo" fill className="object-contain scale-110" priority />
             </div>
             <span className="font-outfit text-sm md:text-lg font-black text-slate-950 uppercase tracking-tighter">
               Moonchaery

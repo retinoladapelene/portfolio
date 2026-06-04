@@ -48,8 +48,8 @@ export const metadata: Metadata = {
   authors: [{ name: "Moonchaery" }],
   creator: "Moonchaery Studio",
   icons: {
-    icon: "/logomoonchaery.svg",
-    apple: "/logomoonchaery.svg",
+    icon: "/moonchaerylogo.png",
+    apple: "/moonchaerylogo.png",
   },
   openGraph: {
     type: "website",
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     description: "High-fidelity digital art, character design, and custom commissions with a liquid glass aesthetic.",
     siteName: "Moonchaery Studio",
     images: [{
-      url: "/logomoonchaery.svg", // Fallback to logo, user should replace with a proper OG image
+      url: "/moonchaerylogo.png", // Fallback to logo, user should replace with a proper OG image
       width: 1200,
       height: 630,
       alt: "Moonchaery Studio Portfolio"
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     title: "Moonchaery Studio | Premium Digital Artist",
     description: "High-fidelity digital art and custom commissions.",
     creator: "@moonchaery", // Placeholder
-    images: ["/logomoonchaery.svg"],
+    images: ["/moonchaerylogo.png"],
   },
   robots: {
     index: true,
