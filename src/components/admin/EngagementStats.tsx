@@ -59,12 +59,24 @@ export default function EngagementStats() {
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    return d.toISOString().split('T')[0];
+    // Use local timezone date string (YYYY-MM-DD format)
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }).reverse();
 
-  const chartData = last7Days.map(date => {
-    const count = publicData.filter(d => d.created_at.startsWith(date)).length;
-    return { date, count };
+  const chartData = last7Days.map(dateStr => {
+    const count = publicData.filter(d => {
+      if (!d.created_at) return false;
+      const eventDate = new Date(d.created_at);
+      const eYear = eventDate.getFullYear();
+      const eMonth = String(eventDate.getMonth() + 1).padStart(2, '0');
+      const eDay = String(eventDate.getDate()).padStart(2, '0');
+      const eventDateStr = `${eYear}-${eMonth}-${eDay}`;
+      return eventDateStr === dateStr;
+    }).length;
+    return { date: dateStr, count };
   });
 
   const maxCount = Math.max(...chartData.map(d => d.count), 1);
