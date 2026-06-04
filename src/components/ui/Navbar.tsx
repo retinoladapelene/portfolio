@@ -124,11 +124,6 @@ const Navbar = () => {
                 className="object-contain"
               />
             </div>
-            <span className={cn(
-              "transition-all duration-500 text-[#1A1F2B] font-syne font-black tracking-tighter"
-            )}>
-              Moon<span className={cn("text-purple-600")}>chaery.</span>
-            </span>
           </Link>
 
           <div className="hidden md:flex items-center gap-10">

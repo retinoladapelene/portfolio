@@ -38,7 +38,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Premium Artist Portfolio | Custom Commissions",
+  title: "Moonchaery Studio | Premium Digital Artist",
   description: "High-fidelity digital art, character design, and custom commissions with a liquid glass aesthetic.",
   icons: {
     icon: "/logomoonchaery.svg",

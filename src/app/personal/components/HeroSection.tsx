@@ -163,9 +163,6 @@ export function EditorialIntro({ mounted, currentTime }: { mounted: boolean; cur
         className="absolute left-6 top-6 z-50 flex items-center gap-2 group cursor-pointer font-dancing-script text-2xl text-[#1A1F2B] md:left-10 md:top-10"
       >
         <div className="w-5 h-5 bg-purple-600 rounded-lg shadow-sm rotate-12 group-hover:rotate-0 transition-transform" />
-        <span className="hidden sm:inline">
-          Moon<span className="text-purple-600 font-bold">chaery.</span>
-        </span>
       </Link>
 
       {/* Background Names (Solid - Behind Photo) */}

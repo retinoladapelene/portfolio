@@ -118,7 +118,7 @@ export default function Footer() {
             className="hidden lg:flex lg:col-span-2 border-r border-white/5 items-end justify-center py-20"
           >
             <h2 className="text-[12vh] font-black text-white/5 uppercase vertical-text tracking-[0.2em] select-none">
-              MOONCHAERY
+              MOONCHAERY STUDIO
             </h2>
           </motion.div>
 
@@ -201,7 +201,7 @@ export default function Footer() {
 
         <div className="border-t border-white/5 px-8 lg:px-20 py-12 flex flex-col md:flex-row justify-between items-center gap-8 bg-[#050505]/95 backdrop-blur-xl relative z-20">
           <div className="flex flex-wrap justify-center md:justify-start items-center gap-6 md:gap-10 text-[10px] font-black uppercase tracking-[0.4em]">
-            <p className="text-white/40 hover:text-white/60 transition-colors duration-500">© 2024 MOONCHAERY</p>
+            <p className="text-white/40 hover:text-white/60 transition-colors duration-500">© 2024 MOONCHAERY STUDIO</p>
             <button 
               onClick={() => setIsTermsOpen(true)} 
               className="text-white/60 hover:text-purple-400 transition-all duration-300 relative group"
