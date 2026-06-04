@@ -4,9 +4,6 @@ import { useState, useEffect } from "react";
 import { useTexture, Text, Detailed } from "@react-three/drei";
 import * as THREE from "three";
 
-const frameGeo = new THREE.BoxGeometry(2.4, 3.4, 0.1);
-const innerFrameGeo = new THREE.BoxGeometry(2.2, 3.2, 0.05);
-const artGeo = new THREE.PlaneGeometry(2, 3);
 const ledGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.25, 8);
 const ledHeadGeo = new THREE.CylinderGeometry(0.08, 0.12, 0.15, 8);
 const ledStemGeo = new THREE.BoxGeometry(0.05, 0.2, 0.05);
@@ -16,24 +13,30 @@ export function ArtFrame({ url, title, position, rotation, onSelect, quality, de
     const texture = useTexture(url) as THREE.Texture;
     const [failed, setFailed] = useState(false);
     const [hovered, setHovered] = useState(false);
+    const [dims, setDims] = useState({ artW: 2, artH: 3 });
 
     useEffect(() => {
         if (texture && texture.image) {
-            // Apply object-cover logic by adjusting UVs
             const imgAspect = texture.image.width / texture.image.height;
             const frameAspect = 2 / 3;
 
+            // Reset any previous crop settings
+            texture.repeat.set(1, 1);
+            texture.offset.set(0, 0);
+
+            // Calculate new dimensions to fit max W=2, max H=3
+            let newW = 2;
+            let newH = 3;
             if (imgAspect > frameAspect) {
-                // Image is wider than frame -> Crop sides
-                const repeatX = frameAspect / imgAspect;
-                texture.repeat.set(repeatX, 1);
-                texture.offset.set((1 - repeatX) / 2, 0);
+                // Wider: clamp width to 2
+                newW = 2;
+                newH = 2 / imgAspect;
             } else {
-                // Image is taller than frame -> Crop top/bottom
-                const repeatY = imgAspect / frameAspect;
-                texture.repeat.set(1, repeatY);
-                texture.offset.set(0, (1 - repeatY) / 2);
+                // Taller: clamp height to 3
+                newH = 3;
+                newW = 3 * imgAspect;
             }
+            setDims({ artW: newW, artH: newH });
 
             // Performance adjustment: Higher anisotropy only for high quality
             texture.anisotropy = quality === 'high' ? 16 : 4;
@@ -42,6 +45,8 @@ export function ArtFrame({ url, title, position, rotation, onSelect, quality, de
             texture.needsUpdate = true;
         }
     }, [texture, quality]);
+
+    const { artW, artH } = dims;
 
     const frameContent = (
         <group>
@@ -69,16 +74,18 @@ export function ArtFrame({ url, title, position, rotation, onSelect, quality, de
                         onPointerOver={() => setHovered(true)}
                         onPointerOut={() => setHovered(false)}
                         onClick={() => onSelect({ url, title, description })}
-                        geometry={frameGeo}
                     >
+                        <boxGeometry args={[artW + 0.4, artH + 0.4, 0.1]} />
                         <meshStandardMaterial color="#D4AF37" metalness={1} roughness={0.2} />
                     </mesh>
 
-                    <mesh position={[0, 0, 0.05]} geometry={innerFrameGeo}>
+                    <mesh position={[0, 0, 0.05]}>
+                        <boxGeometry args={[artW + 0.2, artH + 0.2, 0.05]} />
                         <meshStandardMaterial color="#8B6508" metalness={1} roughness={0.1} />
                     </mesh>
 
-                    <mesh position={[0, 0, 0.1]} onClick={() => onSelect({ url, title, description })} geometry={artGeo}>
+                    <mesh position={[0, 0, 0.1]} onClick={() => onSelect({ url, title, description })}>
+                        <planeGeometry args={[artW, artH]} />
                         <meshStandardMaterial 
                             map={texture} 
                             color={failed ? "#1a1a1a" : "#fff"}
@@ -98,7 +105,7 @@ export function ArtFrame({ url, title, position, rotation, onSelect, quality, de
                     </mesh>
 
                     <Text
-                        position={[0, -2.2, 0.1]}
+                        position={[0, -(artH / 2 + 0.7), 0.1]}
                         fontSize={0.15}
                         color="#D4AF37"
                         fillOpacity={hovered ? 1 : 0.6}
@@ -114,22 +121,22 @@ export function ArtFrame({ url, title, position, rotation, onSelect, quality, de
                             onPointerOut={() => setHovered(false)}
                             onClick={() => onSelect({ url, title, description })}
                         >
-                            <boxGeometry args={[2.4, 3.4, 0.1]} />
+                            <boxGeometry args={[artW + 0.4, artH + 0.4, 0.1]} />
                             <meshStandardMaterial color="#D4AF37" metalness={1} roughness={0.2} />
                         </mesh>
 
                         <mesh position={[0, 0, 0.05]}>
-                            <boxGeometry args={[2.2, 3.2, 0.05]} />
+                            <boxGeometry args={[artW + 0.2, artH + 0.2, 0.05]} />
                             <meshStandardMaterial color="#8B6508" metalness={1} roughness={0.1} />
                         </mesh>
 
                         <mesh position={[0, 0, 0.1]} onClick={() => onSelect({ url, title, description })}>
-                            <planeGeometry args={[2, 3]} />
+                            <planeGeometry args={[artW, artH]} />
                             <meshStandardMaterial map={texture} color={failed ? "#1a1a1a" : "#fff"} />
                         </mesh>
 
                         <Text
-                            position={[0, -2.2, 0.1]}
+                            position={[0, -(artH / 2 + 0.7), 0.1]}
                             fontSize={0.15}
                             color="#D4AF37"
                             fillOpacity={hovered ? 1 : 0.6}
@@ -140,17 +147,17 @@ export function ArtFrame({ url, title, position, rotation, onSelect, quality, de
 
                     <group>
                         <mesh onClick={() => onSelect({ url, title, description })}>
-                            <boxGeometry args={[2.4, 3.4, 0.05]} />
+                            <boxGeometry args={[artW + 0.4, artH + 0.4, 0.05]} />
                             <meshStandardMaterial color="#D4AF37" metalness={0.5} roughness={0.5} />
                         </mesh>
                         <mesh position={[0, 0, 0.03]} onClick={() => onSelect({ url, title, description })}>
-                            <planeGeometry args={[2, 3]} />
+                            <planeGeometry args={[artW, artH]} />
                             <meshStandardMaterial map={texture} color={failed ? "#1a1a1a" : "#fff"} />
                         </mesh>
                     </group>
 
                     <mesh onClick={() => onSelect({ url, title, description })}>
-                        <planeGeometry args={[2.4, 3.4]} />
+                        <planeGeometry args={[artW + 0.4, artH + 0.4]} />
                         <meshStandardMaterial color="#1a0000" />
                     </mesh>
                 </Detailed>

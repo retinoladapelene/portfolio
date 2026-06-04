@@ -36,7 +36,8 @@ function PedestalArt({
     setShowLetter, 
     isLetterOpen, 
     setShowBook, 
-    isBookOpen
+    isBookOpen,
+    isSurpriseEnabled
 }: PedestalArtProps) {
     const texture = useTexture("/zarrylinilo.png");
     
@@ -73,7 +74,7 @@ function PedestalArt({
                 </>
             )}
 
-            <InfoBoard isSurpriseActive={isSurpriseActive} setIsSurpriseActive={setIsSurpriseActive} />
+            <InfoBoard isSurpriseActive={isSurpriseActive} setIsSurpriseActive={setIsSurpriseActive} isSurpriseEnabled={isSurpriseEnabled} />
         </group>
     );
 }
@@ -90,7 +91,8 @@ export function GalleryScene({
     setShowLetter, 
     isLetterOpen, 
     setShowBook, 
-    isBookOpen
+    isBookOpen,
+    isSurpriseEnabled
 }: GallerySceneProps) {
     const ambientIntensity = isSurpriseActive 
         ? 0 
@@ -185,6 +187,7 @@ export function GalleryScene({
                     isLetterOpen={isLetterOpen}
                     setShowBook={setShowBook}
                     isBookOpen={isBookOpen}
+                    isSurpriseEnabled={isSurpriseEnabled}
                 />
 
                 {!isSurpriseActive && <Chandelier quality={quality} isSurpriseActive={isSurpriseActive} />}

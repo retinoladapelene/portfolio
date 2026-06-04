@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, X, Maximize, Minimize, Eye, EyeOff, Heart } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/client";
 
 
 // Refactored Components
@@ -45,6 +46,7 @@ export default function GalleryPage() {
     const [isPointerLocked, setIsPointerLocked] = useState(false);
     const [isImmersionMode, setIsImmersionMode] = useState(false);
     const [isSurpriseActive, setIsSurpriseActive] = useState(false);
+    const [isSurpriseEnabled, setIsSurpriseEnabled] = useState(true);
     const [showLetter, setShowLetter] = useState(false);
     const [showBook, setShowBook] = useState(false);
     const [bookSolved, setBookSolved] = useState(false);
@@ -137,20 +139,33 @@ export default function GalleryPage() {
     }, []);
 
     useEffect(() => {
-        const fetchArt = async () => {
+        const fetchGalleryData = async () => {
             try {
+                // Fetch Artworks
                 const res = await fetch('/api/gallery');
                 const result = await res.json();
                 if (result.success) {
                     setArtworks(result.data);
                 }
+
+                // Fetch Settings
+                const supabase = createClient();
+                const { data: settings } = await supabase
+                    .from('settings')
+                    .select('value')
+                    .eq('key', 'surprise_me_enabled')
+                    .single();
+                
+                if (settings) {
+                    setIsSurpriseEnabled(settings.value === 'true');
+                }
             } catch (err) {
-                console.error("Failed to fetch gallery:", err);
+                console.error("Failed to fetch gallery data:", err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchArt();
+        fetchGalleryData();
     }, []);
 
     const keyboardMap = useMemo(() => [
@@ -303,6 +318,7 @@ export default function GalleryPage() {
                                     quality={quality}
                                     isSurpriseActive={isSurpriseActive}
                                     setIsSurpriseActive={setIsSurpriseActive}
+                                    isSurpriseEnabled={isSurpriseEnabled}
                                     setShowLetter={setShowLetter}
                                     setShowBook={setShowBook}
                                     isLetterOpen={showLetter}

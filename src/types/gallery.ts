@@ -15,6 +15,7 @@ export interface GallerySceneProps {
   quality: RenderQuality;
   isSurpriseActive: boolean;
   setIsSurpriseActive: (active: boolean) => void;
+  isSurpriseEnabled?: boolean;
   setShowLetter: (show: boolean) => void;
   isLetterOpen: boolean;
   setShowBook: (show: boolean) => void;
@@ -25,6 +26,7 @@ export interface PedestalArtProps {
   quality: RenderQuality;
   isSurpriseActive: boolean;
   setIsSurpriseActive: (active: boolean) => void;
+  isSurpriseEnabled?: boolean;
   setShowLetter: (show: boolean) => void;
   isLetterOpen: boolean;
   setShowBook: (show: boolean) => void;

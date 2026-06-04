@@ -38,12 +38,26 @@ export default function GalleryManager() {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState<GalleryArt | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [surpriseEnabled, setSurpriseEnabled] = useState(true);
   
   const supabase = createClient();
 
   useEffect(() => {
     fetchArtworks();
+    fetchSettings();
   }, []);
+
+  const fetchSettings = async () => {
+    const { data, error } = await supabase
+      .from('settings')
+      .select('value')
+      .eq('key', 'surprise_me_enabled')
+      .single();
+    
+    if (!error && data) {
+      setSurpriseEnabled(data.value === 'true');
+    }
+  };
 
   const fetchArtworks = async () => {
     setLoading(true);
@@ -187,6 +201,39 @@ export default function GalleryManager() {
     }
   };
 
+  const toggleSurpriseMe = async () => {
+    const newValue = !surpriseEnabled;
+    const ok = await confirm({
+      title: newValue ? "Enable Surprise Me?" : "Disable Surprise Me?",
+      message: newValue 
+        ? "This will allow visitors to use the Surprise Me feature in the 3D gallery. Are you sure?" 
+        : "This will hide the Surprise Me button from visitors in the 3D gallery. Are you sure?",
+      variant: newValue ? "primary" : "danger",
+      confirmText: newValue ? "Enable" : "Disable"
+    });
+    
+    if (!ok) return;
+
+    try {
+      const { error } = await supabase
+        .from('settings')
+        .upsert({ key: 'surprise_me_enabled', value: newValue ? 'true' : 'false' });
+        
+      if (error) {
+        // If settings table doesn't exist yet, show a helpful message
+        if (error.code === '42P01') {
+          throw new Error("Settings table does not exist. Please run the SQL command provided.");
+        }
+        throw error;
+      }
+      
+      setSurpriseEnabled(newValue);
+      toast(`Surprise Me feature ${newValue ? 'enabled' : 'disabled'}!`, "success");
+    } catch (error: any) {
+      toast("Failed to update setting: " + error.message, "error");
+    }
+  };
+
   const addNewArt = () => {
     if (artworks.length >= MAX_SLOTS) {
       toast(`You have reached the maximum of ${MAX_SLOTS} wall slots!`, "error");
@@ -216,6 +263,37 @@ export default function GalleryManager() {
 
   return (
     <div className="space-y-16 pb-20">
+      {/* --- GALLERY SETTINGS --- */}
+      <section>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-1.5 h-6 bg-purple-500 rounded-full" />
+            <h2 className="text-xs font-black text-white/40 uppercase tracking-[0.4em] font-outfit">Gallery Settings</h2>
+          </div>
+        </div>
+        
+        <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-6 flex items-center justify-between">
+          <div>
+            <h3 className="text-white font-syne font-bold text-lg">Surprise Me Feature</h3>
+            <p className="text-white/50 text-sm font-outfit mt-1">Allow visitors to trigger the immersive room transition effect.</p>
+          </div>
+          <button 
+            onClick={toggleSurpriseMe}
+            className={cn(
+              "relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
+              surpriseEnabled ? "bg-purple-500" : "bg-white/10"
+            )}
+          >
+            <span
+              className={cn(
+                "pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                surpriseEnabled ? "translate-x-6" : "translate-x-0"
+              )}
+            />
+          </button>
+        </div>
+      </section>
+
       {/* --- WALL EXHIBITION GRID --- */}
       <section>
         <div className="flex items-center gap-3 mb-8">
