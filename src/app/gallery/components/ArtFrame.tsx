@@ -18,7 +18,23 @@ export function ArtFrame({ url, title, position, rotation, onSelect, quality, de
     const [hovered, setHovered] = useState(false);
 
     useEffect(() => {
-        if (texture) {
+        if (texture && texture.image) {
+            // Apply object-cover logic by adjusting UVs
+            const imgAspect = texture.image.width / texture.image.height;
+            const frameAspect = 2 / 3;
+
+            if (imgAspect > frameAspect) {
+                // Image is wider than frame -> Crop sides
+                const repeatX = frameAspect / imgAspect;
+                texture.repeat.set(repeatX, 1);
+                texture.offset.set((1 - repeatX) / 2, 0);
+            } else {
+                // Image is taller than frame -> Crop top/bottom
+                const repeatY = imgAspect / frameAspect;
+                texture.repeat.set(1, repeatY);
+                texture.offset.set(0, (1 - repeatY) / 2);
+            }
+
             // Performance adjustment: Higher anisotropy only for high quality
             texture.anisotropy = quality === 'high' ? 16 : 4;
             texture.minFilter = quality === 'low' ? THREE.LinearFilter : THREE.LinearMipmapLinearFilter;
