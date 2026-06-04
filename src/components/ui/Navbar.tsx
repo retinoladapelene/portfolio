@@ -136,7 +136,7 @@ const Navbar = () => {
           <div className="flex items-center gap-2 md:gap-4 relative z-50">
             {user && (
               <div className="hidden md:flex items-center gap-2">
-                {user.email === 'pbsn290704@gmail.com' && (
+                {(process.env.NEXT_PUBLIC_ALLOWED_ADMIN_EMAILS || 'pbsn290704@gmail.com,tyo290704@gmail.com').split(',').includes(user.email || '') && (
                   <Link href="/admin" className="px-4 py-2 rounded-xl bg-slate-950 text-white font-black text-[9px] uppercase tracking-widest hover:bg-purple-600 transition-colors flex items-center gap-2">
                     <LayoutDashboard size={12} />
                     Admin
@@ -243,7 +243,7 @@ const Navbar = () => {
                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active User</p>
                           <p className="text-xs font-bold text-slate-900 truncate max-w-[150px]">{user.email}</p>
                         </div>
-                        {user.email === 'pbsn290704@gmail.com' && (
+                        {(process.env.NEXT_PUBLIC_ALLOWED_ADMIN_EMAILS || 'pbsn290704@gmail.com,tyo290704@gmail.com').split(',').includes(user.email || '') && (
                           <button onClick={() => window.location.href = "/admin"} className="px-4 py-2 bg-slate-950 text-white rounded-lg text-[9px] font-black uppercase tracking-widest">Admin</button>
                         )}
                       </div>

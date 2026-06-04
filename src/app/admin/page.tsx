@@ -74,7 +74,7 @@ const AdminDashboard = () => {
 
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      const allowedEmails = ['pbsn290704@gmail.com', 'tyo290704@gmail.com'];
+      const allowedEmails = (process.env.NEXT_PUBLIC_ALLOWED_ADMIN_EMAILS || 'pbsn290704@gmail.com,tyo290704@gmail.com').split(',');
 
       if (!user || !user.email || !allowedEmails.includes(user.email)) {
         router.push("/?login=true");
