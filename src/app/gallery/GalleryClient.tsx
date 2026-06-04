@@ -230,31 +230,25 @@ export default function GalleryPage() {
                     )}
                 </AnimatePresence>
 
-                {/* Immersion Mode Toggle Button - Always Visible but Discreet */}
-                <AnimatePresence>
-                    {!isImmersionMode && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            className="absolute top-8 left-1/2 -translate-x-1/2 z-[100]"
-                        >
-                            <button
-                                onClick={() => setIsImmersionMode(!isImmersionMode)}
-                                className={cn(
-                                    "group flex items-center gap-3 px-6 py-2.5 rounded-full backdrop-blur-md border transition-all duration-500 bg-black/40 border-white/10 text-white/50 hover:text-white hover:border-purple-500/30"
-                                )}
-                                title="Toggle Immersion Mode (F)"
-                            >
-                                <EyeOff size={16} />
-                                <span className="font-outfit text-[9px] font-black uppercase tracking-[0.3em]">
-                                    Immersion Mode
-                                </span>
-                                <kbd className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-white/10 text-[8px] font-mono border border-white/10 ml-1">F</kbd>
-                            </button>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                {/* Immersion Mode Toggle Button - Always Visible */}
+                <div className="absolute top-8 left-1/2 -translate-x-1/2 z-[9999]">
+                    <button
+                        onClick={() => setIsImmersionMode(!isImmersionMode)}
+                        className={cn(
+                            "group flex items-center gap-3 px-6 py-2.5 rounded-full backdrop-blur-md border transition-all duration-500",
+                            isImmersionMode
+                                ? "bg-purple-900/40 border-purple-500/30 text-purple-100 hover:bg-purple-800/60"
+                                : "bg-black/40 border-white/10 text-white/50 hover:text-white hover:border-purple-500/30"
+                        )}
+                        title="Toggle Immersion Mode (F)"
+                    >
+                        {isImmersionMode ? <Eye size={16} /> : <EyeOff size={16} />}
+                        <span className="font-outfit text-[9px] font-black uppercase tracking-[0.3em]">
+                            {isImmersionMode ? "Exit Immersion" : "Immersion Mode"}
+                        </span>
+                        <kbd className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-white/10 text-[8px] font-mono border border-white/10 ml-1">F</kbd>
+                    </button>
+                </div>
 
                 {/* 3D Canvas */}
                 {/* Central POV Pointer (Crosshair) */}
