@@ -188,7 +188,7 @@ export default function ImmersivePortfolio() {
                 key={art.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "0px" }}
                 className="group relative aspect-[4/5] rounded-3xl overflow-hidden border border-black/5"
               >
                 <Image 

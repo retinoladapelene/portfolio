@@ -254,7 +254,7 @@ function TimelineStep({ step, index, progress, totalSteps }: { step: Step, index
         initial={{ opacity: 0, y: 30, x: isLeft ? -40 : 40 }}
         whileInView={{ opacity: 1, y: 0, x: 0 }}
         transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-        viewport={{ once: true, margin: "-100px" }}
+        viewport={{ once: true, margin: "0px" }}
         className={cn(
           "w-[75%] md:w-[42%] p-8 md:p-14 rounded-[32px] md:rounded-[40px] bg-white border border-black/[0.05] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.04)] relative group transition-all duration-700 hover:shadow-[0_48px_80px_-16px_rgba(167,139,250,0.08)]",
           isLeft ? "mr-auto ml-4 md:ml-0 text-right" : "ml-auto mr-4 md:mr-0 text-left"

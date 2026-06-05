@@ -78,7 +78,7 @@ const Testimonials = () => {
               key={review.handle}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "0px" }}
               transition={{ delay: i * 0.1, duration: 0.8 }}
               whileHover={{ y: -10 }}
               className="group shrink-0 w-[72vw] md:w-auto snap-center first:ml-0"
@@ -130,7 +130,7 @@ const Testimonials = () => {
         <motion.div 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: "0px" }}
           className="mt-24 py-12 border-y border-black/5 flex flex-col md:flex-row justify-center items-center gap-12 md:gap-32"
           style={{ willChange: "opacity" }}
         >

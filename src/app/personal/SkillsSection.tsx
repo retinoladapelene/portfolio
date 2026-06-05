@@ -916,7 +916,7 @@ const methodology = [
 function MethodologyGrid({ theme }: { theme: typeof themeColors[0] }) {
     return (
         <div className="methodology-trigger mt-8 md:mt-16">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "0px" }}
                 className="flex items-center gap-6 mb-10 md:mb-14">
                 <h3 className="font-syne text-2xl md:text-4xl font-bold text-[#1A1F2B] tracking-tight flex-shrink-0">The Methodology</h3>
                 <div className="h-px flex-1" style={{ background: `linear-gradient(to right, ${theme.primary}40, transparent)` }} />
@@ -924,7 +924,7 @@ function MethodologyGrid({ theme }: { theme: typeof themeColors[0] }) {
             </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
                 {methodology.map((item, i) => (
-                    <motion.div key={i} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                    <motion.div key={i} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "0px" }}
                         transition={{ duration: 0.8, delay: i * 0.13, ease: [0.22, 1, 0.36, 1] }}
                         className="methodology-card-morph group relative overflow-hidden rounded-3xl bg-white/50 backdrop-blur-sm border p-7 md:p-10 hover:bg-white/80 hover:shadow-xl transition-all duration-500"
                         style={{ borderColor: `${theme.primary}20` }}
@@ -1045,7 +1045,7 @@ export function SkillsSection({
                     {/* Header */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10 md:mb-20 items-end">
                         <div className="lg:col-span-7 space-y-5">
-                            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex items-center gap-3">
+                            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "0px" }} className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white rotate-12 hover:rotate-0 transition-all duration-300"
                                     style={{ background: theme.primary }}>
                                     <Layers3 size={16} />
@@ -1062,7 +1062,7 @@ export function SkillsSection({
                                 </h2>
                             </div>
                         </div>
-                        <motion.p initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}
+                        <motion.p initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "0px" }} transition={{ delay: 0.3 }}
                             className="lg:col-span-5 font-outfit text-sm md:text-lg text-[#1A1F2B]/50 leading-relaxed font-medium">
                             Every minor detail, character gesture, and color mood is treated as a deeply personal visual language.
                         </motion.p>
@@ -1070,7 +1070,7 @@ export function SkillsSection({
 
                     {/* Marquee */}
                     <div className="mb-10 md:mb-16">
-                        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+                        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, margin: "0px" }}
                             className="font-outfit text-[9px] font-black uppercase tracking-widest text-[#1A1F2B]/25 mb-4 pb-4 border-b transition-colors duration-500"
                             style={{ borderColor: `${theme.primary}20` }}>Core Expertise</motion.div>
                         <SkillMarquee skills={allSkills} theme={theme} />
@@ -1097,7 +1097,7 @@ export function SkillsSection({
                                     {/* MOBILE */}
                                     <div className="md:hidden flex flex-col gap-6 mb-16">
                                         <motion.div ref={brushBoxMobileRef} initial={{ opacity: 0, scale: 0.92 }} whileInView={{ opacity: 1, scale: 1 }}
-                                            viewport={{ once: true }} transition={{ duration: 1 }}
+                                            viewport={{ once: true, margin: "0px" }} transition={{ duration: 1 }}
                                             className={`relative w-full rounded-3xl border bg-gradient-to-b to-white/10 flex flex-col items-center justify-center`}
                                             style={{ height: 300, borderColor: `${theme.primary}25`, background: `linear-gradient(to bottom, ${theme.light}40, transparent)` }}>
                                             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -1132,7 +1132,7 @@ export function SkillsSection({
 
                                         <motion.div style={{ y: brushY }} className="relative flex items-center justify-center">
                                             <motion.div ref={brushBoxDesktopRef} initial={{ opacity: 0, scale: 0.85 }} whileInView={{ opacity: 1, scale: 1 }}
-                                                viewport={{ once: true }} transition={{ duration: 1.2 }}
+                                                viewport={{ once: true, margin: "0px" }} transition={{ duration: 1.2 }}
                                                 className={`relative rounded-[2.5rem] border transition-colors duration-500`}
                                                 style={{ width: 240, height: 520, borderColor: `${theme.primary}25`, background: `linear-gradient(180deg, ${theme.light}40, transparent)` }}>
                                                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

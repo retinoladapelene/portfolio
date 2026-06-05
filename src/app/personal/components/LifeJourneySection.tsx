@@ -165,7 +165,7 @@ export function LifeJourneySection() {
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "0px" }}
             className="relative z-10 flex flex-col items-start"
           >
             <div className="flex items-center gap-4 mb-6">
@@ -182,7 +182,7 @@ export function LifeJourneySection() {
               initial={{ letterSpacing: "-0.05em", filter: "blur(10px)", opacity: 0 }}
               whileInView={{ letterSpacing: "-0.02em", filter: "blur(0px)", opacity: 1 }}
               transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "0px" }}
               className="font-syne font-bold leading-[0.85] tracking-tightest"
             >
               <span className="block text-7xl md:text-[9rem] text-[#1A1F2B]">LIFE</span>
@@ -199,7 +199,7 @@ export function LifeJourneySection() {
             initial={{ opacity: 0, x: 40 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "0px" }}
             className="max-w-xs text-right self-end pb-8 hidden md:block relative"
           >
              <div className="absolute -top-12 -right-4 w-px h-24 bg-gradient-to-b from-transparent via-purple-100 to-transparent" />

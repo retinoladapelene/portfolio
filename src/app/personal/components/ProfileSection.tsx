@@ -69,7 +69,7 @@ export function ProfileSection() {
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "0px" }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="flex items-center gap-4 mb-6"
           >
@@ -112,7 +112,7 @@ export function ProfileSection() {
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "0px" }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
             className="lg:col-span-5 space-y-10"
           >
@@ -141,7 +141,7 @@ export function ProfileSection() {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "0px" }}
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-wrap items-center gap-4"
             >
@@ -174,7 +174,7 @@ export function ProfileSection() {
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "0px" }}
                 transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
                 className="stat-card-morph relative overflow-hidden rounded-[2.5rem] bg-[#1A1F2B] p-8 md:p-10"
               >
@@ -212,7 +212,7 @@ export function ProfileSection() {
                         key={i}
                         initial={{ scaleY: 0 }}
                         whileInView={{ scaleY: 1 }}
-                        viewport={{ once: true }}
+                        viewport={{ once: true, margin: "0px" }}
                         transition={{ duration: 0.6, delay: 0.4 + i * 0.08, ease: "circOut" }}
                         style={{ height: `${h * 0.6}px` }}
                         className="w-3 rounded-t-sm bg-purple-400 origin-bottom"
@@ -226,7 +226,7 @@ export function ProfileSection() {
                   <motion.div
                     initial={{ width: 0 }}
                     whileInView={{ width: "100%" }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "0px" }}
                     transition={{ duration: 2.2, ease: "circOut", delay: 0.3 }}
                     className="h-full bg-gradient-to-r from-purple-500 to-purple-300"
                   />
@@ -239,7 +239,7 @@ export function ProfileSection() {
               <motion.div
                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "0px" }}
                 transition={{ duration: 0.8, delay: 0.15 }}
                 className="stat-card-morph relative overflow-hidden rounded-[2rem] bg-purple-600 p-6 md:p-8 flex flex-col justify-between min-h-[140px]"
               >
@@ -271,7 +271,7 @@ export function ProfileSection() {
               <motion.div
                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "0px" }}
                 transition={{ duration: 0.8, delay: 0.25 }}
                 className="stat-card-morph relative overflow-hidden rounded-[2rem] bg-white border border-purple-100/80 p-6 md:p-8 flex flex-col justify-between min-h-[140px] group hover:border-purple-300 transition-colors"
               >

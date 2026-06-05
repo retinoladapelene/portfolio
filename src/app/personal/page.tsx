@@ -112,7 +112,7 @@ export default function PersonalPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "0px" }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             className="mx-auto max-w-5xl relative z-10"
           >

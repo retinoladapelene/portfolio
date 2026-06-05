@@ -128,7 +128,7 @@ export function ArchiveGallery() {
                 key={i}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "0px" }}
                 transition={{ duration: 1.2, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
                 className="group relative break-inside-avoid mb-12 md:mb-32"
               >

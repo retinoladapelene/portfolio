@@ -56,7 +56,7 @@ export default function HorizontalBloomingTimeline() {
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "0px" }}
             className="space-y-4 md:space-y-6"
           >
             <p className="text-[9px] md:text-[10px] font-black text-purple-600 uppercase tracking-[0.4em] md:tracking-[0.8em]">Production Loop</p>
@@ -68,7 +68,7 @@ export default function HorizontalBloomingTimeline() {
           <motion.p 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "0px" }}
             transition={{ delay: 0.2 }}
             className="text-xs md:text-sm text-slate-400 font-medium leading-relaxed max-w-[320px]"
           >

@@ -26,7 +26,7 @@ const Bloom = memo(({ bloom }: { bloom: { id: number; x: number; y: number; rota
       }}
       exit={{ opacity: 0 }}
       transition={{ duration: 12, ease: "easeOut" }}
-      fill="white"
+      fill="var(--theme-primary, #A78BFA)"
       style={{ willChange: "transform, opacity, rx, ry" }}
     />
   );
@@ -71,9 +71,8 @@ function InteractiveBackground() {
       const currentY = maskY.get();
       
       setBlooms((prev) => {
-        // Reduced max blooms from 15 to 8 on mobile, 15 on desktop
         const isMobile = window.innerWidth < 768;
-        const maxBlooms = isMobile ? 8 : 15;
+        const maxBlooms = isMobile ? 5 : 15;
         const next = [...prev.slice(-(maxBlooms - 1)), { 
           id: bloomCounter.current++, 
           x: currentX, 
@@ -85,9 +84,8 @@ function InteractiveBackground() {
       });
     };
 
-    // Reduced max blooms from 15 to 8 on mobile, 15 on desktop
     const isMobile = window.innerWidth < 768;
-    const intervalTime = isMobile ? 3000 : 1000;
+    const intervalTime = isMobile ? 2500 : 1000;
     const interval = setInterval(spawnBloom, intervalTime);
     return () => clearInterval(interval);
   }, [mounted, maskX, maskY]);
@@ -137,12 +135,12 @@ function InteractiveBackground() {
           style={{
             background: `radial-gradient(ellipse at center, color-mix(in srgb, var(--theme-dot, #A78BFA) 50%, transparent) 0%, transparent 70%)`,
             transition: "background 1.2s ease",
-            filter: windowSize.width < 768 ? "none" : "blur(60px)"
+            filter: windowSize.width < 768 ? "blur(30px)" : "blur(60px)"
           }}
         />
       </div>
       
-      <svg className="absolute w-full h-full pointer-events-none opacity-40 mix-blend-overlay" style={{ filter: windowSize.width < 768 ? "none" : "blur(40px)" }}>
+      <svg className="absolute w-full h-full pointer-events-none opacity-[0.7] mix-blend-normal" style={{ filter: windowSize.width < 768 ? "blur(20px)" : "blur(50px)" }}>
         <g>
           {/* Main automated flow */}
           <motion.ellipse 
@@ -155,14 +153,12 @@ function InteractiveBackground() {
             style={{ willChange: "cx, cy" }}
           />
           
-          {/* Individual ink blooms - severely reduced on mobile */}
-          {windowSize.width >= 768 && (
-            <AnimatePresence mode="popLayout">
-              {blooms.map((bloom) => (
-                <Bloom key={bloom.id} bloom={bloom} />
-              ))}
-            </AnimatePresence>
-          )}
+          {/* Individual ink blooms */}
+          <AnimatePresence mode="popLayout">
+            {blooms.map((bloom) => (
+              <Bloom key={bloom.id} bloom={bloom} />
+            ))}
+          </AnimatePresence>
         </g>
       </svg>
 
