@@ -165,7 +165,7 @@ export default function LoadingScreen() {
           {/* MOBILE DUAL-LINE TYPOGRAPHY (BELOW MD) */}
           <div className="flex md:hidden flex-col items-center justify-center gap-0 w-full px-4">
             {/* Row 1: MOON */}
-            <div className="flex flex-row items-center justify-center scale-[0.42] min-[380px]:scale-[0.5] min-[480px]:scale-[0.6] origin-center h-[120px]">
+            <div className="flex flex-row items-center justify-center scale-[0.25] min-[380px]:scale-[0.3] min-[480px]:scale-[0.4] origin-center h-[120px]">
               {letters.slice(0, 4).map((char, i) => {
                 const idx = i;
                 return (
@@ -257,7 +257,7 @@ export default function LoadingScreen() {
             </div>
 
             {/* Row 2: CHAERY */}
-            <div className="flex flex-row items-center justify-center scale-[0.38] min-[380px]:scale-[0.45] min-[480px]:scale-[0.55] origin-center h-[120px] -mt-2">
+            <div className="flex flex-row items-center justify-center scale-[0.25] min-[380px]:scale-[0.3] min-[480px]:scale-[0.4] origin-center h-[120px] -mt-2">
               {letters.slice(4, 10).map((char, i) => {
                 const idx = i + 4;
                 return (

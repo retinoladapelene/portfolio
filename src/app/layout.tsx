@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Inter, Dancing_Script, Syne, Outfit, Alex_Brush } from "next/font/google";
 import Image from "next/image";
 import "./globals.css";
@@ -78,6 +78,13 @@ export const metadata: Metadata = {
   }
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 import { ToastProvider } from "@/components/ui/Toast";
 import { ConfirmProvider } from "@/components/ui/ConfirmProvider";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
@@ -96,7 +103,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col selection:bg-purple-500/30 bg-transparent">
         <LoadingScreen />
-        <main className="relative min-h-screen">
+        <main className="relative min-h-screen w-full max-w-[100vw] overflow-x-clip">
           <ClientBackground />
           <div className="grain-overlay" />
           <ToastProvider>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { InteractivePhoto } from "./InteractivePhoto";
 
@@ -84,7 +85,7 @@ export function HeroSection({ imageRef, currentTime, activeTheme, heroSettings }
               <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r" style={{ borderColor: 'var(--theme-light)' }} />
             </div>
 
-            <div className="relative flex items-end justify-center rounded-t-[32px] md:rounded-[32px] bg-white/5 border-t border-x border-purple-100/10 md:border-b h-[85vh] md:h-[95vh] self-end md:self-auto w-full md:w-[60vw]">
+            <div className="relative overflow-hidden flex items-end justify-center rounded-t-[32px] md:rounded-[32px] bg-white/5 border-t border-x border-purple-100/10 md:border-b h-[85vh] md:h-[95vh] self-end md:self-auto w-full md:w-[60vw]">
               <div className="relative w-full h-full flex items-end justify-center">
                 <InteractivePhoto settings={heroSettings} />
               </div>
@@ -93,7 +94,7 @@ export function HeroSection({ imageRef, currentTime, activeTheme, heroSettings }
                 id="reveal-name-back"
                 className="absolute inset-0 -z-10 flex flex-col justify-end items-center opacity-0 pointer-events-none select-none pb-[18vw]"
               >
-                <h2 className="font-outfit font-black text-[25vw] leading-[0.7] text-white tracking-tighter uppercase scale-y-105 origin-bottom" style={{ filter: `drop-shadow(0 10px 60px rgb(var(--theme-shadow-rgb) / 0.4))` }}>
+                <h2 className="font-outfit font-black text-[17vw] md:text-[25vw] leading-[0.7] text-white tracking-tighter uppercase scale-y-105 origin-bottom" style={{ filter: `drop-shadow(0 10px 60px rgb(var(--theme-shadow-rgb) / 0.4))` }}>
                   RATU
                 </h2>
               </div>
@@ -102,7 +103,7 @@ export function HeroSection({ imageRef, currentTime, activeTheme, heroSettings }
                 id="reveal-name-front"
                 className="absolute inset-0 z-50 flex flex-col justify-end items-center opacity-0 pointer-events-none select-none"
               >
-                <h2 className="font-outfit font-black text-[25vw] leading-[0.7] text-white tracking-tighter uppercase mb-[-0.5vw] scale-y-105 origin-bottom" style={{ filter: `drop-shadow(0 10px 60px rgb(var(--theme-shadow-rgb) / 0.4))` }}>
+                <h2 className="font-outfit font-black text-[17vw] md:text-[25vw] leading-[0.7] text-white tracking-tighter uppercase mb-[-0.5vw] scale-y-105 origin-bottom" style={{ filter: `drop-shadow(0 10px 60px rgb(var(--theme-shadow-rgb) / 0.4))` }}>
                   BALQIS
                 </h2>
               </div>
@@ -161,9 +162,15 @@ export function EditorialIntro({ mounted, currentTime }: { mounted: boolean; cur
 
       <Link
         href="/"
-        className="absolute left-6 top-6 z-50 flex items-center gap-2 group cursor-pointer font-dancing-script text-2xl text-[#1A1F2B] md:left-10 md:top-10"
+        className="absolute left-2 top-4 sm:left-6 sm:top-6 z-50 flex items-center gap-2 group cursor-pointer font-dancing-script text-2xl text-[#1A1F2B] md:left-10 md:top-10 hover:scale-105 transition-transform"
       >
-        <div className="w-5 h-5 rounded-lg shadow-sm rotate-12 group-hover:rotate-0 transition-transform" style={{ background: 'var(--theme-primary)' }} />
+        <Image 
+          src="/moonchaerylogo.png" 
+          alt="Moonchaery Logo" 
+          width={32} 
+          height={32} 
+          className="object-contain"
+        />
       </Link>
 
       {/* Background Names (Solid - Behind Photo) */}
@@ -207,7 +214,7 @@ export function EditorialIntro({ mounted, currentTime }: { mounted: boolean; cur
             <h1 className="font-outfit text-4xl font-black uppercase tracking-[0.15em] text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
               Ratu Balqis
             </h1>
-            <p className="font-dancing-script text-2xl font-bold drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)] mt-[-8px]" style={{ color: 'var(--theme-primary)' }}>
+            <p className="font-dancing-script text-2xl font-bold drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)] mt-[-8px] text-center w-full max-w-[100vw] whitespace-normal break-words px-4" style={{ color: 'var(--theme-primary)' }}>
               Creative Director & Illustrator
             </p>
           </motion.div>
@@ -245,11 +252,7 @@ export function EditorialIntro({ mounted, currentTime }: { mounted: boolean; cur
             </div>
           </div>
 
-          <div className="col-span-4 flex flex-col items-end md:hidden">
-            <span className="font-outfit text-[8px] font-black uppercase tracking-[0.3em] text-black/20">
-              Indonesia
-            </span>
-          </div>
+          {/* Removed Indonesia text block */}
         </div>
       </div>
     </section>
