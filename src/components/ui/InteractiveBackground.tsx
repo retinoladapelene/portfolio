@@ -85,9 +85,9 @@ function InteractiveBackground() {
       });
     };
 
-    // Increased interval on mobile to 1.5s, 1s on desktop
+    // Reduced max blooms from 15 to 8 on mobile, 15 on desktop
     const isMobile = window.innerWidth < 768;
-    const intervalTime = isMobile ? 1500 : 1000;
+    const intervalTime = isMobile ? 3000 : 1000;
     const interval = setInterval(spawnBloom, intervalTime);
     return () => clearInterval(interval);
   }, [mounted, maskX, maskY]);
@@ -137,12 +137,12 @@ function InteractiveBackground() {
           style={{
             background: `radial-gradient(ellipse at center, color-mix(in srgb, var(--theme-dot, #A78BFA) 50%, transparent) 0%, transparent 70%)`,
             transition: "background 1.2s ease",
-            filter: "blur(60px)"
+            filter: windowSize.width < 768 ? "none" : "blur(60px)"
           }}
         />
       </div>
       
-      <svg className="absolute w-full h-full pointer-events-none opacity-40 mix-blend-overlay" style={{ filter: "blur(40px)" }}>
+      <svg className="absolute w-full h-full pointer-events-none opacity-40 mix-blend-overlay" style={{ filter: windowSize.width < 768 ? "none" : "blur(40px)" }}>
         <g>
           {/* Main automated flow */}
           <motion.ellipse 
@@ -155,12 +155,14 @@ function InteractiveBackground() {
             style={{ willChange: "cx, cy" }}
           />
           
-          {/* Individual ink blooms */}
-          <AnimatePresence mode="popLayout">
-            {blooms.map((bloom) => (
-              <Bloom key={bloom.id} bloom={bloom} />
-            ))}
-          </AnimatePresence>
+          {/* Individual ink blooms - severely reduced on mobile */}
+          {windowSize.width >= 768 && (
+            <AnimatePresence mode="popLayout">
+              {blooms.map((bloom) => (
+                <Bloom key={bloom.id} bloom={bloom} />
+              ))}
+            </AnimatePresence>
+          )}
         </g>
       </svg>
 
