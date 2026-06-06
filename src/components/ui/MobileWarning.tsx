@@ -65,8 +65,8 @@ export default function MobileWarning() {
                   <Monitor className="text-purple-400" size={28} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-syne font-bold text-white tracking-tight">
-                    Gunakan Desktop
+                  <h3 className="text-xl font-syne font-bold text-white tracking-tight">
+                    Gunakan Desktop (PC / Laptop)
                   </h3>
                   <p className="text-purple-300/80 text-sm font-medium mt-0.5">
                     Untuk Pengalaman Terbaik
