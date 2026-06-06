@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Monitor, AlertTriangle } from "lucide-react";
+import { Cpu, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function MobileWarning() {
@@ -48,27 +48,27 @@ export default function MobileWarning() {
         <div className="relative mb-8">
           <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full" />
           <div className="w-20 h-20 rounded-2xl bg-zinc-900/80 flex items-center justify-center border border-white/10 shadow-xl relative z-10">
-            <Monitor className="text-white" size={40} />
+            <Cpu className="text-white" size={40} />
             <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-red-500 flex items-center justify-center border-2 border-[#05070A] shadow-lg">
-              <AlertTriangle className="text-white" size={14} />
+              <AlertCircle className="text-white" size={14} />
             </div>
           </div>
         </div>
         
-        <h2 className="text-3xl font-syne font-bold text-white tracking-tight mb-3">
-          Akses Diblokir
+        <h2 className="text-2xl font-syne font-bold text-white tracking-tight mb-3">
+          Performa Terbatas
         </h2>
         
         <p className="text-zinc-400 text-sm leading-relaxed font-outfit mb-6">
-          Website ini dirancang secara eksklusif untuk <strong className="text-white">PC / Laptop</strong> karena memuat aset 3D resolusi tinggi dan efek visual kompleks.
+          Sistem mendeteksi spesifikasi perangkat saat ini kurang memadai untuk merender aset 3D resolusi tinggi dan efek visual secara real-time.
         </p>
 
         <div className="w-full bg-white/[0.03] border border-white/5 rounded-xl p-4">
           <p className="text-xs font-bold uppercase tracking-widest text-red-400 mb-1">
-            Harap Buka di Desktop
+            Gunakan PC / Laptop
           </p>
           <p className="text-xs text-white/40">
-            Untuk melanjutkan, mohon akses website ini melalui browser komputer Anda.
+            Untuk menghindari crash dan kinerja yang lambat, mohon akses ulang website ini menggunakan komputer Anda.
           </p>
         </div>
       </motion.div>
