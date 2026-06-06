@@ -127,13 +127,18 @@ export default function EngagementStats() {
       }
     }
 
-    // Coba deteksi Browser
+    // Coba deteksi Browser secara dinamis dari User-Agent
     let browser = 'Unknown Browser';
-    if (rawUa.includes('Edg/')) browser = 'Edge';
+    if (rawUa.includes('Edg/')) browser = 'Microsoft Edge';
     else if (rawUa.includes('OPR/') || rawUa.includes('Opera')) browser = 'Opera';
-    else if (rawUa.includes('Firefox')) browser = 'Firefox';
-    else if (rawUa.includes('Chrome')) browser = 'Chrome';
-    else if (rawUa.includes('Safari') && !rawUa.includes('Chrome')) browser = 'Safari';
+    else if (rawUa.includes('Firefox')) browser = 'Mozilla Firefox';
+    else if (rawUa.includes('Vivaldi')) browser = 'Vivaldi';
+    else if (rawUa.includes('YaBrowser')) browser = 'Yandex Browser';
+    else if (rawUa.includes('UCBrowser')) browser = 'UC Browser';
+    else if (rawUa.includes('SamsungBrowser')) browser = 'Samsung Internet';
+    else if (rawUa.includes('Brave')) browser = 'Brave'; // Walau Brave sering menyembunyikan diri
+    else if (rawUa.includes('Chrome')) browser = 'Google Chrome';
+    else if (rawUa.includes('Safari') && !rawUa.includes('Chrome')) browser = 'Apple Safari';
 
     if (userAgent.includes('Windows')) userAgent = brandDetected ? `Windows PC (${brandDetected}) - ${browser}` : `Windows PC - ${browser}`;
     else if (userAgent.includes('Mac OS') && !userAgent.includes('iPhone') && !userAgent.includes('iPad')) userAgent = brandDetected ? `Mac (${brandDetected}) - ${browser}` : `Apple Mac - ${browser}`;
