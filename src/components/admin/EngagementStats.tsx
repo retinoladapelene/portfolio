@@ -127,13 +127,21 @@ export default function EngagementStats() {
       }
     }
 
-    if (userAgent.includes('Windows')) userAgent = brandDetected ? `Windows PC (${brandDetected})` : 'Windows PC';
-    else if (userAgent.includes('Mac OS') && !userAgent.includes('iPhone') && !userAgent.includes('iPad')) userAgent = brandDetected ? `Mac (${brandDetected})` : 'Apple Mac';
-    else if (userAgent.includes('Android')) userAgent = brandDetected ? `Android (${brandDetected})` : 'Android Device';
-    else if (userAgent.includes('iPhone')) userAgent = 'Apple iPhone';
-    else if (userAgent.includes('iPad')) userAgent = 'Apple iPad';
-    else if (userAgent.includes('Linux')) userAgent = brandDetected ? `Linux (${brandDetected})` : 'Linux PC';
-    else if (userAgent !== 'Unknown Device') userAgent = userAgent.split(' ')[0] || userAgent;
+    // Coba deteksi Browser
+    let browser = 'Unknown Browser';
+    if (rawUa.includes('Edg/')) browser = 'Edge';
+    else if (rawUa.includes('OPR/') || rawUa.includes('Opera')) browser = 'Opera';
+    else if (rawUa.includes('Firefox')) browser = 'Firefox';
+    else if (rawUa.includes('Chrome')) browser = 'Chrome';
+    else if (rawUa.includes('Safari') && !rawUa.includes('Chrome')) browser = 'Safari';
+
+    if (userAgent.includes('Windows')) userAgent = brandDetected ? `Windows PC (${brandDetected}) - ${browser}` : `Windows PC - ${browser}`;
+    else if (userAgent.includes('Mac OS') && !userAgent.includes('iPhone') && !userAgent.includes('iPad')) userAgent = brandDetected ? `Mac (${brandDetected}) - ${browser}` : `Apple Mac - ${browser}`;
+    else if (userAgent.includes('Android')) userAgent = brandDetected ? `Android (${brandDetected}) - ${browser}` : `Android Device - ${browser}`;
+    else if (userAgent.includes('iPhone')) userAgent = `Apple iPhone - ${browser}`;
+    else if (userAgent.includes('iPad')) userAgent = `Apple iPad - ${browser}`;
+    else if (userAgent.includes('Linux')) userAgent = brandDetected ? `Linux (${brandDetected}) - ${browser}` : `Linux PC - ${browser}`;
+    else if (userAgent !== 'Unknown Device') userAgent = `${userAgent.split(' ')[0]} - ${browser}`;
     
     if (!visitorsMap[ip]) {
       visitorsMap[ip] = {
@@ -309,7 +317,7 @@ export default function EngagementStats() {
               <thead>
                 <tr className="border-b border-white/5">
                   <th className="pb-4 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">IP Address</th>
-                  <th className="pb-4 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Device</th>
+                  <th className="pb-4 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Device & Browser</th>
                   <th className="pb-4 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Pages Accessed</th>
                   <th className="pb-4 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Last Visit</th>
                 </tr>
