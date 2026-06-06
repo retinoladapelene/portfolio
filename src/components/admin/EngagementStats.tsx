@@ -107,6 +107,47 @@ export default function EngagementStats() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
+  // --- VISITOR LOG PROCESSING ---
+  const visitorsMap: Record<string, { ip: string, userAgent: string, pages: Set<string>, lastVisit: Date }> = {};
+  
+  data.forEach(d => {
+    if (d.page_path?.startsWith('/admin')) return;
+    
+    const ip = d.metadata?.ip || 'Unknown IP';
+    let userAgent = d.metadata?.userAgent || 'Unknown Device';
+    
+    if (userAgent.includes('Windows')) userAgent = 'Windows PC';
+    else if (userAgent.includes('Mac OS') && !userAgent.includes('iPhone') && !userAgent.includes('iPad')) userAgent = 'Mac OS';
+    else if (userAgent.includes('Android')) userAgent = 'Android';
+    else if (userAgent.includes('iPhone')) userAgent = 'iPhone';
+    else if (userAgent.includes('iPad')) userAgent = 'iPad';
+    else if (userAgent.includes('Linux')) userAgent = 'Linux';
+    else if (userAgent !== 'Unknown Device') userAgent = userAgent.split(' ')[0] || userAgent;
+    
+    if (!visitorsMap[ip]) {
+      visitorsMap[ip] = {
+        ip,
+        userAgent,
+        pages: new Set(),
+        lastVisit: new Date(d.created_at)
+      };
+    }
+    
+    if (d.page_path) {
+      const pageName = pathMap[d.page_path.split('?')[0]] || d.page_path.split('?')[0];
+      visitorsMap[ip].pages.add(pageName);
+    }
+
+    const currentVisit = new Date(d.created_at);
+    if (currentVisit > visitorsMap[ip].lastVisit) {
+      visitorsMap[ip].lastVisit = currentVisit;
+    }
+  });
+
+  const visitorsList = Object.values(visitorsMap)
+    .sort((a, b) => b.lastVisit.getTime() - a.lastVisit.getTime())
+    .slice(0, 50);
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-40 gap-6">
@@ -237,6 +278,65 @@ export default function EngagementStats() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* VISITOR LOG TABLE */}
+      <div className="relative group mt-10">
+        <div className="absolute inset-0 bg-blue-500/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+        <div className="glass-dark p-10 relative z-10 rounded-[32px] overflow-hidden">
+          <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white/50 mb-8 flex items-center gap-4">
+            <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+              <Users size={16} className="text-blue-400" />
+            </div>
+            Recent Visitors Log
+          </h3>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-white/5">
+                  <th className="pb-4 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">IP Address</th>
+                  <th className="pb-4 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Device</th>
+                  <th className="pb-4 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Pages Accessed</th>
+                  <th className="pb-4 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Last Visit</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {visitorsList.map((v, i) => (
+                  <tr key={i} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="py-4 pr-4">
+                      <span className="text-xs text-white/80 font-mono bg-white/5 px-2 py-1 rounded">{v.ip}</span>
+                    </td>
+                    <td className="py-4 pr-4">
+                      <span className="text-sm text-white/70 font-medium">{v.userAgent}</span>
+                    </td>
+                    <td className="py-4 pr-4">
+                      <div className="flex flex-wrap gap-2">
+                        {Array.from(v.pages).map((page, j) => (
+                          <span key={j} className="text-[10px] px-2 py-1 bg-purple-500/10 text-purple-300 rounded-md whitespace-nowrap">
+                            {page}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="py-4 whitespace-nowrap">
+                      <span className="text-xs text-white/50">
+                        {v.lastVisit.toLocaleDateString()} {v.lastVisit.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {visitorsList.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="py-12 text-center text-[10px] font-black uppercase tracking-[0.3em] text-white/20">
+                      No visitors recorded yet
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

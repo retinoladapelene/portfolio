@@ -6,6 +6,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { eventType, pagePath, eventName, metadata } = body;
 
+    // Capture IP address from headers
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+
     if (!supabaseAdmin) {
       return NextResponse.json({ success: false, error: 'Database offline' }, { status: 500 });
     }
@@ -16,7 +19,10 @@ export async function POST(request: Request) {
         event_type: eventType,
         page_path: pagePath,
         event_name: eventName,
-        metadata: metadata || {}
+        metadata: {
+          ...(metadata || {}),
+          ip: ip
+        }
       });
 
     if (error) {
