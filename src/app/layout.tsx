@@ -90,6 +90,7 @@ import { ConfirmProvider } from "@/components/ui/ConfirmProvider";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
 import { Suspense } from "react";
 import LoadingScreen from "@/components/ui/LoadingScreen";
+import MobileWarning from "@/components/ui/MobileWarning";
 
 export default function RootLayout({
   children,
@@ -103,6 +104,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col selection:bg-purple-500/30 bg-transparent">
         <LoadingScreen />
+        <MobileWarning />
         <main className="relative min-h-screen w-full max-w-[100vw] overflow-x-clip">
           <ClientBackground />
           <div className="grain-overlay" />
