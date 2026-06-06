@@ -6,8 +6,11 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { eventType, pagePath, eventName, metadata } = body;
 
-    // Capture IP address from headers
-    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    // Capture IP address from headers (works in Vercel/Production)
+    // Fallback to request.ip or 'Localhost (Dev)' for local development
+    const forwardedFor = request.headers.get('x-forwarded-for');
+    const realIp = request.headers.get('x-real-ip');
+    const ip = forwardedFor ? forwardedFor.split(',')[0] : (realIp || 'Localhost (Dev)');
 
     if (!supabaseAdmin) {
       return NextResponse.json({ success: false, error: 'Database offline' }, { status: 500 });

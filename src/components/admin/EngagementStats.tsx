@@ -115,13 +115,24 @@ export default function EngagementStats() {
     
     const ip = d.metadata?.ip || 'Unknown IP';
     let userAgent = d.metadata?.userAgent || 'Unknown Device';
+    const rawUa = userAgent;
     
-    if (userAgent.includes('Windows')) userAgent = 'Windows PC';
-    else if (userAgent.includes('Mac OS') && !userAgent.includes('iPhone') && !userAgent.includes('iPad')) userAgent = 'Mac OS';
-    else if (userAgent.includes('Android')) userAgent = 'Android';
-    else if (userAgent.includes('iPhone')) userAgent = 'iPhone';
-    else if (userAgent.includes('iPad')) userAgent = 'iPad';
-    else if (userAgent.includes('Linux')) userAgent = 'Linux';
+    // Coba deteksi brand laptop/HP jika tersedia di string User-Agent
+    const brands = ['ASUS', 'HP', 'Dell', 'Lenovo', 'Acer', 'MSI', 'MacBook', 'ThinkPad', 'Samsung', 'Huawei', 'Xiaomi', 'Oppo', 'Vivo', 'Realme', 'Infinix'];
+    let brandDetected = '';
+    for (const b of brands) {
+      if (rawUa.toLowerCase().includes(b.toLowerCase())) {
+        brandDetected = b;
+        break;
+      }
+    }
+
+    if (userAgent.includes('Windows')) userAgent = brandDetected ? `Windows PC (${brandDetected})` : 'Windows PC';
+    else if (userAgent.includes('Mac OS') && !userAgent.includes('iPhone') && !userAgent.includes('iPad')) userAgent = brandDetected ? `Mac (${brandDetected})` : 'Apple Mac';
+    else if (userAgent.includes('Android')) userAgent = brandDetected ? `Android (${brandDetected})` : 'Android Device';
+    else if (userAgent.includes('iPhone')) userAgent = 'Apple iPhone';
+    else if (userAgent.includes('iPad')) userAgent = 'Apple iPad';
+    else if (userAgent.includes('Linux')) userAgent = brandDetected ? `Linux (${brandDetected})` : 'Linux PC';
     else if (userAgent !== 'Unknown Device') userAgent = userAgent.split(' ')[0] || userAgent;
     
     if (!visitorsMap[ip]) {
