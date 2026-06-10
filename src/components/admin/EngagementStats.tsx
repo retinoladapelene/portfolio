@@ -116,6 +116,7 @@ export default function EngagementStats() {
     const ip = d.metadata?.ip || 'Unknown IP';
     let userAgent = d.metadata?.userAgent || 'Unknown Device';
     const rawUa = userAgent;
+    const visitorKey = `${ip}-${rawUa}`;
     
     // Coba deteksi brand laptop/HP jika tersedia di string User-Agent
     const brands = ['ASUS', 'HP', 'Dell', 'Lenovo', 'Acer', 'MSI', 'MacBook', 'ThinkPad', 'Samsung', 'Huawei', 'Xiaomi', 'Oppo', 'Vivo', 'Realme', 'Infinix'];
@@ -148,8 +149,8 @@ export default function EngagementStats() {
     else if (userAgent.includes('Linux')) userAgent = brandDetected ? `Linux (${brandDetected}) - ${browser}` : `Linux PC - ${browser}`;
     else if (userAgent !== 'Unknown Device') userAgent = `${userAgent.split(' ')[0]} - ${browser}`;
     
-    if (!visitorsMap[ip]) {
-      visitorsMap[ip] = {
+    if (!visitorsMap[visitorKey]) {
+      visitorsMap[visitorKey] = {
         ip,
         userAgent,
         pages: new Set(),
@@ -159,12 +160,12 @@ export default function EngagementStats() {
     
     if (d.page_path) {
       const pageName = pathMap[d.page_path.split('?')[0]] || d.page_path.split('?')[0];
-      visitorsMap[ip].pages.add(pageName);
+      visitorsMap[visitorKey].pages.add(pageName);
     }
 
     const currentVisit = new Date(d.created_at);
-    if (currentVisit > visitorsMap[ip].lastVisit) {
-      visitorsMap[ip].lastVisit = currentVisit;
+    if (currentVisit > visitorsMap[visitorKey].lastVisit) {
+      visitorsMap[visitorKey].lastVisit = currentVisit;
     }
   });
 

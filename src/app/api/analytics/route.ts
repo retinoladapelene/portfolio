@@ -45,13 +45,10 @@ export async function GET() {
   try {
     if (!supabaseAdmin) throw new Error('Database offline');
 
-    // Fetch all records from the last 30 days
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    
+    // Fetch all-time records
     const { data, error } = await supabaseAdmin
       .from('site_analytics')
       .select('*')
-      .gt('created_at', thirtyDaysAgo)
       .order('created_at', { ascending: true });
 
     if (error) throw error;
